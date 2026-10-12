@@ -6,8 +6,10 @@
   'use strict';
 
   const KEYS = [
+    'lcTheme',
     'lcThemeStudio',
     'lcMonacoTheme',
+    'lcCustomWallpaper',
     'lcEditorSettings',
     'lcBlindMode',
     'lcDayNight',

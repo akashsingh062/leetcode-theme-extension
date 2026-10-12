@@ -15,7 +15,7 @@
       </div>
       <div class="head-text">
         <h1>LeetCode Themes</h1>
-        <p>Custom styles, fonts, and interview tools</p>
+        <p>Aesthetic themes &amp; interview productivity tools</p>
       </div>
     </div>
     
@@ -31,28 +31,79 @@
 
   <!-- TAB 1: THEMES -->
   <section id="tab-themes" class="tab-pane active">
-    <main id="grid" class="grid" role="radiogroup" aria-label="LeetCode themes"></main>
-
-    <div class="control-row">
-      <label for="monacoThemeSelect" class="control-label">
-        <span>Monaco Syntax Palette</span>
-        <small>Independent syntax colors</small>
-      </label>
-      <select id="monacoThemeSelect" class="select-box">
-        <option value="default">Default (Matches Theme)</option>
-        <option value="tokyonight">Tokyo Night</option>
-        <option value="catppuccin">Catppuccin Mocha</option>
-        <option value="dracula">Dracula</option>
-        <option value="onedark">One Dark Pro</option>
-        <option value="nord">Nord</option>
-        <option value="gruvbox">Gruvbox Dark</option>
-      </select>
+    <!-- Sub-navigation: Color Themes vs Wallpaper Themes -->
+    <div class="sub-nav">
+      <button type="button" class="sub-nav-btn active" data-subtab="sub-colors">🎨 Color Themes</button>
+      <button type="button" class="sub-nav-btn" data-subtab="sub-wallpapers">🖼️ Wallpaper Themes</button>
     </div>
 
-    <button id="studio" class="studio" type="button">
-      <span class="studio-text"><b>Theme Studio</b><span>Customize your background, adjust glass opacity, and personalize your theme</span></span>
-      <span class="studio-arrow" aria-hidden="true">→</span>
-    </button>
+    <!-- SUB-PANE 1: COLOR THEMES -->
+    <div id="sub-colors" class="sub-pane active">
+      <main id="grid" class="grid" role="radiogroup" aria-label="LeetCode themes"></main>
+
+      <div class="control-row">
+        <label for="monacoThemeSelect" class="control-label">
+          <span>Monaco Syntax Palette</span>
+          <small>Independent syntax colors</small>
+        </label>
+        <select id="monacoThemeSelect" class="select-box">
+          <option value="default">Default (Matches Theme)</option>
+          <option value="tokyonight">Tokyo Night</option>
+          <option value="catppuccin">Catppuccin Mocha</option>
+          <option value="dracula">Dracula</option>
+          <option value="sakura">Sakura Pink</option>
+          <option value="matrix">Matrix Green</option>
+          <option value="grid">Synthwave Grid</option>
+          <option value="orchid">Midnight Orchid</option>
+          <option value="nord">Nordic Frost</option>
+          <option value="paper">Vintage Sepia</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- SUB-PANE 2: WALLPAPER THEMES -->
+    <div id="sub-wallpapers" class="sub-pane">
+      <div class="wall-top-bar">
+        <span class="wall-title">Scenic &amp; Anime Wallpapers</span>
+        <button type="button" id="clearWallBtn" class="clear-wall-btn">✕ Disable Wallpaper</button>
+      </div>
+
+      <div id="wallGrid" class="wall-grid" role="radiogroup" aria-label="Wallpaper themes"></div>
+
+      <!-- Controls & Custom Uploader -->
+      <div class="custom-wallpaper-box">
+        <div class="wallpaper-header" id="customWallToggle">
+          <span>⚙️ <b>Wallpaper &amp; Glass Settings</b></span>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="wallpaper-body" id="customWallBody" style="display: none;">
+          <div class="control-row">
+            <label class="control-label">
+              <span>Glass Panel Opacity</span>
+              <small id="wallOpacityVal">85%</small>
+            </label>
+            <input type="range" id="wallOpacityRange" min="30" max="98" step="1" value="85" class="slider-range" />
+          </div>
+          <div class="control-row">
+            <label class="control-label">
+              <span>Background Blur</span>
+              <small id="wallBlurVal">0px</small>
+            </label>
+            <input type="range" id="wallBlurRange" min="0" max="20" step="1" value="0" class="slider-range" />
+          </div>
+          <div class="control-row">
+            <label class="control-label">
+              <span>Custom Upload</span>
+              <small>Use your own image file</small>
+            </label>
+            <div class="custom-row">
+              <input type="file" id="wallFileInput" accept="image/*" class="file-input" />
+              <button type="button" id="wallUploadBtn" class="upload-btn">Upload Image</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- TAB 2: EDITOR & FONTS -->
@@ -226,8 +277,6 @@
     <span id="ver" class="ver"></span>
   </footer>
 
-  <script src="anime/scenes.js"></script>
-  <script src="pixel/sprites.js"></script>
   <script src="theme-sync.js"></script>
   <script src="popup.js"></script>
 </body>

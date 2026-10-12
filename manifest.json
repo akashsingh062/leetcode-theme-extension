@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "LeetCode Themes",
+  "name": "LeetCode Themes & Tools",
   "short_name": "LeetCode Themes",
-  "version": "3.6.0",
-  "description": "Custom themes, dark mode, and elegant styles for the LeetCode code editor and problem pages.",
+  "version": "1.0.0",
+  "description": "Custom aesthetic themes, Monaco editor styles, coding fonts, interview blind mode, timer, and notes for LeetCode.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -31,26 +31,9 @@
         "https://leetcode.cn/problems/*"
       ],
       "js": [
+        "src/scenes.js",
         "src/content.js",
-        "src/problem.js",
-        "src/anime/scenes.js",
-        "src/anime/css.js",
-        "src/anime/anime.js",
-        "src/monaco-ink.js",
-        "src/sheet-scroll.js",
-        "src/verdict.js",
-        "src/anime/moments-ui.js",
-        "src/anime/sounds.js",
-        "src/anime/moments.js",
-        "src/game/petals.js",
-        "src/game/sounds.js",
-        "src/game/title-card.js",
-        "src/game/game.js",
-        "src/game/icons.js",
-        "src/game/ambient.js",
-        "src/game/result.js",
-        "src/pixel/sprites.js",
-        "src/pixel/pixel.js",
+        "src/monaco-theme.js",
         "src/editor-settings.js",
         "src/blind-mode.js",
         "src/timer.js",
@@ -61,50 +44,43 @@
         "src/theme-sync.js"
       ],
       "css": [
-        "themes/core.css",
-        "themes/paper.css",
-        "themes/sakura.css",
-        "themes/grid.css",
-        "themes/orchid.css",
-        "themes/anime.css",
-        "themes/crawler.css",
-        "themes/game.css",
-        "themes/pixel.css"
+        "themes/themes.css"
       ],
       "run_at": "document_start",
-      "all_frames": false
-    },
-    {
-      "matches": [
-        "https://leetcode.com/problems/*",
-        "https://leetcode.cn/problems/*"
-      ],
-      "js": [
-        "src/net-verdict.js",
-        "src/inject.js"
-      ],
-      "run_at": "document_start",
-      "world": "MAIN",
       "all_frames": false
     }
   ],
   "commands": {
+    "toggle-zen": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Z",
+        "mac": "Command+Shift+Z"
+      },
+      "description": "Toggle distraction-free Zen mode"
+    },
     "toggle-focus": {
       "suggested_key": {
         "default": "Ctrl+Shift+Period",
         "mac": "Command+Shift+Period"
       },
-      "description": "LeetCode Themes: toggle focus mode (hide custom backgrounds and overlays)"
+      "description": "Toggle focus mode (hide custom wallpaper)"
+    },
+    "toggle-blind": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+B",
+        "mac": "Command+Shift+B"
+      },
+      "description": "Toggle interview Blind mode"
     }
   },
   "web_accessible_resources": [
     {
       "resources": [
-        "fonts/*.woff2",
         "textures/*",
         "textures/anime/*",
         "textures/game/*",
-        "textures/game/icon/*"
+        "textures/game/icon/*",
+        "icons/*"
       ],
       "matches": [
         "https://leetcode.com/*",

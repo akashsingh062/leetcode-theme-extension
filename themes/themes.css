@@ -176,17 +176,46 @@ html[data-lc-theme]:not([data-lc-theme="off"]) body {
   color: var(--lc-text) !important;
 }
 
-/* Custom background wallpaper layer */
+/* Wallpaper transparency & glassmorphic layout layer */
+html[data-lc-has-wallpaper="true"],
+html[data-lc-has-wallpaper="true"] body,
+html[data-lc-has-wallpaper="true"] #__next,
+html[data-lc-has-wallpaper="true"] #root,
+html[data-lc-has-wallpaper="true"] main,
+html[data-lc-has-wallpaper="true"] .flexlayout__layout {
+  background-color: transparent !important;
+}
+
+html[data-lc-has-wallpaper="true"] {
+  --lc-bg: transparent !important;
+}
+
+html[data-lc-has-wallpaper="true"] #__next,
+html[data-lc-has-wallpaper="true"] #root,
+html[data-lc-has-wallpaper="true"] nav,
+html[data-lc-has-wallpaper="true"] header,
+html[data-lc-has-wallpaper="true"] .flexlayout__layout,
+html[data-lc-has-wallpaper="true"] .flexlayout__tabset {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-lc-has-wallpaper="true"] .flexlayout__tab {
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
 #lcts-custom-wallpaper-layer {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   pointer-events: none;
   filter: blur(var(--lc-custom-blur, 0px));
-  transition: opacity 0.3s ease;
+  opacity: var(--lc-wallpaper-layer-opacity, 1);
+  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 /* Top Navigation Bar */

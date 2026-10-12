@@ -1,110 +1,78 @@
-/* Popup: render four theme cards with live mini-editor previews, persist the
-   choice to storage (the content script applies it live to open LeetCode tabs). */
+/* =============================================================================
+   popup.js — Clean-Room LeetCode Themes & Productivity Toolkit Popup.
+   Controls theme selection, wallpaper gallery, editor fonts, blind mode,
+   timers, notes, and settings sync.
+============================================================================= */
 
-const KEY = 'lcThemeStudio';
-const DEFAULT = 'anime';
-
-/* Per-theme preview palette (mirrors the real editor colors). */
 const THEMES = {
-  paper: {
-    name: 'Vintage Paper', desc: 'kraft paper, iron-gall ink', accent: '#6d190e',
-    pv: { bg:'#ad9362', text:'#241d14', line:'#483c25', kw:'#650500',
-          fn:'#00208a', num:'#00343f', var:'#1a2d5a', com:'#332e25', pn:'#3a2d1d' },
-    tex: 'grain'
+  tokyonight: {
+    name: 'Tokyo Night', desc: 'Midnight indigo, neon violet & cyan', accent: '#7aa2f7',
+    pv: { bg:'#1a1b26', text:'#c0caf5', line:'#3b4261', kw:'#bb9af7', fn:'#7aa2f7', num:'#ff9e64', var:'#c0caf5', com:'#565f89', pn:'#89ddff' }
+  },
+  catppuccin: {
+    name: 'Catppuccin Mocha', desc: 'Warm soothing dark & pastels', accent: '#cba6f7',
+    pv: { bg:'#1e1e2e', text:'#cdd6f4', line:'#45475a', kw:'#cba6f7', fn:'#89b4fa', num:'#fab387', var:'#cdd6f4', com:'#6c7086', pn:'#94e2d5' }
   },
   sakura: {
-    name: 'Sakura Night', desc: 'petal pink on plum indigo', accent: '#ff7eb6',
-    pv: { bg:'#211d3c', text:'#ece9ff', line:'#4a3f80', kw:'#ff7eb6',
-          fn:'#6ee7f0', num:'#b98cff', var:'#ece9ff', com:'#6b6395', pn:'#ff9ec8' },
-    tex: 'stars'
+    name: 'Sakura Night', desc: 'Plum indigo with cherry blossom pink', accent: '#ff7eb6',
+    pv: { bg:'#1f1a2e', text:'#f5e9f2', line:'#4a385c', kw:'#ff7eb6', fn:'#6ee7f0', num:'#b98cff', var:'#ece9ff', com:'#7e7399', pn:'#ff9ec8' }
+  },
+  paper: {
+    name: 'Vintage Paper', desc: 'Warm parchment kraft & sepia ink', accent: '#8b3a2b',
+    pv: { bg:'#ebdcc4', text:'#2c251e', line:'#9c8c77', kw:'#7f1d1d', fn:'#1e3a8a', num:'#0e7490', var:'#292524', com:'#78716c', pn:'#44403c' }
+  },
+  matrix: {
+    name: 'Cyber Matrix', desc: 'Obsidian terminal & phosphor green', accent: '#22c55e',
+    pv: { bg:'#0b0f12', text:'#e2fced', line:'#203328', kw:'#22c55e', fn:'#38bdf8', num:'#facc15', var:'#e2fced', com:'#4b6354', pn:'#10b981' }
   },
   grid: {
-    name: 'Grid', desc: 'drafting table, hard edges', accent: '#35e0a1',
-    pv: { bg:'#141c28', text:'#d7e0ec', line:'#3a4a5f', kw:'#58a6ff',
-          fn:'#35e0a1', num:'#ffa657', var:'#d7e0ec', com:'#56687f', pn:'#79c0ff' },
-    tex: 'grid'
+    name: 'Synthwave Grid', desc: 'Blueprint dark navy & electric cyan', accent: '#06b6d4',
+    pv: { bg:'#0f172a', text:'#e2e8f0', line:'#334155', kw:'#38bdf8', fn:'#06b6d4', num:'#fb923c', var:'#e2e8f0', com:'#64748b', pn:'#0ea5e9' }
   },
-  bloom: {
-    name: 'Orchid', desc: 'silk velvet, rose-gold trim', accent: '#e3a88f',
-    pv: { bg:'#221730', text:'#f4ecf7', line:'#5b4272', kw:'#ff9ec9',
-          fn:'#7fe3c0', num:'#d89bff', var:'#f4ecf7', com:'#9b86a9', pn:'#e3a88f' },
-    tex: 'nap'
+  orchid: {
+    name: 'Midnight Orchid', desc: 'Royal dark velvet & magenta glow', accent: '#d946ef',
+    pv: { bg:'#181124', text:'#f3e8ff', line:'#422b5e', kw:'#d946ef', fn:'#c084fc', num:'#fb7185', var:'#f3e8ff', com:'#705888', pn:'#e879f9' }
   },
-  crawler: {
-    name: 'Web Crawler', desc: 'charcoal web, crimson thread', accent: '#e0223f',
-    pv: { bg:'#17171c', text:'#eceaf2', line:'#38384a', kw:'#4db2ff',
-          fn:'#4ce0b3', num:'#c792ea', var:'#eceaf2', com:'#6e6e7a', pn:'#ff8aa8' },
-    tex: 'crawler'
+  dracula: {
+    name: 'Dracula Dark', desc: 'Classic gothic slate & vibrant accents', accent: '#ff79c6',
+    pv: { bg:'#282a36', text:'#f8f8f2', line:'#44475a', kw:'#ff79c6', fn:'#50fa7b', num:'#bd93f9', var:'#f8f8f2', com:'#6272a4', pn:'#ff79c6' }
   },
-  /* Anime Studio's card takes its colours from the default scene's solve
-     (scenes.js); paintAnimeCard() swaps in the scene you actually picked */
-  anime: (() => {
-    const scenes = globalThis.LCTS_SCENES || {};
-    const t = (scenes[globalThis.LCTS_SCENE_DEFAULT] || {}).theme;
-    const ink = t ? t.ink : {};
-    return {
-      name: 'Custom Theme', desc: 'custom background and tailored styling',
-      accent: t ? t.roles['--lc-accent'] : '#f98dc1',
-      pv: t ? { bg: t.scrim, text: ink.variable, line: t.roles['--lc-text3'], kw: ink.keyword,
-                fn: ink.func, num: ink.number, var: ink.param, com: ink.comment, pn: ink.operator }
-            : { bg:'#150b21', text:'#f3f0f7', line:'#9b8dad', kw:'#f98dc1', fn:'#cb9cfa', num:'#f5993d', var:'#d7c6e9', com:'#9b8dad', pn:'#dab9c9' },
-      tex: 'anime'
-    };
-  })(),
-  /* WIP (see CLAUDE_ANKIT.md): only the Easy tier ("The First Realm") has
-     art, so the card previews that. Medium/Hard get a plain dark fallback
-     on the real page until their own art exists. */
-  game: {
-    name: 'Adventure', desc: 'fantasy realm with glowing runes', accent: '#7dd3fc',
-    /* the theme's own dark inks (INK.game in monaco-ink.js) */
-    pv: { bg:'#0b1a2e', text:'#eef2ea', line:'#6b86a6', kw:'#d4af6a',
-          fn:'#8fb8e0', num:'#7fc9c0', var:'#eef2ea', com:'#8aa0b8', pn:'#d7c9a0' },
-    tex: 'game'
+  nord: {
+    name: 'Nordic Frost', desc: 'Arctic polar night & frost teal', accent: '#88c0d0',
+    pv: { bg:'#2e3440', text:'#eceff4', line:'#4c566a', kw:'#81a1c1', fn:'#88c0d0', num:'#b48ead', var:'#eceff4', com:'#616e88', pn:'#81a1c1' }
   },
-  /* Pixel Art: its own inks (INK.pixel), and the squad stands in the corner */
-  pixel: {
-    name: 'Pixel Art', desc: 'retro 8-bit gaming aesthetic', accent: '#ffcd75',
-    pv: { bg:'#262b44', text:'#f4f4f4', line:'#566c86', kw:'#ffcd75',
-          fn:'#73eff7', num:'#c9a0ff', var:'#c5d3e0', com:'#8b9bb4', pn:'#ffa36b' },
-    tex: 'pixel'
+  custom: {
+    name: 'Custom Glass', desc: 'Personal glassmorphic theme', accent: '#38bdf8',
+    pv: { bg:'#0f172a', text:'#f8fafc', line:'#334155', kw:'#38bdf8', fn:'#818cf8', num:'#f59e0b', var:'#f8fafc', com:'#64748b', pn:'#38bdf8' }
   },
   off: {
-    name: 'Off', desc: 'default LeetCode appearance', accent: '#8a8f98',
-    pv: { bg:'#1a1a1a', text:'#eff1f6', line:'#5c6370', kw:'#c678dd',
-          fn:'#61afef', num:'#d19a66', var:'#eff1f6', com:'#7f848e', pn:'#abb2bf' },
-    tex: 'none'
+    name: 'Default LeetCode', desc: 'Standard un-themed view', accent: '#94a3b8',
+    pv: { bg:'#1a1a1a', text:'#eff1f6', line:'#404040', kw:'#c678dd', fn:'#61afef', num:'#d19a66', var:'#eff1f6', com:'#7f848e', pn:'#abb2bf' }
   }
 };
-const ORDER = ['paper', 'anime', 'sakura', 'grid', 'bloom', 'game', 'crawler', 'pixel', 'off'];
-/* the Open Anime Studio button lives directly under the Anime card, so it
-   reads as belonging to that theme; render() re-seats it after each redraw */
-const studioButton = document.getElementById('studio');
 
-/* Preview snippet, tokenized by hand so it shows off each palette.
-   Each line: [lineNo, [ {t:'kw'|'fn'|..., s:'text'} | 'plain string' ]]  */
-const SNIPPET = [
-  [1, [k('def'), ' ', f('dfs'), pn('('), v('node'), pn('):')]],
-  [2, ['    ', k('if'), ' ', k('not'), ' ', v('node'), pn(':'), '  ', c('# base case')]],
-  [3, ['        ', k('return'), ' ', n('0')]],
-  [4, ['    ', k('return'), ' ', n('1'), ' + ', f('dfs'), pn('('), v('node'), pn('.'), v('next'), pn(')')]]
+const WALLPAPERS = [
+  { id: 'blossom-night', name: 'Sakura Night', desc: 'Night temple blossoms', accent: '#ff7eb6' },
+  { id: 'neon-rain', name: 'Neon Rain', desc: 'Cyberpunk rain metropolis', accent: '#06b6d4' },
+  { id: 'starfield', name: 'Cosmic Starfield', desc: 'Deep starry galaxy & nebula', accent: '#818cf8' },
+  { id: 'golden-hour', name: 'Golden Hour', desc: 'Warm sunset skyline', accent: '#f59e0b' },
+  { id: 'blue-dragon', name: 'Azure Dragon', desc: 'Mythical dragon pagoda', accent: '#38bdf8' },
+  { id: 'torii-forest', name: 'Torii Forest', desc: 'Misty torii shrine path', accent: '#f43f5e' },
+  { id: 'city-cat', name: 'Midnight Cat', desc: 'Cozy rooftop cat under stars', accent: '#a78bfa' },
+  { id: 'train-window', name: 'Train Journey', desc: 'Sunset railway reflection', accent: '#fb923c' },
+  { id: 'moonlit-shrine', name: 'Moonlit Shrine', desc: 'Full moon over ancient shrine', accent: '#c084fc' },
+  { id: 'harvest-moon', name: 'Harvest Moon', desc: 'Golden autumn leaves & moon', accent: '#eab308' },
+  { id: 'forest-road', name: 'Emerald Forest', desc: 'Tranquil verdant woods road', accent: '#22c55e' },
+  { id: 'moon-field', name: 'Starry Meadow', desc: 'Breezy grass field under stars', accent: '#34d399' },
+  { id: 'crimson-dragon', name: 'Crimson Dragon', desc: 'Fiery dragon emperor realm', accent: '#ef4444' },
+  { id: 'dragon-bride', name: 'Dragon Maiden', desc: 'Ethereal anime fantasy', accent: '#ec4899' },
+  { id: 'new-year', name: 'Lantern Fest', desc: 'Warm glowing festival lanterns', accent: '#f97316' },
+  { id: 'map-room', name: 'Grand Archives', desc: 'Scholarly candlelit library', accent: '#d97706' },
+  { id: 'moon-wanderer', name: 'Moon Wanderer', desc: 'Solitary figure beneath moon', accent: '#93c5fd' },
+  { id: 'sakura-dusk', name: 'Sakura Dusk', desc: 'Pink twilight petals drifting', accent: '#f472b6' }
 ];
-function k(s){return {t:'kw',s};}  function f(s){return {t:'fn',s};}
-function n(s){return {t:'num',s};} function v(s){return {t:'var',s};}
-function c(s){return {t:'com',s};} function pn(s){return {t:'pn',s};}
 
-function esc(str){ return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function previewHTML() {
-  return SNIPPET.map(([no, parts]) => {
-    const code = parts.map(p =>
-      typeof p === 'string' ? esc(p)
-        : `<span class="tok-${p.t}">${esc(p.s)}</span>`
-    ).join('');
-    return `<div class="row"><span class="ln">${no}</span><span class="code">${code}</span></div>`;
-  }).join('');
-}
-
-const CHECK = '<svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 5 8.7 9.6 3.5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ORDER = ['tokyonight', 'catppuccin', 'sakura', 'paper', 'matrix', 'grid', 'orchid', 'dracula', 'nord', 'custom', 'off'];
 
 function pvVars(pv) {
   return `--pv-bg:${pv.bg};--pv-text:${pv.text};--pv-line:${pv.line};`
@@ -112,10 +80,13 @@ function pvVars(pv) {
        + `--pv-var:${pv.var};--pv-com:${pv.com};--pv-pn:${pv.pn};`;
 }
 
-function render(selected) {
+function renderGrid(selected) {
   const grid = document.getElementById('grid');
+  if (!grid) return;
   grid.innerHTML = '';
-  const preview = previewHTML();
+
+  const CHECK = '<svg viewBox="0 0 12 12" fill="none" style="width:12px;height:12px;"><path d="M2.5 6.2 5 8.7 9.6 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
   ORDER.forEach((id) => {
     const t = THEMES[id];
     const card = document.createElement('button');
@@ -123,149 +94,128 @@ function render(selected) {
     card.type = 'button';
     card.setAttribute('role', 'radio');
     card.setAttribute('aria-checked', String(id === selected));
-    card.setAttribute('aria-label', `${t.name} theme`);
     card.dataset.id = id;
     card.style.setProperty('--card-accent', t.accent);
-    card.innerHTML =
-      `<div class="preview tex-${t.tex}" style="${pvVars(t.pv)}">${preview}</div>` +
-      `<div class="meta">` +
-        `<span class="name">${t.name}</span>` +
-        `<span class="desc">${t.desc}</span>` +
-        `<span class="spacer"></span>` +
-        `<span class="check">${CHECK}</span>` +
-      `</div>`;
-    card.addEventListener('click', () => choose(id));
+
+    card.innerHTML = `
+      <div class="preview" style="${pvVars(t.pv)}">
+        <div class="row"><span class="ln">1</span><span class="code"><span style="color:var(--pv-kw)">def</span> <span style="color:var(--pv-fn)">solve</span>(nums):</span></div>
+        <div class="row"><span class="ln">2</span><span class="code">    seen = {} <span style="color:var(--pv-com)"># map</span></span></div>
+        <div class="row"><span class="ln">3</span><span class="code">    <span style="color:var(--pv-kw)">return</span> <span style="color:var(--pv-num)">0</span></span></div>
+      </div>
+      <div class="meta" style="display:flex;align-items:center;padding:8px 10px;gap:8px;">
+        <span class="name" style="font-weight:600;font-size:12.5px;">${t.name}</span>
+        <span class="desc" style="font-size:11px;color:var(--pop-muted);flex:1;">${t.desc}</span>
+        <span class="check" style="color:var(--card-accent);">${CHECK}</span>
+      </div>
+    `;
+
+    card.addEventListener('click', () => chooseTheme(id));
     grid.appendChild(card);
-    if (id === 'anime') {
-      paintAnimeCard(card.querySelector('.preview'));
-      grid.appendChild(studioButton);
-    }
-    if (id === 'game') {
-      /* a baked card: the night realm with an RPG HUD (scripts/build-game-card.py) */
-      const url = chrome.runtime.getURL('textures/game/card.webp');
-      card.querySelector('.preview').style.setProperty('--pv-scene', `url("${url}")`);
-    }
-    if (id === 'pixel') paintPixelCard(card.querySelector('.preview'));
   });
+
   setAccent(selected);
 }
 
-/* Pixel Art's card: the gunner from src/pixel/sprites.js, mid-shot */
-function paintPixelCard(preview) {
-  const SP = globalThis.LCTSPixelSprites;
-  if (!SP) return;
-  const cv = document.createElement('canvas');
-  cv.width = 58; cv.height = 17;
-  const c = cv.getContext('2d');
-  const hero = SP.outlined('hero-a', 'rgba(244,244,244,.8)'), gun = SP.outlined('gun', 'rgba(244,244,244,.8)');
-  c.drawImage(hero, 30, -2);
-  c.save(); c.translate(30 + 1 + SP.SHOULDER.x, -2 + 1 + SP.SHOULDER.y); c.rotate(-0.35);
-  c.drawImage(gun, -SP.GUN_GRIP.x - 1, -SP.GUN_GRIP.y - 1); c.restore();
-  /* a blast where it is aiming */
-  [['#fff2c2', 55, 3, 2], ['#ffcd75', 53, 2, 3], ['#ef7d57', 51, 4, 2], ['#ef7d57', 56, 6, 1], ['#b13e53', 52, 7, 2]]
-    .forEach(([col, x, y, s]) => { c.fillStyle = col; c.fillRect(x, y, s, s); });
-  preview.style.setProperty('--pv-scene', `url("${cv.toDataURL()}")`);
-}
-
-/* The Anime card shows the scenes you actually picked: with a scene per
-   difficulty, the three of them side by side (Easy | Medium | Hard); with one
-   scene, that scene; with your own picture, its small blurred copy. */
-function paintAnimeCard(preview) {
-  chrome.storage.local.get(['lcAnime', 'lcAnimeArt'], (res) => {
-    const cfg = res.lcAnime || {};
-    const scenes = globalThis.LCTS_SCENES || {}, DEF = globalThis.LCTS_SCENE_DEFAULT;
-    const ARC = globalThis.LCTS_ARC_DEFAULT || {};
-    const thumb = (id) => { const s = scenes[id] || scenes[DEF]; return s ? chrome.runtime.getURL(s.thumb || s.wall) : null; };
-    const custom = cfg.scene === 'custom' && res.lcAnimeArt;
-    const arcs = !custom && (cfg.arcs !== undefined ? !!cfg.arcs : !cfg.scene);
-
-    let urls, inkFrom;
-    if (custom) { urls = [res.lcAnimeArt.blur]; inkFrom = 'custom'; }
-    else if (arcs) {
-      const pick = (d) => (scenes[(cfg.arcScenes || {})[d]] ? cfg.arcScenes[d] : ARC[d]);
-      const ids = ['easy', 'medium', 'hard'].map(pick);
-      urls = ids.map(thumb); inkFrom = ids[1];
-    } else { urls = [thumb(cfg.scene)]; inkFrom = scenes[cfg.scene] ? cfg.scene : DEF; }
-
-    const t = (cfg.themes && cfg.themes[inkFrom]) || (inkFrom !== 'custom' && scenes[inkFrom] && scenes[inkFrom].theme) || cfg.theme;
-    if (t && t.ink) {
-      const ink = t.ink;
-      preview.setAttribute('style', preview.getAttribute('style') + pvVars({
-        bg: t.scrim, text: ink.variable, line: t.roles['--lc-text3'], kw: ink.keyword, fn: ink.func,
-        num: ink.number, var: ink.param, com: ink.comment, pn: ink.operator
-      }));
-    }
-    const scrim = 'linear-gradient(color-mix(in srgb, var(--pv-bg) 58%, transparent), color-mix(in srgb, var(--pv-bg) 58%, transparent))';
-    if (urls.length === 3) {
-      /* three slices with a hairline between them */
-      const line = 'linear-gradient(90deg, transparent calc(33.33% - 1px), rgba(255,255,255,.35) calc(33.33% - 1px) 33.33%, transparent 33.33% calc(66.66% - 1px), rgba(255,255,255,.35) calc(66.66% - 1px) 66.66%, transparent 66.66%)';
-      preview.style.backgroundImage = [scrim, line].concat(urls.map((u) => `url("${u}")`)).join(',');
-      preview.style.backgroundSize = 'auto, auto, 33.4% 100%, 33.4% 100%, 33.4% 100%';
-      preview.style.backgroundPosition = '0 0, 0 0, 0 0, 50% 0, 100% 0';
-      preview.style.backgroundRepeat = 'no-repeat';
-    } else if (urls[0]) {
-      preview.style.setProperty('--pv-scene', `url("${urls[0]}")`);
-    }
-  });
-}
-
 function setAccent(id) {
-  document.documentElement.style.setProperty('--pop-accent', THEMES[id].accent);
+  const t = THEMES[id] || THEMES.tokyonight;
+  document.documentElement.style.setProperty('--pop-accent', t.accent);
 }
 
-function markSelected(id) {
+function chooseTheme(id) {
   document.querySelectorAll('.card').forEach((c) =>
     c.setAttribute('aria-checked', String(c.dataset.id === id)));
   setAccent(id);
-}
 
-function choose(id) {
-  markSelected(id);
-  chrome.storage.local.set({ [KEY]: id });
-  /* content.js hears the storage change and applies it live in every open
-     problem tab, so there is nothing to refresh */
-  document.getElementById('studio').classList.toggle('lit', id === 'anime');
+  chrome.storage.local.set({ lcTheme: id, lcThemeStudio: id });
+
   const status = document.getElementById('status');
-  status.textContent = id === 'off'
-    ? 'Theme off. LeetCode is back to its own look.'
-    : `${THEMES[id].name} applied to your open problem tabs.`;
+  if (status) {
+    status.textContent = id === 'off'
+      ? 'Theme off. Standard LeetCode restored.'
+      : `${THEMES[id].name} applied across your problem tabs!`;
+  }
 }
 
-/* Stamp the running version into the footer. If this does not match the
-   version of the folder you loaded, Chrome is still serving a cached copy of
-   the extension and needs the reload button on chrome://extensions. */
-try {
-  const v = chrome.runtime.getManifest().version;
-  const el = document.getElementById('ver');
-  if (el) el.textContent = 'v' + v;
-} catch (e) {}
+/* ---- Wallpaper Gallery Rendering ---- */
+function renderWallpaperGrid(activePreset) {
+  const wallGrid = document.getElementById('wallGrid');
+  if (!wallGrid) return;
+  wallGrid.innerHTML = '';
 
-/* boot */
-chrome.storage.local.get(KEY, (res) => {
-  const selected = (res && res[KEY]) || DEFAULT;
-  render(selected);
-  document.getElementById('studio').classList.toggle('lit', selected === 'anime');
+  WALLPAPERS.forEach((w) => {
+    const card = document.createElement('button');
+    card.className = 'wall-card';
+    card.type = 'button';
+    card.setAttribute('role', 'radio');
+    card.setAttribute('aria-checked', String(w.id === activePreset));
+    card.dataset.preset = w.id;
+    card.style.setProperty('--card-accent', w.accent);
+
+    card.innerHTML = `
+      <img class="wall-thumb" src="../textures/anime/${w.id}-thumb.webp" alt="${w.name}" loading="lazy" />
+      <span class="wall-badge">${w.id === activePreset ? '✓ Active' : 'Theme'}</span>
+      <div class="wall-meta">
+        <span class="wall-name">${w.name}</span>
+        <span class="wall-desc">${w.desc}</span>
+      </div>
+    `;
+
+    card.addEventListener('click', () => chooseWallpaper(w.id, w.accent, w.name));
+    wallGrid.appendChild(card);
+  });
+}
+
+function chooseWallpaper(preset, accent, name) {
+  document.querySelectorAll('.wall-card').forEach((c) => {
+    const isThis = c.dataset.preset === preset;
+    c.setAttribute('aria-checked', String(isThis));
+    const badge = c.querySelector('.wall-badge');
+    if (badge) badge.textContent = isThis ? '✓ Active' : 'Theme';
+  });
+
+  const wallConfig = {
+    preset: preset,
+    dataUrl: null,
+    opacity: customWallData.opacity,
+    blur: customWallData.blur,
+    accent: accent
+  };
+
+  chrome.storage.local.set({ lcWallpaper: wallConfig, lcCustomWallpaper: wallConfig });
+
+  const status = document.getElementById('status');
+  if (status) {
+    status.textContent = `"${name}" wallpaper enabled across your problem tabs!`;
+  }
+}
+
+function disableWallpaper() {
+  document.querySelectorAll('.wall-card').forEach((c) => {
+    c.setAttribute('aria-checked', 'false');
+    const badge = c.querySelector('.wall-badge');
+    if (badge) badge.textContent = 'Theme';
+  });
+
+  chrome.storage.local.remove(['lcWallpaper', 'lcCustomWallpaper']);
+
+  const status = document.getElementById('status');
+  if (status) {
+    status.textContent = 'Wallpaper disabled. Pure solid theme restored.';
+  }
+}
+
+/* ---- Boot & Initial Load ---- */
+chrome.storage.local.get(['lcTheme', 'lcThemeStudio', 'lcWallpaper', 'lcCustomWallpaper'], (res) => {
+  const selectedTheme = (res && res.lcTheme) || (res && res.lcThemeStudio) || 'tokyonight';
+  renderGrid(selectedTheme);
+
+  const activeWall = (res && res.lcWallpaper) || (res && res.lcCustomWallpaper);
+  const activePreset = activeWall ? activeWall.preset : null;
+  renderWallpaperGrid(activePreset);
 });
 
-document.getElementById('studio').addEventListener('click', () => {
-  chrome.tabs.create({ url: chrome.runtime.getURL('src/studio.html') });
-  window.close();
-});
-
-/* keyboard: arrow keys move between radio cards and select, as a radio group does */
-document.addEventListener('keydown', (e) => {
-  if (!['ArrowDown','ArrowUp','ArrowRight','ArrowLeft'].includes(e.key)) return;
-  const cards = [...document.querySelectorAll('.card')];
-  const idx = cards.findIndex((c) => c === document.activeElement);
-  if (idx === -1) return;
-  e.preventDefault();
-  const dir = (e.key === 'ArrowDown' || e.key === 'ArrowRight') ? 1 : -1;
-  const next = cards[(idx + dir + cards.length) % cards.length];
-  next.focus();
-  choose(next.dataset.id);
-});
-
-/* ---- Tab Switching --------------------------------------------------------- */
+/* ---- Main Tab Navigation ---- */
 document.querySelectorAll('.tab-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
@@ -276,7 +226,23 @@ document.querySelectorAll('.tab-btn').forEach((btn) => {
   });
 });
 
-/* ---- Monaco Editor Theme --------------------------------------------------- */
+/* ---- Sub Navigation (Color Themes vs Wallpaper Themes) ---- */
+document.querySelectorAll('.sub-nav-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sub-nav-btn').forEach((b) => b.classList.remove('active'));
+    document.querySelectorAll('.sub-pane').forEach((p) => p.classList.remove('active'));
+    btn.classList.add('active');
+    const target = document.getElementById(btn.dataset.subtab);
+    if (target) target.classList.add('active');
+  });
+});
+
+const clearWallBtn = document.getElementById('clearWallBtn');
+if (clearWallBtn) {
+  clearWallBtn.addEventListener('click', disableWallpaper);
+}
+
+/* ---- Monaco Editor Theme Select ---- */
 const monacoSelect = document.getElementById('monacoThemeSelect');
 if (monacoSelect) {
   chrome.storage.local.get('lcMonacoTheme', (res) => {
@@ -287,7 +253,101 @@ if (monacoSelect) {
   });
 }
 
-/* ---- Editor Typography & Ligatures ----------------------------------------- */
+/* ---- Wallpaper Settings & Custom Uploader ---- */
+const customWallToggle = document.getElementById('customWallToggle');
+const customWallBody = document.getElementById('customWallBody');
+const wallFileInput = document.getElementById('wallFileInput');
+const wallUploadBtn = document.getElementById('wallUploadBtn');
+const wallOpacityRange = document.getElementById('wallOpacityRange');
+const wallOpacityVal = document.getElementById('wallOpacityVal');
+const wallBlurRange = document.getElementById('wallBlurRange');
+const wallBlurVal = document.getElementById('wallBlurVal');
+
+let customWallData = {
+  preset: null,
+  dataUrl: null,
+  opacity: 0.85,
+  blur: 0
+};
+
+if (customWallToggle && customWallBody) {
+  customWallToggle.addEventListener('click', () => {
+    const isHidden = customWallBody.style.display === 'none';
+    customWallBody.style.display = isHidden ? 'flex' : 'none';
+    customWallToggle.classList.toggle('open', isHidden);
+  });
+}
+
+chrome.storage.local.get(['lcWallpaper', 'lcCustomWallpaper'], (res) => {
+  const wall = (res && res.lcWallpaper) || (res && res.lcCustomWallpaper);
+  if (wall) {
+    customWallData = Object.assign(customWallData, wall);
+    if (wallOpacityRange) wallOpacityRange.value = Math.round(customWallData.opacity * 100);
+    if (wallOpacityVal) wallOpacityVal.textContent = Math.round(customWallData.opacity * 100) + '%';
+    if (wallBlurRange) wallBlurRange.value = customWallData.blur;
+    if (wallBlurVal) wallBlurVal.textContent = customWallData.blur + 'px';
+  }
+});
+
+function updateActiveWallpaperSettings() {
+  chrome.storage.local.get(['lcWallpaper', 'lcCustomWallpaper'], (res) => {
+    const wall = (res && res.lcWallpaper) || (res && res.lcCustomWallpaper) || {};
+    wall.opacity = customWallData.opacity;
+    wall.blur = customWallData.blur;
+    chrome.storage.local.set({ lcWallpaper: wall, lcCustomWallpaper: wall });
+  });
+}
+
+if (wallFileInput && wallUploadBtn) {
+  wallUploadBtn.addEventListener('click', () => wallFileInput.click());
+  wallFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      customWallData.dataUrl = evt.target.result;
+      customWallData.preset = null;
+      wallUploadBtn.textContent = '✓ ' + file.name.slice(0, 14);
+
+      const wallConfig = {
+        preset: null,
+        dataUrl: customWallData.dataUrl,
+        opacity: customWallData.opacity,
+        blur: customWallData.blur,
+        accent: '#38bdf8'
+      };
+      chrome.storage.local.set({ lcWallpaper: wallConfig, lcCustomWallpaper: wallConfig });
+
+      document.querySelectorAll('.wall-card').forEach((c) => {
+        c.setAttribute('aria-checked', 'false');
+        const badge = c.querySelector('.wall-badge');
+        if (badge) badge.textContent = 'Theme';
+      });
+
+      const status = document.getElementById('status');
+      if (status) status.textContent = 'Custom wallpaper uploaded & applied!';
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+if (wallOpacityRange && wallOpacityVal) {
+  wallOpacityRange.addEventListener('input', () => {
+    customWallData.opacity = parseInt(wallOpacityRange.value, 10) / 100;
+    wallOpacityVal.textContent = wallOpacityRange.value + '%';
+    updateActiveWallpaperSettings();
+  });
+}
+
+if (wallBlurRange && wallBlurVal) {
+  wallBlurRange.addEventListener('input', () => {
+    customWallData.blur = parseInt(wallBlurRange.value, 10);
+    wallBlurVal.textContent = wallBlurRange.value + 'px';
+    updateActiveWallpaperSettings();
+  });
+}
+
+/* ---- Editor Settings (Fonts, Ligatures, Size, Caret) ---- */
 const fontSelect = document.getElementById('fontSelect');
 const ligaturesToggle = document.getElementById('ligaturesToggle');
 const fontSizeRange = document.getElementById('fontSizeRange');
@@ -326,7 +386,7 @@ if (fontSelect && ligaturesToggle && fontSizeRange && cursorSelect) {
   cursorSelect.addEventListener('change', saveEditorSettings);
 }
 
-/* ---- Interview Blind Mode -------------------------------------------------- */
+/* ---- Interview Blind Mode ---- */
 const blindMaster = document.getElementById('blindMasterToggle');
 const blindDiff = document.getElementById('blindDiffToggle');
 const blindTags = document.getElementById('blindTagsToggle');
@@ -356,7 +416,7 @@ if (blindMaster && blindDiff && blindTags && blindStats) {
   });
 }
 
-/* ---- Tools (Timer & Zen Mode) ---------------------------------------------- */
+/* ---- Tools (Timer & Zen Mode) ---- */
 const timerToggle = document.getElementById('timerToggle');
 if (timerToggle) {
   chrome.storage.local.get('lcTimerEnabled', (res) => {
@@ -377,7 +437,7 @@ if (zenToggle) {
   });
 }
 
-/* ---- Day / Night Auto Scheduler -------------------------------------------- */
+/* ---- Day / Night Auto Scheduler ---- */
 const dayNightToggle = document.getElementById('dayNightToggle');
 if (dayNightToggle) {
   chrome.storage.local.get('lcDayNight', (res) => {
@@ -386,14 +446,14 @@ if (dayNightToggle) {
   });
   dayNightToggle.addEventListener('change', () => {
     chrome.storage.local.get('lcDayNight', (res) => {
-      const prev = res && res.lcDayNight ? res.lcDayNight : { mode: 'time', dayTheme: 'paper', nightTheme: 'anime' };
+      const prev = res && res.lcDayNight ? res.lcDayNight : { mode: 'time', dayTheme: 'paper', nightTheme: 'tokyonight' };
       prev.enabled = dayNightToggle.checked;
       chrome.storage.local.set({ lcDayNight: prev });
     });
   });
 }
 
-/* ---- Export & Import Settings ---------------------------------------------- */
+/* ---- Export & Import Settings ---- */
 const exportBtn = document.getElementById('exportBtn');
 const importBtn = document.getElementById('importBtn');
 const importFileInput = document.getElementById('importFileInput');
@@ -415,7 +475,7 @@ if (importBtn && importFileInput && globalThis.LCTSThemeSync) {
     reader.onload = (evt) => {
       globalThis.LCTSThemeSync.importConfig(evt.target.result)
         .then(() => {
-          alert('Settings imported successfully! Reloading...');
+          alert('Settings imported successfully!');
           window.location.reload();
         })
         .catch((err) => {
@@ -426,3 +486,9 @@ if (importBtn && importFileInput && globalThis.LCTSThemeSync) {
     e.target.value = '';
   });
 }
+
+try {
+  const v = chrome.runtime.getManifest().version;
+  const el = document.getElementById('ver');
+  if (el) el.textContent = 'v' + v;
+} catch (e) {}

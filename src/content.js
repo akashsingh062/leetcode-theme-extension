@@ -13,6 +13,8 @@
 
   const root = document.documentElement;
   let currentTheme = null;
+  let currentWallpaper = null;
+  let focusActive = false;
 
   function ensureWallpaperLayer() {
     let layer = document.getElementById(WALLPAPER_ID);
@@ -25,19 +27,38 @@
   }
 
   function applyWallpaper(config) {
+    currentWallpaper = config;
     const layer = ensureWallpaperLayer();
     if (!layer) return;
 
-    if (config && config.dataUrl) {
-      layer.style.backgroundImage = `url("${config.dataUrl}")`;
-      layer.style.display = 'block';
-      root.style.setProperty('--lc-custom-blur', `${config.blur || 0}px`);
-      root.style.setProperty('--lc-custom-opacity', `${config.opacity !== undefined ? config.opacity : 0.85}`);
-      if (config.accent) {
-        root.style.setProperty('--lc-custom-accent', config.accent);
-      }
-    } else {
+    if (focusActive || currentTheme === 'off' || !config || (!config.preset && !config.dataUrl)) {
       layer.style.display = 'none';
+      root.removeAttribute('data-lc-has-wallpaper');
+      return;
+    }
+
+    let bgUrl = '';
+    if (config.dataUrl) {
+      bgUrl = config.dataUrl;
+    } else if (config.preset) {
+      bgUrl = chrome.runtime.getURL(`textures/anime/${config.preset}.webp`);
+    }
+
+    if (!bgUrl) {
+      layer.style.display = 'none';
+      root.removeAttribute('data-lc-has-wallpaper');
+      return;
+    }
+
+    layer.style.backgroundImage = `url("${bgUrl}")`;
+    layer.style.display = 'block';
+    root.setAttribute('data-lc-has-wallpaper', 'true');
+
+    root.style.setProperty('--lc-custom-blur', `${config.blur || 0}px`);
+    root.style.setProperty('--lc-custom-opacity', `${config.opacity !== undefined ? config.opacity : 0.85}`);
+    root.style.setProperty('--lc-wallpaper-layer-opacity', `${config.layerOpacity !== undefined ? config.layerOpacity : 1}`);
+    if (config.accent) {
+      root.style.setProperty('--lc-custom-accent', config.accent);
     }
   }
 
@@ -58,6 +79,7 @@
 
     if (theme === 'off') {
       root.removeAttribute('data-lc-theme');
+      root.removeAttribute('data-lc-has-wallpaper');
       const layer = document.getElementById(WALLPAPER_ID);
       if (layer) layer.style.display = 'none';
       return;
@@ -67,26 +89,27 @@
     const isDark = !LIGHT_THEMES.has(theme);
     setMode(isDark);
 
-    if (theme === 'custom') {
-      chrome.storage.local.get('lcCustomWallpaper', (res) => {
-        applyWallpaper(res && res.lcCustomWallpaper);
-      });
-    } else {
-      const layer = document.getElementById(WALLPAPER_ID);
-      if (layer) layer.style.display = 'none';
-    }
+    // Re-apply wallpaper with updated theme state
+    applyWallpaper(currentWallpaper);
   }
 
-  // Load and apply theme on boot
-  chrome.storage.local.get([STORAGE_KEY, 'lcThemeStudio', 'lcCustomWallpaper'], (res) => {
-    // Graceful backward compatibility with lcThemeStudio
+  // Load and apply theme and wallpaper on boot
+  chrome.storage.local.get([STORAGE_KEY, 'lcThemeStudio', 'lcWallpaper', 'lcCustomWallpaper', 'lcFocus'], (res) => {
     const theme = (res && res[STORAGE_KEY]) || (res && res.lcThemeStudio) || DEFAULT_THEME;
+    focusActive = !!(res && res.lcFocus);
+    currentWallpaper = (res && res.lcWallpaper) || (res && res.lcCustomWallpaper) || null;
     applyTheme(theme);
+    applyWallpaper(currentWallpaper);
   });
 
   // Listen for live storage updates
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
+
+    if (changes.lcFocus) {
+      focusActive = !!changes.lcFocus.newValue;
+      applyWallpaper(currentWallpaper);
+    }
 
     if (changes[STORAGE_KEY]) {
       applyTheme(changes[STORAGE_KEY].newValue || DEFAULT_THEME);
@@ -94,7 +117,9 @@
       applyTheme(changes.lcThemeStudio.newValue || DEFAULT_THEME);
     }
 
-    if (changes.lcCustomWallpaper && currentTheme === 'custom') {
+    if (changes.lcWallpaper) {
+      applyWallpaper(changes.lcWallpaper.newValue);
+    } else if (changes.lcCustomWallpaper && !changes.lcWallpaper) {
       applyWallpaper(changes.lcCustomWallpaper.newValue);
     }
   });
@@ -105,6 +130,7 @@
       if (!document.body) return;
       obs.disconnect();
       if (currentTheme) applyTheme(currentTheme);
+      if (currentWallpaper) applyWallpaper(currentWallpaper);
     }).observe(root, { childList: true });
   }
 })();
