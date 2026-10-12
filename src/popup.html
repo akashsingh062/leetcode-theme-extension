@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>LeetCode Themes</title>
+</head>
+<body>
+  <header class="head">
+    <div class="mark" aria-hidden="true">
+      <span class="mark-dot d1"></span><span class="mark-dot d2"></span>
+      <span class="mark-dot d3"></span><span class="mark-dot d4"></span>
+    </div>
+    <div class="head-text">
+      <h1>LeetCode Themes</h1>
+      <p>Pick a theme for your LeetCode workspace. Applies instantly.</p>
+    </div>
+  </header>
+
+  <main id="grid" class="grid" role="radiogroup" aria-label="LeetCode themes"></main>
+
+  <button id="studio" class="studio" type="button">
+    <span class="studio-text"><b>Theme Studio</b><span>Customize your background, adjust glass opacity, and personalize your theme</span></span>
+    <span class="studio-arrow" aria-hidden="true">→</span>
+  </button>
+
+  <footer class="foot">
+    <span id="status">Enhances editor, panels, console, and syntax.</span>
+    <span id="ver" class="ver"></span>
+  </footer>
+
+  <script src="anime/scenes.js"></script>
+  <script src="pixel/sprites.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

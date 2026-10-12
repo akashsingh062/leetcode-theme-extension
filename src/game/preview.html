@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- Gaming Theme preview, Phase 1: the cinematic "LEVEL 1" title card in
+     isolation, over a fake LeetCode-ish backdrop so it's obvious the real
+     page is meant to stay visible (dimmed, not replaced) underneath.
+     Standalone (no chrome.runtime needed) so it can be opened directly as a
+     file while this feature is still WIP -- see CLAUDE_ANKIT.md. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Game Theme Preview</title>
+  <link rel="stylesheet" href="../../themes/game.css" />
+  <link rel="stylesheet" href="preview.css" />
+</head>
+<body>
+  <div class="backdrop">
+    <div class="mock-nav">
+      <span class="mock-logo"></span>
+      <span>Problem List</span>
+      <span class="mock-pill">▶ Run&nbsp;&nbsp;Submit</span>
+    </div>
+    <div class="mock-page">
+      <div class="mock-desc">
+        <div class="mock-title">67. Add Binary</div>
+        <div class="mock-tag">Easy</div>
+        <div class="mock-line w80"></div>
+        <div class="mock-line w95"></div>
+        <div class="mock-line w60"></div>
+      </div>
+      <div class="mock-code">
+        <div class="mock-code-line" style="width:40%"></div>
+        <div class="mock-code-line" style="width:70%"></div>
+        <div class="mock-code-line" style="width:55%"></div>
+        <div class="mock-code-line" style="width:80%"></div>
+        <div class="mock-code-line" style="width:35%"></div>
+        <div class="mock-code-line" style="width:65%"></div>
+      </div>
+    </div>
+  </div>
+
+  <button id="replay" type="button">Replay title card</button>
+
+  <script src="petals.js"></script>
+  <script src="title-card.js"></script>
+  <script>
+    function play() {
+      window.LCTSGame.titleCard({
+        level: 1, levelLabel: 'LEVEL 1', tagline: 'MYSTICAL NIGHT', title: '67. Add Binary',
+        petalImageUrl: '../../textures/game/sakura.png'   // chrome.runtime isn't available outside the packed extension
+      }, document.body);
+    }
+    document.getElementById('replay').addEventListener('click', play);
+    play();
+  </script>
+</body>
+</html>

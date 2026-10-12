@@ -1,0 +1,44 @@
+/* themes/game.css declares these with chrome-extension://__MSG_@@extension_id__
+   URLs, which only resolve for a real content-script/extension load, not a
+   plain file:// open -- redeclare with relative paths, same as
+   src/anime/preview.css does for Dela Gothic One. The later declaration
+   (this one, loaded after game.css) wins. */
+@font-face {
+  font-family: "Cinzel"; font-style: normal; font-weight: 400;
+  src: url("../../fonts/cinzel-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Cinzel"; font-style: normal; font-weight: 700;
+  src: url("../../fonts/cinzel-700.woff2") format("woff2");
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #1c1c1c; font-family: -apple-system, "Segoe UI", sans-serif; }
+
+.backdrop { position: absolute; inset: 0; background: #14181f; color: #d7dde3; }
+
+.mock-nav {
+  position: absolute; left: 0; right: 0; top: 0; height: 48px;
+  display: flex; align-items: center; gap: 16px; padding: 0 16px;
+  background: #1a1f28; border-bottom: 1px solid #262c37; font-size: 13px;
+}
+.mock-logo { width: 18px; height: 18px; border-radius: 4px; background: #4a7cff; }
+.mock-pill { margin-left: auto; padding: 5px 12px; border-radius: 6px; background: #232a35; font-size: 12.5px; }
+
+.mock-page { position: absolute; inset: 48px 0 0; display: flex; }
+.mock-desc, .mock-code { flex: 1 1 50%; padding: 22px 26px; }
+.mock-desc { border-right: 1px solid #262c37; }
+.mock-title { font-size: 20px; font-weight: 600; margin-bottom: 10px; color: #e8ecf0; }
+.mock-tag { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 99px; background: #1f4a2e; color: #6fd68a; margin-bottom: 18px; }
+.mock-line { height: 12px; border-radius: 3px; background: #232a35; margin-bottom: 10px; }
+.mock-line.w80 { width: 80%; } .mock-line.w95 { width: 95%; } .mock-line.w60 { width: 60%; }
+
+.mock-code { font-family: ui-monospace, Menlo, Consolas, monospace; }
+.mock-code-line { height: 13px; border-radius: 3px; background: #212936; margin-bottom: 14px; }
+
+#replay {
+  position: fixed; left: 14px; bottom: 14px; z-index: 2147483001;
+  padding: 8px 14px; border: 1px solid #444; border-radius: 6px;
+  background: #222; color: #eee; font-size: 13px; cursor: pointer;
+}
+#replay:hover { background: #2c2c2c; }

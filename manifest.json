@@ -1,0 +1,111 @@
+{
+  "manifest_version": 3,
+  "name": "LeetCode Themes",
+  "short_name": "LeetCode Themes",
+  "version": "3.6.0",
+  "description": "Custom themes, dark mode, and elegant styles for the LeetCode code editor and problem pages.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "LeetCode Themes",
+    "default_popup": "src/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": [
+    "storage",
+    "offscreen"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://leetcode.com/problems/*",
+        "https://leetcode.cn/problems/*"
+      ],
+      "js": [
+        "src/content.js",
+        "src/problem.js",
+        "src/anime/scenes.js",
+        "src/anime/css.js",
+        "src/anime/anime.js",
+        "src/monaco-ink.js",
+        "src/sheet-scroll.js",
+        "src/verdict.js",
+        "src/anime/moments-ui.js",
+        "src/anime/sounds.js",
+        "src/anime/moments.js",
+        "src/game/petals.js",
+        "src/game/sounds.js",
+        "src/game/title-card.js",
+        "src/game/game.js",
+        "src/game/icons.js",
+        "src/game/ambient.js",
+        "src/game/result.js",
+        "src/pixel/sprites.js",
+        "src/pixel/pixel.js"
+      ],
+      "css": [
+        "themes/core.css",
+        "themes/paper.css",
+        "themes/sakura.css",
+        "themes/grid.css",
+        "themes/orchid.css",
+        "themes/anime.css",
+        "themes/crawler.css",
+        "themes/game.css",
+        "themes/pixel.css"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "https://leetcode.com/problems/*",
+        "https://leetcode.cn/problems/*"
+      ],
+      "js": [
+        "src/net-verdict.js",
+        "src/inject.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": false
+    }
+  ],
+  "commands": {
+    "toggle-focus": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Period",
+        "mac": "Command+Shift+Period"
+      },
+      "description": "LeetCode Themes: toggle focus mode (hide custom backgrounds and overlays)"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "fonts/*.woff2",
+        "audio/anime/*",
+        "audio/crawler/*",
+        "textures/*",
+        "textures/anime/*",
+        "textures/game/*",
+        "textures/game/icon/*",
+        "sounds/game/*"
+      ],
+      "matches": [
+        "https://leetcode.com/*",
+        "https://leetcode.cn/*"
+      ]
+    }
+  ]
+}

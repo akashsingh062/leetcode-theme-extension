@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theme Studio — LeetCode Themes</title>
+  <link rel="stylesheet" href="studio.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <div>
+        <h1>Theme Studio</h1>
+        <p>Customize your LeetCode background with guaranteed code readability.</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span id="activeState" class="state"></span>
+      <button id="activate" class="btn primary" type="button" hidden>Apply Theme to LeetCode</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="controls" aria-label="Settings">
+
+      <div class="group">
+        <h2>Scene</h2>
+        <label class="switch"><input id="arcs" type="checkbox" /><span class="track"></span><span>A scene for each difficulty</span></label>
+        <div id="arcSlots" class="arc-slots" role="radiogroup" aria-label="Difficulty"></div>
+        <p id="arcNote" class="note arc-note"></p>
+        <div id="scenes" class="scenes" role="radiogroup" aria-label="Scene"></div>
+        <input id="file" type="file" accept="image/png,image/jpeg,image/webp,image/avif,image/gif" hidden />
+        <p id="uploadNote" class="note">Your picture is prepared once and stored only in this browser.</p>
+      </div>
+
+      <div class="group">
+        <h2>Glass</h2>
+        <div id="glass" class="segmented" role="radiogroup" aria-label="Glass">
+          <button type="button" role="radio" data-v="auto">Auto</button>
+          <button type="button" role="radio" data-v="dark">Dark</button>
+          <button type="button" role="radio" data-v="light">Light</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="row-between">
+          <h2><label for="visibility">Scene visibility</label></h2>
+          <output id="visibilityOut" for="visibility"></output>
+        </div>
+        <input id="visibility" type="range" min="0" max="100" step="1" />
+        <p class="note">At 100 the glass sits exactly at its contrast floor, so no setting can make the text unreadable.</p>
+        <div id="report" class="report" aria-live="polite"></div>
+      </div>
+
+      <div class="group">
+        <h2>Notifications</h2>
+        <label class="switch"><input id="titleCard" type="checkbox" /><span class="track"></span><span>Problem title card when opening a problem</span></label>
+        <label class="switch"><input id="moments" type="checkbox" /><span class="track"></span><span>Verdict notification after Run</span></label>
+        <label class="switch"><input id="sound" type="checkbox" /><span class="track"></span><span>Sound effects</span></label>
+        <div class="volume">
+          <label for="volume" class="note">Volume</label>
+          <input id="volume" type="range" min="0" max="100" step="1" />
+          <output id="volumeOut" for="volume"></output>
+        </div>
+        <div class="plays">
+          <span class="note">Test preview:</span>
+          <button class="btn chip" type="button" data-play="title">Title card</button>
+          <button class="btn chip" type="button" data-play="ac">Accepted</button>
+          <button class="btn chip" type="button" data-play="run">Tests passed</button>
+          <button class="btn chip" type="button" data-play="wa">Wrong answer</button>
+          <button class="btn chip" type="button" data-play="tle">Time limit</button>
+          <button class="btn chip" type="button" data-play="err">Error</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Focus mode</h2>
+        <label class="switch"><input id="focus" type="checkbox" /><span class="track"></span><span>Hide background scene, keep the theme colors</span></label>
+        <p class="note">Shortcut <kbd id="shortcut">not set</kbd> toggles it on every open problem tab. <button id="shortcuts" class="link" type="button">Change shortcut</button></p>
+      </div>
+    </section>
+
+    <section class="stage" aria-label="Preview">
+      <div id="frameBox" class="frame-box">
+        <iframe id="frame" src="anime/preview.html" title="Theme preview" tabindex="-1"></iframe>
+        <div id="busy" class="busy" hidden><span></span>Preparing your picture…</div>
+      </div>
+      <p class="caption">Live preview, rendered with the same stylesheets LeetCode gets.</p>
+    </section>
+  </main>
+
+  <script src="anime/scenes.js"></script>
+  <script src="anime/solver.js"></script>
+  <script src="anime/process.js"></script>
+  <script src="anime/sounds.js"></script>
+  <script src="studio.js"></script>
+</body>
+</html>
