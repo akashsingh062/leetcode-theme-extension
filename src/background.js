@@ -1,22 +1,32 @@
 /* =============================================================================
-   background.js — the focus-mode shortcut.
-
-   Extension shortcuts are delivered here, not to the page. The toggle is
-   written to storage, and every open problem tab hears it through
-   storage.onChanged, so focus mode flips everywhere at once. The key is
-   rebindable at chrome://extensions/shortcuts.
+   background.js (service worker)
+   Handles extension keyboard shortcuts and initial state installation.
 ============================================================================= */
 chrome.commands.onCommand.addListener((command) => {
-  if (command !== 'toggle-focus') return;
-  chrome.storage.local.get('lcFocus', (res) => {
-    chrome.storage.local.set({ lcFocus: !(res && res.lcFocus) });
+  if (command === 'toggle-zen') {
+    chrome.storage.local.get('lcZenMode', (res) => {
+      chrome.storage.local.set({ lcZenMode: !(res && res.lcZenMode) });
+    });
+  } else if (command === 'toggle-focus') {
+    chrome.storage.local.get('lcFocus', (res) => {
+      chrome.storage.local.set({ lcFocus: !(res && res.lcFocus) });
+    });
+  } else if (command === 'toggle-blind') {
+    chrome.storage.local.get('lcBlindMode', (res) => {
+      const b = res.lcBlindMode || { active: false, hideDifficulty: true, blurTags: true, hideStats: true };
+      b.active = !b.active;
+      chrome.storage.local.set({ lcBlindMode: b });
+    });
+  }
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.get(['lcTheme', 'lcMonacoTheme'], (res) => {
+    if (!res.lcTheme) {
+      chrome.storage.local.set({ lcTheme: 'tokyonight' });
+    }
+    if (!res.lcMonacoTheme) {
+      chrome.storage.local.set({ lcMonacoTheme: 'default' });
+    }
   });
 });
-
-/* Title cards used to be limited to once per problem per day, remembered in
-   lcAnimeSeen. They now follow the problem's solved state instead, so the old
-   list is cleared once when the extension installs or updates. */
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.remove('lcAnimeSeen');
-});
-

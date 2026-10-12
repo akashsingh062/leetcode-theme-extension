@@ -1,122 +1,110 @@
 /* =============================================================================
-   content.js  (isolated world)
-   - Applies the saved theme to <html> as early as possible via data-lc-theme
-     (that attribute drives themes/*.css AND is read by inject.js in the MAIN world).
-   - Forces LeetCode's own light/dark mode to match, the way the site expects it:
-     the `dark` class on <html> and <body>, plus data-theme. This is what makes
-     dark: utilities resolve, so hardcoded light surfaces go dark too.
-   - Switches live: a change in the popup lands here through storage.onChanged,
-     and 'off' hands LeetCode back the mode it had, with no reload.
-   - Re-asserts on SPA navigation / when LeetCode toggles its own theme.
+   content.js (isolated world, LeetCode)
+   Clean-Room Theme Engine.
+   Applies selected theme, synchronizes dark/light mode, and mounts custom wallpapers.
 ============================================================================= */
 (() => {
-  const KEY = 'lcThemeStudio';
-  const DEFAULT = 'anime';
-  const DARK_THEMES = new Set(['sakura', 'grid', 'bloom', 'pixel']);   // paper is the only light one
-  const VALID = new Set(['paper', 'sakura', 'grid', 'bloom', 'anime', 'crawler', 'game', 'pixel', 'off']);
-  /* the anime theme is light or dark depending on the scene it was solved
-     from; anime.js publishes that and asks for a re-assert when it changes.
-     The game theme is the same idea with two known states instead of an
-     arbitrary picture: dark until src/game/game.js knows the open problem's
-     difficulty, light for the Easy valley. See CLAUDE_ANKIT.md. */
-  const isDark = (theme) => theme === 'anime'
-    ? globalThis.__lctsAnimeMode !== 'light'
-    : theme === 'game'
-    ? globalThis.__lctsGameMode !== 'light'
-    : DARK_THEMES.has(theme);
+  'use strict';
+
+  const STORAGE_KEY = 'lcTheme';
+  const DEFAULT_THEME = 'tokyonight';
+  const LIGHT_THEMES = new Set(['paper']);
+  const WALLPAPER_ID = 'lcts-custom-wallpaper-layer';
+
   const root = document.documentElement;
+  let currentTheme = null;
 
-  /* LeetCode's own mode, recorded before we force ours so that 'off' can
-     restore it. The guard below keeps it current if LeetCode changes its mind
-     while a theme is active. body does not exist yet at document_start, so its
-     classes are recorded the first time we are about to write to it. */
-  const site = {
-    dark: root.classList.contains('dark'),
-    light: root.classList.contains('light'),
-    dataTheme: root.getAttribute('data-theme'),
-    scheme: root.style.colorScheme,
-    bodySeen: false, bodyDark: false, bodyLight: false,
-  };
-  function captureBody() {
-    if (site.bodySeen || !document.body) return;
-    site.bodySeen = true;
-    site.bodyDark = document.body.classList.contains('dark');
-    site.bodyLight = document.body.classList.contains('light');
+  function ensureWallpaperLayer() {
+    let layer = document.getElementById(WALLPAPER_ID);
+    if (!layer && (document.body || root)) {
+      layer = document.createElement('div');
+      layer.id = WALLPAPER_ID;
+      (document.body || root).prepend(layer);
+    }
+    return layer;
   }
 
-  let current = null;
+  function applyWallpaper(config) {
+    const layer = ensureWallpaperLayer();
+    if (!layer) return;
 
-  function setBaseMode(theme) {
-    const dark = isDark(theme);
-    root.classList.toggle('dark', dark);
-    root.classList.toggle('light', !dark);
-    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    if (config && config.dataUrl) {
+      layer.style.backgroundImage = `url("${config.dataUrl}")`;
+      layer.style.display = 'block';
+      root.style.setProperty('--lc-custom-blur', `${config.blur || 0}px`);
+      root.style.setProperty('--lc-custom-opacity', `${config.opacity !== undefined ? config.opacity : 0.85}`);
+      if (config.accent) {
+        root.style.setProperty('--lc-custom-accent', config.accent);
+      }
+    } else {
+      layer.style.display = 'none';
+    }
+  }
+
+  function setMode(isDark) {
+    root.classList.toggle('dark', isDark);
+    root.classList.toggle('light', !isDark);
+    root.setAttribute('data-theme', isDark ? 'dark' : 'light');
     if (document.body) {
-      captureBody();
-      document.body.classList.toggle('dark', dark);
-      document.body.classList.toggle('light', !dark);
+      document.body.classList.toggle('dark', isDark);
+      document.body.classList.toggle('light', !isDark);
     }
-    root.style.colorScheme = dark ? 'dark' : 'light';
+    root.style.colorScheme = isDark ? 'dark' : 'light';
   }
 
-  function restoreBaseMode() {
-    root.classList.toggle('dark', site.dark);
-    root.classList.toggle('light', site.light);
-    if (site.dataTheme === null) root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', site.dataTheme);
-    root.style.colorScheme = site.scheme;
-    if (document.body && site.bodySeen) {
-      document.body.classList.toggle('dark', site.bodyDark);
-      document.body.classList.toggle('light', site.bodyLight);
-    }
-  }
+  function applyTheme(theme) {
+    if (!theme) theme = DEFAULT_THEME;
+    currentTheme = theme;
 
-  function apply(theme) {
-    if (!VALID.has(theme)) theme = DEFAULT;
-    if (theme === current) return;
-    const was = current;
-    current = theme;
     if (theme === 'off') {
-      /* themes/*.css is scoped entirely to [data-lc-theme], so removing the
-         attribute switches every rule off at once */
       root.removeAttribute('data-lc-theme');
-      if (was !== null) restoreBaseMode();
+      const layer = document.getElementById(WALLPAPER_ID);
+      if (layer) layer.style.display = 'none';
       return;
     }
+
     root.setAttribute('data-lc-theme', theme);
-    setBaseMode(theme);
+    const isDark = !LIGHT_THEMES.has(theme);
+    setMode(isDark);
+
+    if (theme === 'custom') {
+      chrome.storage.local.get('lcCustomWallpaper', (res) => {
+        applyWallpaper(res && res.lcCustomWallpaper);
+      });
+    } else {
+      const layer = document.getElementById(WALLPAPER_ID);
+      if (layer) layer.style.display = 'none';
+    }
   }
 
-  globalThis.__lctsReassertMode = () => { if (current && current !== 'off') setBaseMode(current); };
-
-  apply(DEFAULT);
-  chrome.storage.local.get(KEY, (res) => apply((res && res[KEY]) || DEFAULT));
-
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes[KEY]) apply(changes[KEY].newValue || DEFAULT);
+  // Load and apply theme on boot
+  chrome.storage.local.get([STORAGE_KEY, 'lcThemeStudio', 'lcCustomWallpaper'], (res) => {
+    // Graceful backward compatibility with lcThemeStudio
+    const theme = (res && res[STORAGE_KEY]) || (res && res.lcThemeStudio) || DEFAULT_THEME;
+    applyTheme(theme);
   });
 
-  // body may not exist at document_start; sync the base classes onto it once ready.
+  // Listen for live storage updates
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') return;
+
+    if (changes[STORAGE_KEY]) {
+      applyTheme(changes[STORAGE_KEY].newValue || DEFAULT_THEME);
+    } else if (changes.lcThemeStudio && !changes[STORAGE_KEY]) {
+      applyTheme(changes.lcThemeStudio.newValue || DEFAULT_THEME);
+    }
+
+    if (changes.lcCustomWallpaper && currentTheme === 'custom') {
+      applyWallpaper(changes.lcCustomWallpaper.newValue);
+    }
+  });
+
+  // Ensure body receives theme mode when attached
   if (!document.body) {
     new MutationObserver((_, obs) => {
       if (!document.body) return;
       obs.disconnect();
-      if (current !== 'off') setBaseMode(current);
+      if (currentTheme) applyTheme(currentTheme);
     }).observe(root, { childList: true });
   }
-
-  // Re-assert if LeetCode's SPA / its own theme switch overrides us.
-  const guard = new MutationObserver(() => {
-    if (current === 'off') return;                       // off means off
-    if (root.getAttribute('data-lc-theme') !== current) root.setAttribute('data-lc-theme', current);
-    const dark = isDark(current);
-    if (root.classList.contains('dark') !== dark) {
-      /* LeetCode switched its own mode: remember what it wanted before
-         re-asserting ours, so 'off' restores that */
-      site.dark = root.classList.contains('dark');
-      site.light = root.classList.contains('light');
-      setBaseMode(current);
-    }
-  });
-  guard.observe(root, { attributes: true, attributeFilter: ['class', 'data-lc-theme', 'data-theme'] });
 })();
