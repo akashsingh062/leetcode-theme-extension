@@ -53,27 +53,6 @@
       </div>
 
       <div class="group">
-        <h2>Notifications</h2>
-        <label class="switch"><input id="titleCard" type="checkbox" /><span class="track"></span><span>Problem title card when opening a problem</span></label>
-        <label class="switch"><input id="moments" type="checkbox" /><span class="track"></span><span>Verdict notification after Run</span></label>
-        <label class="switch"><input id="sound" type="checkbox" /><span class="track"></span><span>Sound effects</span></label>
-        <div class="volume">
-          <label for="volume" class="note">Volume</label>
-          <input id="volume" type="range" min="0" max="100" step="1" />
-          <output id="volumeOut" for="volume"></output>
-        </div>
-        <div class="plays">
-          <span class="note">Test preview:</span>
-          <button class="btn chip" type="button" data-play="title">Title card</button>
-          <button class="btn chip" type="button" data-play="ac">Accepted</button>
-          <button class="btn chip" type="button" data-play="run">Tests passed</button>
-          <button class="btn chip" type="button" data-play="wa">Wrong answer</button>
-          <button class="btn chip" type="button" data-play="tle">Time limit</button>
-          <button class="btn chip" type="button" data-play="err">Error</button>
-        </div>
-      </div>
-
-      <div class="group">
         <h2>Focus mode</h2>
         <label class="switch"><input id="focus" type="checkbox" /><span class="track"></span><span>Hide background scene, keep the theme colors</span></label>
         <p class="note">Shortcut <kbd id="shortcut">not set</kbd> toggles it on every open problem tab. <button id="shortcuts" class="link" type="button">Change shortcut</button></p>
@@ -92,7 +71,7 @@
   <script src="anime/scenes.js"></script>
   <script src="anime/solver.js"></script>
   <script src="anime/process.js"></script>
-  <script src="anime/sounds.js"></script>
+  <script src="theme-sync.js"></script>
   <script src="studio.js"></script>
 </body>
 </html>

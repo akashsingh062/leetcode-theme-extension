@@ -19,8 +19,7 @@
     }
   },
   "permissions": [
-    "storage",
-    "offscreen"
+    "storage"
   ],
   "background": {
     "service_worker": "src/background.js"
@@ -51,7 +50,15 @@
         "src/game/ambient.js",
         "src/game/result.js",
         "src/pixel/sprites.js",
-        "src/pixel/pixel.js"
+        "src/pixel/pixel.js",
+        "src/editor-settings.js",
+        "src/blind-mode.js",
+        "src/timer.js",
+        "src/notes.js",
+        "src/zen-mode.js",
+        "src/command-palette.js",
+        "src/day-night.js",
+        "src/theme-sync.js"
       ],
       "css": [
         "themes/core.css",
@@ -94,13 +101,10 @@
     {
       "resources": [
         "fonts/*.woff2",
-        "audio/anime/*",
-        "audio/crawler/*",
         "textures/*",
         "textures/anime/*",
         "textures/game/*",
-        "textures/game/icon/*",
-        "sounds/game/*"
+        "textures/game/icon/*"
       ],
       "matches": [
         "https://leetcode.com/*",

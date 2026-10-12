@@ -8,22 +8,218 @@
 </head>
 <body>
   <header class="head">
-    <div class="mark" aria-hidden="true">
-      <span class="mark-dot d1"></span><span class="mark-dot d2"></span>
-      <span class="mark-dot d3"></span><span class="mark-dot d4"></span>
+    <div class="head-top">
+      <div class="mark" aria-hidden="true">
+        <span class="mark-dot d1"></span><span class="mark-dot d2"></span>
+        <span class="mark-dot d3"></span><span class="mark-dot d4"></span>
+      </div>
+      <div class="head-text">
+        <h1>LeetCode Themes</h1>
+        <p>Custom styles, fonts, and interview tools</p>
+      </div>
     </div>
-    <div class="head-text">
-      <h1>LeetCode Themes</h1>
-      <p>Pick a theme for your LeetCode workspace. Applies instantly.</p>
-    </div>
+    
+    <!-- Tab Navigation -->
+    <nav class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="tab-themes" role="tab" type="button">Themes</button>
+      <button class="tab-btn" data-tab="tab-editor" role="tab" type="button">Editor</button>
+      <button class="tab-btn" data-tab="tab-interview" role="tab" type="button">Interview</button>
+      <button class="tab-btn" data-tab="tab-tools" role="tab" type="button">Tools</button>
+      <button class="tab-btn" data-tab="tab-settings" role="tab" type="button">Settings</button>
+    </nav>
   </header>
 
-  <main id="grid" class="grid" role="radiogroup" aria-label="LeetCode themes"></main>
+  <!-- TAB 1: THEMES -->
+  <section id="tab-themes" class="tab-pane active">
+    <main id="grid" class="grid" role="radiogroup" aria-label="LeetCode themes"></main>
 
-  <button id="studio" class="studio" type="button">
-    <span class="studio-text"><b>Theme Studio</b><span>Customize your background, adjust glass opacity, and personalize your theme</span></span>
-    <span class="studio-arrow" aria-hidden="true">→</span>
-  </button>
+    <div class="control-row">
+      <label for="monacoThemeSelect" class="control-label">
+        <span>Monaco Syntax Palette</span>
+        <small>Independent syntax colors</small>
+      </label>
+      <select id="monacoThemeSelect" class="select-box">
+        <option value="default">Default (Matches Theme)</option>
+        <option value="tokyonight">Tokyo Night</option>
+        <option value="catppuccin">Catppuccin Mocha</option>
+        <option value="dracula">Dracula</option>
+        <option value="onedark">One Dark Pro</option>
+        <option value="nord">Nord</option>
+        <option value="gruvbox">Gruvbox Dark</option>
+      </select>
+    </div>
+
+    <button id="studio" class="studio" type="button">
+      <span class="studio-text"><b>Theme Studio</b><span>Customize your background, adjust glass opacity, and personalize your theme</span></span>
+      <span class="studio-arrow" aria-hidden="true">→</span>
+    </button>
+  </section>
+
+  <!-- TAB 2: EDITOR & FONTS -->
+  <section id="tab-editor" class="tab-pane">
+    <div class="control-group">
+      <div class="control-row">
+        <label for="fontSelect" class="control-label">
+          <span>Editor Font</span>
+          <small>Monaco programming typeface</small>
+        </label>
+        <select id="fontSelect" class="select-box">
+          <option value="jetbrains">JetBrains Mono</option>
+          <option value="fira">Fira Code</option>
+          <option value="cascadia">Cascadia Code</option>
+          <option value="source">Source Code Pro</option>
+          <option value="system">System Monospace</option>
+        </select>
+      </div>
+
+      <div class="control-row">
+        <label class="control-label">
+          <span>Font Ligatures</span>
+          <small>Enable symbols (===, !=, =&gt;)</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="ligaturesToggle" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-row">
+        <label class="control-label">
+          <span>Font Size</span>
+          <small id="fontSizeVal">14px</small>
+        </label>
+        <input type="range" id="fontSizeRange" min="12" max="20" step="1" value="14" class="slider-range" />
+      </div>
+
+      <div class="control-row">
+        <label for="cursorSelect" class="control-label">
+          <span>Cursor Animation</span>
+          <small>Editor caret motion</small>
+        </label>
+        <select id="cursorSelect" class="select-box">
+          <option value="smooth">Smooth Slide</option>
+          <option value="blink">Standard Blink</option>
+          <option value="solid">Solid (No Blink)</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3: INTERVIEW BLIND MODE -->
+  <section id="tab-interview" class="tab-pane">
+    <div class="blind-hero">
+      <div class="blind-badge">Interview Simulation</div>
+      <p>Solve problems without psychological difficulty bias or topic spoilers.</p>
+    </div>
+
+    <div class="control-group">
+      <div class="control-row highlight-row">
+        <label class="control-label">
+          <span>Enable Blind Mode</span>
+          <small>Practice under mock interview conditions</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="blindMasterToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-row">
+        <label class="control-label">
+          <span>Hide Problem Difficulty</span>
+          <small>Neutralizes Easy/Medium/Hard label</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="blindDiffToggle" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-row">
+        <label class="control-label">
+          <span>Blur Topic &amp; Company Tags</span>
+          <small>Hover over tags to reveal spoilers</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="blindTagsToggle" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-row">
+        <label class="control-label">
+          <span>Hide Acceptance &amp; Stats</span>
+          <small>Removes statistical distractions</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="blindStatsToggle" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 4: TOOLS -->
+  <section id="tab-tools" class="tab-pane">
+    <div class="control-group">
+      <div class="control-row">
+        <label class="control-label">
+          <span>Interview Stopwatch &amp; Timer</span>
+          <small>Floating countdown &amp; stopwatch widget</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="timerToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-row">
+        <label class="control-label">
+          <span>Zen Distraction-Free Mode</span>
+          <small>Maximize Monaco editor full screen</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="zenToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="feature-tip">
+        <div class="tip-title">⚡ Keyboard Shortcuts</div>
+        <div class="tip-desc"><kbd>Ctrl</kbd> + <kbd>K</kbd> &nbsp; Spotlight Command Palette &amp; Jump</div>
+        <div class="tip-desc"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> &nbsp; Toggle Zen Mode</div>
+        <div class="tip-desc"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>.</kbd> &nbsp; Toggle Focus Mode</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 5: SETTINGS & SYNC -->
+  <section id="tab-settings" class="tab-pane">
+    <div class="control-group">
+      <div class="control-row">
+        <label class="control-label">
+          <span>Auto Day / Night Schedule</span>
+          <small>Switch theme automatically based on clock</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="dayNightToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="sync-actions">
+        <button class="action-btn" id="exportBtn" type="button">
+          <span>⬇ Export Settings</span>
+          <small>Save configuration to JSON file</small>
+        </button>
+        <button class="action-btn" id="importBtn" type="button">
+          <span>⬆ Import Settings</span>
+          <small>Restore configuration from JSON file</small>
+        </button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;" />
+      </div>
+    </div>
+  </section>
 
   <footer class="foot">
     <span id="status">Enhances editor, panels, console, and syntax.</span>
@@ -32,6 +228,7 @@
 
   <script src="anime/scenes.js"></script>
   <script src="pixel/sprites.js"></script>
+  <script src="theme-sync.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

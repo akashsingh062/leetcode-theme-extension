@@ -15,8 +15,7 @@
   const $ = (id) => document.getElementById(id);
   const MAX_INPUT = 30 * 1024 * 1024;
 
-  const settings = { scene: DEF, arcs: true, arcScenes: {}, glass: 'auto', visibility: 0.85,
-                     titleCard: true, moments: true, sound: true, volume: 0.6 };
+  const settings = { scene: DEF, arcs: true, arcScenes: {}, glass: 'auto', visibility: 0.85 };
   let slot = 'medium';          // the difficulty slot being edited while arcs are on
   const preparedCache = {};     // scene id -> samples + blobs
   let themes = {};              // scene id -> solve at the current glass settings
@@ -310,29 +309,7 @@
 
   $('file').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) upload(f); e.target.value = ''; });
 
-  ['titleCard', 'moments'].forEach((k) => $(k).addEventListener('change', () => { settings[k] = $(k).checked; save(); }));
 
-  const renderSound = () => {
-    $('sound').checked = settings.sound;
-    $('volume').value = Math.round(settings.volume * 100);
-    $('volumeOut').textContent = Math.round(settings.volume * 100);
-    document.querySelector('.volume').classList.toggle('off', !settings.sound);
-  };
-  $('sound').addEventListener('change', () => { settings.sound = $('sound').checked; renderSound(); save(); });
-  $('volume').addEventListener('input', () => { settings.volume = $('volume').value / 100; renderSound(); });
-  /* on release, play a short sound at the new level so the choice can be heard */
-  $('volume').addEventListener('change', () => {
-    save();
-    if (settings.sound) globalThis.LCTSSounds.play('run', { volume: settings.volume, theme: 'anime' });
-  });
-
-  document.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', async () => {
-    await frameReady;
-    const w = frame.contentWindow, name = b.dataset.play;
-    if (name === 'title') w.LCTSMoments.titleCard({ number: '1', title: 'Two Sum', difficulty: 'Easy' });
-    else w.LCTSMoments.result(name, { action: 'run' });
-    if (settings.sound) globalThis.LCTSSounds.play(name, { volume: settings.volume, theme: 'anime' });
-  }));
 
   $('focus').addEventListener('change', async () => {
     const on = $('focus').checked;
@@ -352,10 +329,7 @@
       arcs: A.arcs !== undefined ? !!A.arcs : !A.scene,
       arcScenes: A.arcScenes || {},
       glass: A.glass || 'auto',
-      visibility: typeof res.lcAnime.visibility === 'number' ? res.lcAnime.visibility : 0.85,
-      titleCard: res.lcAnime.titleCard !== false, moments: res.lcAnime.moments !== false,
-      sound: res.lcAnime.sound !== false,
-      volume: typeof res.lcAnime.volume === 'number' ? res.lcAnime.volume : 0.6
+      visibility: typeof res.lcAnime.visibility === 'number' ? res.lcAnime.visibility : 0.85
     } : {});
     hasArt = !!res.lcAnimeArt;
     customThumb = hasArt ? res.lcAnimeArt.blur : null;
@@ -363,9 +337,6 @@
 
     vis.value = Math.round(settings.visibility * 100); showVis();
     renderGlass();
-    $('titleCard').checked = settings.titleCard;
-    $('moments').checked = settings.moments;
-    renderSound();
     $('focus').checked = !!res.lcFocus;
     renderActive(res.lcThemeStudio);
 
@@ -376,10 +347,6 @@
         ? c.shortcut.replace('Period', '.').replace('Comma', ',')
         : 'not set';
     } catch (e) {}
-
-    /* the anime recordings (audio/anime/) decode now, so the play buttons
-       sound exactly like LeetCode will */
-    globalThis.LCTSSounds.warm('anime');
 
     busy(true, 'Loading scene…');
     try {

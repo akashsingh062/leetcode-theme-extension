@@ -95,6 +95,42 @@
       variable:'#eef2ea', comment:'#748a76', keyword:'#d4af6a', control:'#d4af6a',
       string:'#9fd88f',   number:'#7fc9c0',  func:'#8fb8e0',    type:'#c9a6ff',
       param:'#cbb08a',    operator:'#d7c9a0', regexp:'#9fd88f', invalid:'#e0715a'
+    },
+    tokyonight: {
+      a: 1,
+      variable: '#c0caf5', comment: '#565f89', keyword: '#bb9af7', control: '#9d7cd8',
+      string: '#9ece6a',   number: '#ff9e64',  func: '#7aa2f7',    type: '#2ac3de',
+      param: '#e0af68',    operator: '#89ddff', regexp: '#b4f9f8', invalid: '#f7768e'
+    },
+    catppuccin: {
+      a: 1,
+      variable: '#cdd6f4', comment: '#6c7086', keyword: '#cba6f7', control: '#f38ba8',
+      string: '#a6e3a1',   number: '#fab387',  func: '#89b4fa',    type: '#f9e2af',
+      param: '#eba0ac',    operator: '#94e2d5', regexp: '#f5c2e7', invalid: '#f38ba8'
+    },
+    dracula: {
+      a: 1,
+      variable: '#f8f8f2', comment: '#6272a4', keyword: '#ff79c6', control: '#ff79c6',
+      string: '#f1fa8c',   number: '#bd93f9',  func: '#50fa7b',    type: '#8be9fd',
+      param: '#ffb86c',    operator: '#ff79c6', regexp: '#f1fa8c', invalid: '#ff5555'
+    },
+    onedark: {
+      a: 1,
+      variable: '#abb2bf', comment: '#5c6370', keyword: '#c678dd', control: '#c678dd',
+      string: '#98c379',   number: '#d19a66',  func: '#61afef',    type: '#e5c07b',
+      param: '#e06c75',    operator: '#56b6c2', regexp: '#98c379', invalid: '#e06c75'
+    },
+    nord: {
+      a: 1,
+      variable: '#d8dee9', comment: '#616e88', keyword: '#81a1c1', control: '#81a1c1',
+      string: '#a3be8c',   number: '#b48ead',  func: '#88c0d0',    type: '#8fbcbb',
+      param: '#d8dee9',    operator: '#81a1c1', regexp: '#ebcb8b', invalid: '#bf616a'
+    },
+    gruvbox: {
+      a: 1,
+      variable: '#ebdbb2', comment: '#928374', keyword: '#fb4934', control: '#fb4934',
+      string: '#b8bb26',   number: '#d3869b',  func: '#fabd2f',    type: '#8ec07c',
+      param: '#83a598',    operator: '#fe8019', regexp: '#b8bb26', invalid: '#cc241d'
     }
   };
 
@@ -214,13 +250,28 @@
     return map;
   }
 
+  let customMonacoTheme = 'default';
+  chrome.storage.local.get('lcMonacoTheme', (res) => {
+    if (res && res.lcMonacoTheme) {
+      customMonacoTheme = res.lcMonacoTheme;
+      safe(true);
+    }
+  });
+  chrome.storage.onChanged.addListener((ch, area) => {
+    if (area === 'local' && ch.lcMonacoTheme) {
+      customMonacoTheme = ch.lcMonacoTheme.newValue || 'default';
+      safe(true);
+    }
+  });
+
   function apply(force) {
     const theme = document.documentElement.getAttribute('data-lc-theme') || '';
+    const customInk = (customMonacoTheme !== 'default' && INK[customMonacoTheme]) ? INK[customMonacoTheme] : null;
     /* the anime theme's inks are solved from its scene and published by
        src/anime/anime.js into this shared isolated world. The game theme's
        Easy tier overrides the static dark-fallback ink above the same way,
        via src/game/game.js's __lctsGameInk. */
-    const ink = (theme === 'game' && globalThis.__lctsGameInk) || INK[theme]
+    const ink = customInk || (theme === 'game' && globalThis.__lctsGameInk) || INK[theme]
       || (theme === 'anime' ? globalThis.__lctsAnimeInk : null);
     if (!ink) {
       /* theme off: take the override away so LeetCode's own colours return */
@@ -241,10 +292,11 @@
 
     /* the entire heartbeat is this comparison -- no parsing unless it moved */
     const now = signature();
-    if (!force && now === sig && theme === lastTheme) return true;
+    const themeKey = theme + ':' + customMonacoTheme;
+    if (!force && now === sig && themeKey === lastTheme) return true;
     /* a sheet was replaced rather than edited: rediscover before parsing */
     if (now === -1) { sheets = findSheets(); if (!sheets.length) return false; }
-    sig = signature(); lastTheme = theme;
+    sig = signature(); lastTheme = themeKey;
 
     const map = palette();
     const rules = [];

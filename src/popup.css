@@ -16,17 +16,18 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  width: 344px;
+  width: 360px;
   background: var(--pop-bg);
   color: var(--pop-text);
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
 }
 
-body { padding: 16px 14px 12px; }
+body { padding: 14px 14px 12px; }
 
 /* ---- header ------------------------------------------------------------- */
-.head { display: flex; gap: 11px; align-items: center; margin-bottom: 14px; }
+.head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+.head-top { display: flex; gap: 11px; align-items: center; }
 
 .mark {
   flex: 0 0 auto;
@@ -270,3 +271,272 @@ body { padding: 16px 14px 12px; }
   background-position: right 8px bottom 4px, 0 0;
   image-rendering: pixelated;
 }
+
+/* ---- Tabs Bar --------------------------------------------------------------- */
+.tabs {
+  display: flex;
+  background: var(--pop-panel);
+  border: 1px solid var(--pop-border);
+  border-radius: 9px;
+  padding: 3px;
+  gap: 2px;
+}
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--pop-muted);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 550;
+  padding: 6px 2px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.tab-btn:hover {
+  color: var(--pop-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+.tab-btn.active {
+  background: var(--pop-panel-2);
+  color: #fff;
+  border: 1px solid var(--pop-border-2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ---- Tab Panes -------------------------------------------------------------- */
+.tab-pane {
+  display: none;
+  animation: lcts-tab-fade 0.16s ease;
+}
+.tab-pane.active {
+  display: block;
+}
+@keyframes lcts-tab-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Controls & Settings Groups --------------------------------------------- */
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--pop-panel);
+  border: 1px solid var(--pop-border);
+  border-radius: 11px;
+  padding: 14px 12px;
+}
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+.control-row.highlight-row {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.control-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.control-label span {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--pop-text);
+}
+.control-label small {
+  font-size: 10.5px;
+  color: var(--pop-muted);
+}
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pop-faint);
+  font-weight: 600;
+  margin: 6px 0 8px;
+}
+
+/* Select Dropdown */
+.select-box {
+  background: var(--pop-panel-2);
+  border: 1px solid var(--pop-border-2);
+  border-radius: 7px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  min-width: 140px;
+  transition: border-color 0.15s;
+}
+.select-box:hover, .select-box:focus {
+  border-color: var(--pop-accent);
+}
+.select-box option {
+  background: #1a1e28;
+  color: #fff;
+}
+
+/* Slider Range */
+.slider-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 110px;
+  height: 5px;
+  background: var(--pop-border-2);
+  border-radius: 4px;
+  outline: none;
+}
+.slider-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--pop-accent);
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--pop-accent);
+}
+
+/* Modern iOS Style Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--pop-border-2);
+  border-radius: 22px;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.toggle-switch .slider::before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.toggle-switch input:checked + .slider {
+  background-color: var(--pop-accent);
+}
+.toggle-switch input:checked + .slider::before {
+  transform: translateX(16px);
+}
+
+/* Blind Mode Hero */
+.blind-hero {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(168, 85, 247, 0.08));
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.blind-badge {
+  display: inline-block;
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+.blind-hero p {
+  font-size: 11.5px;
+  color: var(--pop-muted);
+  line-height: 1.4;
+}
+
+/* Feature Shortcuts Tip */
+.feature-tip {
+  margin-top: 4px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px dashed var(--pop-border-2);
+  border-radius: 9px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tip-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+.tip-desc {
+  font-size: 11px;
+  color: var(--pop-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.tip-desc kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: #fff;
+}
+
+/* Sync Actions */
+.sync-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.action-btn {
+  flex: 1;
+  background: var(--pop-panel-2);
+  border: 1px solid var(--pop-border-2);
+  border-radius: 8px;
+  padding: 10px 8px;
+  color: var(--pop-text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s ease;
+}
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--pop-accent);
+}
+.action-btn span {
+  font-size: 12px;
+  font-weight: 600;
+}
+.action-btn small {
+  font-size: 10px;
+  color: var(--pop-muted);
+}
+

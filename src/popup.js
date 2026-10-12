@@ -264,3 +264,165 @@ document.addEventListener('keydown', (e) => {
   next.focus();
   choose(next.dataset.id);
 });
+
+/* ---- Tab Switching --------------------------------------------------------- */
+document.querySelectorAll('.tab-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach((p) => p.classList.remove('active'));
+    btn.classList.add('active');
+    const target = document.getElementById(btn.dataset.tab);
+    if (target) target.classList.add('active');
+  });
+});
+
+/* ---- Monaco Editor Theme --------------------------------------------------- */
+const monacoSelect = document.getElementById('monacoThemeSelect');
+if (monacoSelect) {
+  chrome.storage.local.get('lcMonacoTheme', (res) => {
+    if (res && res.lcMonacoTheme) monacoSelect.value = res.lcMonacoTheme;
+  });
+  monacoSelect.addEventListener('change', () => {
+    chrome.storage.local.set({ lcMonacoTheme: monacoSelect.value });
+  });
+}
+
+/* ---- Editor Typography & Ligatures ----------------------------------------- */
+const fontSelect = document.getElementById('fontSelect');
+const ligaturesToggle = document.getElementById('ligaturesToggle');
+const fontSizeRange = document.getElementById('fontSizeRange');
+const fontSizeVal = document.getElementById('fontSizeVal');
+const cursorSelect = document.getElementById('cursorSelect');
+
+function saveEditorSettings() {
+  const settings = {
+    font: fontSelect ? fontSelect.value : 'jetbrains',
+    ligatures: ligaturesToggle ? ligaturesToggle.checked : true,
+    fontSize: fontSizeRange ? parseInt(fontSizeRange.value, 10) : 14,
+    lineHeight: 1.5,
+    cursorStyle: cursorSelect ? cursorSelect.value : 'smooth'
+  };
+  chrome.storage.local.set({ lcEditorSettings: settings });
+}
+
+if (fontSelect && ligaturesToggle && fontSizeRange && cursorSelect) {
+  chrome.storage.local.get('lcEditorSettings', (res) => {
+    const s = res && res.lcEditorSettings ? res.lcEditorSettings : {};
+    if (s.font) fontSelect.value = s.font;
+    if (s.ligatures !== undefined) ligaturesToggle.checked = !!s.ligatures;
+    if (s.fontSize) {
+      fontSizeRange.value = s.fontSize;
+      if (fontSizeVal) fontSizeVal.textContent = s.fontSize + 'px';
+    }
+    if (s.cursorStyle) cursorSelect.value = s.cursorStyle;
+  });
+
+  fontSelect.addEventListener('change', saveEditorSettings);
+  ligaturesToggle.addEventListener('change', saveEditorSettings);
+  fontSizeRange.addEventListener('input', () => {
+    if (fontSizeVal) fontSizeVal.textContent = fontSizeRange.value + 'px';
+    saveEditorSettings();
+  });
+  cursorSelect.addEventListener('change', saveEditorSettings);
+}
+
+/* ---- Interview Blind Mode -------------------------------------------------- */
+const blindMaster = document.getElementById('blindMasterToggle');
+const blindDiff = document.getElementById('blindDiffToggle');
+const blindTags = document.getElementById('blindTagsToggle');
+const blindStats = document.getElementById('blindStatsToggle');
+
+function saveBlindMode() {
+  const mode = {
+    active: blindMaster ? blindMaster.checked : false,
+    hideDifficulty: blindDiff ? blindDiff.checked : true,
+    blurTags: blindTags ? blindTags.checked : true,
+    hideStats: blindStats ? blindStats.checked : true
+  };
+  chrome.storage.local.set({ lcBlindMode: mode });
+}
+
+if (blindMaster && blindDiff && blindTags && blindStats) {
+  chrome.storage.local.get('lcBlindMode', (res) => {
+    const b = res && res.lcBlindMode ? res.lcBlindMode : {};
+    blindMaster.checked = !!b.active;
+    if (b.hideDifficulty !== undefined) blindDiff.checked = !!b.hideDifficulty;
+    if (b.blurTags !== undefined) blindTags.checked = !!b.blurTags;
+    if (b.hideStats !== undefined) blindStats.checked = !!b.hideStats;
+  });
+
+  [blindMaster, blindDiff, blindTags, blindStats].forEach((el) => {
+    el.addEventListener('change', saveBlindMode);
+  });
+}
+
+/* ---- Tools (Timer & Zen Mode) ---------------------------------------------- */
+const timerToggle = document.getElementById('timerToggle');
+if (timerToggle) {
+  chrome.storage.local.get('lcTimerEnabled', (res) => {
+    timerToggle.checked = !!(res && res.lcTimerEnabled);
+  });
+  timerToggle.addEventListener('change', () => {
+    chrome.storage.local.set({ lcTimerEnabled: timerToggle.checked });
+  });
+}
+
+const zenToggle = document.getElementById('zenToggle');
+if (zenToggle) {
+  chrome.storage.local.get('lcZenMode', (res) => {
+    zenToggle.checked = !!(res && res.lcZenMode);
+  });
+  zenToggle.addEventListener('change', () => {
+    chrome.storage.local.set({ lcZenMode: zenToggle.checked });
+  });
+}
+
+/* ---- Day / Night Auto Scheduler -------------------------------------------- */
+const dayNightToggle = document.getElementById('dayNightToggle');
+if (dayNightToggle) {
+  chrome.storage.local.get('lcDayNight', (res) => {
+    const dn = res && res.lcDayNight ? res.lcDayNight : {};
+    dayNightToggle.checked = !!dn.enabled;
+  });
+  dayNightToggle.addEventListener('change', () => {
+    chrome.storage.local.get('lcDayNight', (res) => {
+      const prev = res && res.lcDayNight ? res.lcDayNight : { mode: 'time', dayTheme: 'paper', nightTheme: 'anime' };
+      prev.enabled = dayNightToggle.checked;
+      chrome.storage.local.set({ lcDayNight: prev });
+    });
+  });
+}
+
+/* ---- Export & Import Settings ---------------------------------------------- */
+const exportBtn = document.getElementById('exportBtn');
+const importBtn = document.getElementById('importBtn');
+const importFileInput = document.getElementById('importFileInput');
+
+if (exportBtn && globalThis.LCTSThemeSync) {
+  exportBtn.addEventListener('click', () => {
+    globalThis.LCTSThemeSync.exportConfig();
+  });
+}
+
+if (importBtn && importFileInput && globalThis.LCTSThemeSync) {
+  importBtn.addEventListener('click', () => {
+    importFileInput.click();
+  });
+  importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      globalThis.LCTSThemeSync.importConfig(evt.target.result)
+        .then(() => {
+          alert('Settings imported successfully! Reloading...');
+          window.location.reload();
+        })
+        .catch((err) => {
+          alert('Failed to import configuration: ' + err.message);
+        });
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+}

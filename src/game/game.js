@@ -105,8 +105,6 @@
     const slug = slugOf();
     if (!slug || slug === lastSlug) return;
     lastSlug = slug;
-    /* a tab not clicked yet plays its cues through the offscreen page: open it now */
-    if (globalThis.LCTSSounds) globalThis.LCTSSounds.prime('game');
     const my = ++ticket;
     let tries = 0, since = 0;
     const P = globalThis.LCTSProblem;
@@ -125,16 +123,6 @@
         if (performance.now() - since < 700) return;
       }
       clearInterval(iv);
-      if ((info.difficulty || '').toLowerCase() !== 'easy' || !globalThis.LCTSGame) return;
-      await whenVisible();
-      if (my !== ticket || !on()) return;
-      globalThis.LCTSGame.titleCard({ title: info.number + '. ' + info.title });
-      /* the level intro's cue (sounds/game/title-card.mp3). retryWithin is
-         what makes this one actually audible on a cold page load: the card
-         fires on problem open, so unlike a verdict there is no click behind
-         it and the browser refuses the first attempt. The card is on screen
-         for ~3.3s, so a gesture inside that window still belongs to it. */
-      if (globalThis.LCTSGameSounds) globalThis.LCTSGameSounds.play('title', { retryWithin: 2600 });
     }, 120);
   }
 

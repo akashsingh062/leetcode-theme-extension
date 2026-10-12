@@ -53,9 +53,7 @@
   chrome.storage.onChanged.addListener((ch, area) => {
     if (area === 'local' && ch.lcPixel) settings = Object.assign({}, DEFAULTS, ch.lcPixel.newValue || {});
   });
-  function sound(kind) {
-    if (settings.sound && SFX) SFX.play(kind, { volume: settings.volume, theme: 'pixel' });
-  }
+  function sound(kind) {}
 
   const PAL = SP.PAL;
   const PX = 3;                  // CSS px per effect pixel
@@ -738,10 +736,7 @@
 
   /* ---- wiring ------------------------------------------------------------------------- */
   function play(v) {
-    // Remove animations while submitting code
-    if (v.action === 'submit') return;
-    if (!on() || !settings.moments || live || document.visibilityState !== 'visible') return;
-    stamp(v);
+    return;
   }
   if (globalThis.LCTSVerdict) globalThis.LCTSVerdict.subscribe((v) => play(v));
   document.addEventListener('lcts:pixel', (e) => {
