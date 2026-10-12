@@ -148,74 +148,162 @@ html[data-lc-theme="nord"] {
 }
 
 /* -----------------------------------------------------------------------------
-   10. CUSTOM WALLPAPER THEME (Glassmorphic)
+   10. WALLPAPER / ANIME GLASS ENGINE
 ----------------------------------------------------------------------------- */
-html[data-lc-theme="custom"] {
-  --lc-bg: transparent;
-  --lc-panel: rgba(15, 23, 42, var(--lc-custom-opacity, 0.82));
-  --lc-panel-elevated: rgba(30, 41, 59, var(--lc-custom-opacity, 0.88));
-  --lc-border: rgba(255, 255, 255, 0.14);
-  --lc-border-strong: rgba(255, 255, 255, 0.28);
-  --lc-text: #f8fafc;
-  --lc-text-muted: #94a3b8;
-  --lc-accent: var(--lc-custom-accent, #38bdf8);
-  --lc-accent-glow: rgba(56, 189, 248, 0.25);
-  --lc-editor-bg: rgba(15, 23, 42, var(--lc-custom-opacity, 0.82));
+/* The full-screen wallpaper layer */
+html[data-lc-theme="anime"] body::before,
+html[data-lc-has-wallpaper="true"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--lc-anime-desk);
+  background-size: auto, cover;
+  background-position: 0 0, center;
+  background-repeat: no-repeat;
+  will-change: transform;
+  filter: blur(var(--lc-custom-blur, 0px));
+  transition: opacity 0.3s ease;
+}
+
+/* Allow wallpaper layer to shine through all parent containers */
+html[data-lc-theme="anime"],
+html[data-lc-theme="anime"] body,
+html[data-lc-theme="anime"] #__next,
+html[data-lc-theme="anime"] #root,
+html[data-lc-theme="anime"] main,
+html[data-lc-has-wallpaper="true"],
+html[data-lc-has-wallpaper="true"] body,
+html[data-lc-has-wallpaper="true"] #__next,
+html[data-lc-has-wallpaper="true"] #root,
+html[data-lc-has-wallpaper="true"] main {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+html[data-lc-theme="anime"] .flexlayout__layout,
+html[data-lc-has-wallpaper="true"] .flexlayout__layout {
+  --color-background: transparent;
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Glassmorphic panels */
+html[data-lc-theme="anime"] .flexlayout__tabset,
+html[data-lc-has-wallpaper="true"] .flexlayout__tabset {
+  background: var(--lc-anime-glass, rgba(15, 23, 42, 0.85)) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--lc-hairline, rgba(255, 255, 255, 0.12)) !important;
+  border-radius: 8px !important;
+}
+
+html[data-lc-theme="anime"] .flexlayout__tab,
+html[data-lc-has-wallpaper="true"] .flexlayout__tab {
+  background: transparent !important;
+}
+
+html[data-lc-theme="anime"] .flexlayout__tabset_tabbar_outer,
+html[data-lc-has-wallpaper="true"] .flexlayout__tabset_tabbar_outer {
+  background: transparent !important;
+  border-bottom: 1px solid var(--lc-hairline, rgba(255, 255, 255, 0.12)) !important;
+}
+
+html[data-lc-theme="anime"] .flexlayout__tab_button,
+html[data-lc-has-wallpaper="true"] .flexlayout__tab_button {
+  color: var(--lc-text3, rgba(255, 255, 255, 0.65)) !important;
+}
+
+html[data-lc-theme="anime"] .flexlayout__tab_button--selected,
+html[data-lc-has-wallpaper="true"] .flexlayout__tab_button--selected {
+  color: var(--lc-accent) !important;
+  border-bottom: 2px solid var(--lc-accent) !important;
+  background: transparent !important;
+}
+
+/* -- Frosted Glass Editor -- */
+html[data-lc-theme="anime"] #editor,
+html[data-lc-has-wallpaper="true"] #editor {
+  background-color: transparent !important;
+  background-image: var(--lc-anime-editor) !important;
+  background-size: auto, cover !important;
+  background-repeat: no-repeat !important;
+  background-position: 0 0, center !important;
+  background-attachment: fixed !important;
+}
+
+html[data-lc-theme="anime"] .monaco-editor,
+html[data-lc-theme="anime"] .monaco-editor-background,
+html[data-lc-theme="anime"] .monaco-editor .overflow-guard,
+html[data-lc-theme="anime"] .monaco-editor .monaco-scrollable-element,
+html[data-lc-theme="anime"] .monaco-editor .lines-content,
+html[data-lc-theme="anime"] .monaco-editor .margin,
+html[data-lc-has-wallpaper="true"] .monaco-editor,
+html[data-lc-has-wallpaper="true"] .monaco-editor-background,
+html[data-lc-has-wallpaper="true"] .monaco-editor .overflow-guard,
+html[data-lc-has-wallpaper="true"] .monaco-editor .monaco-scrollable-element,
+html[data-lc-has-wallpaper="true"] .monaco-editor .lines-content,
+html[data-lc-has-wallpaper="true"] .monaco-editor .margin {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+html[data-lc-theme="anime"] .monaco-editor .line-numbers,
+html[data-lc-has-wallpaper="true"] .monaco-editor .line-numbers {
+  color: var(--lc-text3, rgba(255, 255, 255, 0.5)) !important;
+}
+
+html[data-lc-theme="anime"] .monaco-editor .line-numbers.active-line-number,
+html[data-lc-has-wallpaper="true"] .monaco-editor .line-numbers.active-line-number {
+  color: var(--lc-accent) !important;
+}
+
+html[data-lc-theme="anime"] .monaco-editor .cursor,
+html[data-lc-has-wallpaper="true"] .monaco-editor .cursor {
+  background-color: var(--lc-accent) !important;
+  border-color: var(--lc-accent) !important;
+}
+
+/* Nav & Header */
+html[data-lc-theme="anime"] nav,
+html[data-lc-theme="anime"] header,
+html[data-lc-has-wallpaper="true"] nav,
+html[data-lc-has-wallpaper="true"] header {
+  background: var(--lc-nav-bg, rgba(15, 23, 42, 0.85)) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid var(--lc-hairline, rgba(255, 255, 255, 0.12)) !important;
+}
+
+/* Submit and Run Buttons */
+html[data-lc-theme="anime"] button[data-e2e-locator="console-submit-button"],
+html[data-lc-has-wallpaper="true"] button[data-e2e-locator="console-submit-button"] {
+  background-color: var(--lc-submit-bg, var(--lc-accent)) !important;
+  color: var(--lc-submit-text, #ffffff) !important;
+  box-shadow: 0 4px 14px var(--lc-glow, rgba(255, 255, 255, 0.2)) !important;
+}
+
+/* Focus Mode */
+html[data-lc-focus] body::before {
+  opacity: 0 !important;
+}
+html[data-lc-focus] #editor {
+  background-image: none !important;
+  background-color: var(--lc-desk, #121218) !important;
 }
 
 /* =============================================================================
    APPLIED STYLES ACROSS LEETCODE SURFACES
 ============================================================================= */
-html[data-lc-theme]:not([data-lc-theme="off"]) {
+html[data-lc-theme]:not([data-lc-theme="off"]):not([data-lc-theme="anime"]) {
   background-color: var(--lc-bg) !important;
   color: var(--lc-text) !important;
 }
 
-html[data-lc-theme]:not([data-lc-theme="off"]) body {
+html[data-lc-theme]:not([data-lc-theme="off"]):not([data-lc-theme="anime"]) body {
   background-color: var(--lc-bg) !important;
   color: var(--lc-text) !important;
-}
-
-/* Wallpaper transparency & glassmorphic layout layer */
-html[data-lc-has-wallpaper="true"],
-html[data-lc-has-wallpaper="true"] body,
-html[data-lc-has-wallpaper="true"] #__next,
-html[data-lc-has-wallpaper="true"] #root,
-html[data-lc-has-wallpaper="true"] main,
-html[data-lc-has-wallpaper="true"] .flexlayout__layout {
-  background-color: transparent !important;
-}
-
-html[data-lc-has-wallpaper="true"] {
-  --lc-bg: transparent !important;
-}
-
-html[data-lc-has-wallpaper="true"] #__next,
-html[data-lc-has-wallpaper="true"] #root,
-html[data-lc-has-wallpaper="true"] nav,
-html[data-lc-has-wallpaper="true"] header,
-html[data-lc-has-wallpaper="true"] .flexlayout__layout,
-html[data-lc-has-wallpaper="true"] .flexlayout__tabset {
-  position: relative;
-  z-index: 1;
-}
-
-html[data-lc-has-wallpaper="true"] .flexlayout__tab {
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-}
-
-#lcts-custom-wallpaper-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  pointer-events: none;
-  filter: blur(var(--lc-custom-blur, 0px));
-  opacity: var(--lc-wallpaper-layer-opacity, 1);
-  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 /* Top Navigation Bar */

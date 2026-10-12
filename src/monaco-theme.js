@@ -182,6 +182,13 @@
     if (activeMonacoOverride !== 'default' && PALETTES[activeMonacoOverride]) {
       return PALETTES[activeMonacoOverride];
     }
+    const sceneId = document.documentElement.getAttribute('data-lc-scene');
+    if (sceneId && globalThis.LCTS_SCENES && globalThis.LCTS_SCENES[sceneId]) {
+      return globalThis.LCTS_SCENES[sceneId].theme.ink;
+    }
+    if (globalThis.__lctsSceneInk) {
+      return globalThis.__lctsSceneInk;
+    }
     const theme = document.documentElement.getAttribute('data-lc-theme') || 'tokyonight';
     return PALETTES[theme] || PALETTES.tokyonight;
   }
@@ -283,9 +290,11 @@
     }
   });
 
-  // Watch for theme attribute changes on documentElement
+  // Watch for theme and scene attribute changes on documentElement
   new MutationObserver(() => applyHighlighting())
-    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lc-theme'] });
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lc-theme', 'data-lc-scene'] });
+
+  window.addEventListener('lcts-theme-changed', () => applyHighlighting());
 
   // Watch for newly inserted style tags in <head>
   const headObserver = new MutationObserver((mutations) => {

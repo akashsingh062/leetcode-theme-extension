@@ -1,7 +1,6 @@
 /* =============================================================================
-   popup.js — Clean-Room LeetCode Themes & Productivity Toolkit Popup.
-   Controls theme selection, wallpaper gallery, editor fonts, blind mode,
-   timers, notes, and settings sync.
+   popup.js — LeetCode Themes & Wallpaper Studio Popup.
+   Controls wallpaper themes, solid themes, editor settings, and interview tools.
 ============================================================================= */
 
 const THEMES = {
@@ -41,38 +40,13 @@ const THEMES = {
     name: 'Nordic Frost', desc: 'Arctic polar night & frost teal', accent: '#88c0d0',
     pv: { bg:'#2e3440', text:'#eceff4', line:'#4c566a', kw:'#81a1c1', fn:'#88c0d0', num:'#b48ead', var:'#eceff4', com:'#616e88', pn:'#81a1c1' }
   },
-  custom: {
-    name: 'Custom Glass', desc: 'Personal glassmorphic theme', accent: '#38bdf8',
-    pv: { bg:'#0f172a', text:'#f8fafc', line:'#334155', kw:'#38bdf8', fn:'#818cf8', num:'#f59e0b', var:'#f8fafc', com:'#64748b', pn:'#38bdf8' }
-  },
   off: {
     name: 'Default LeetCode', desc: 'Standard un-themed view', accent: '#94a3b8',
     pv: { bg:'#1a1a1a', text:'#eff1f6', line:'#404040', kw:'#c678dd', fn:'#61afef', num:'#d19a66', var:'#eff1f6', com:'#7f848e', pn:'#abb2bf' }
   }
 };
 
-const WALLPAPERS = [
-  { id: 'blossom-night', name: 'Sakura Night', desc: 'Night temple blossoms', accent: '#ff7eb6' },
-  { id: 'neon-rain', name: 'Neon Rain', desc: 'Cyberpunk rain metropolis', accent: '#06b6d4' },
-  { id: 'starfield', name: 'Cosmic Starfield', desc: 'Deep starry galaxy & nebula', accent: '#818cf8' },
-  { id: 'golden-hour', name: 'Golden Hour', desc: 'Warm sunset skyline', accent: '#f59e0b' },
-  { id: 'blue-dragon', name: 'Azure Dragon', desc: 'Mythical dragon pagoda', accent: '#38bdf8' },
-  { id: 'torii-forest', name: 'Torii Forest', desc: 'Misty torii shrine path', accent: '#f43f5e' },
-  { id: 'city-cat', name: 'Midnight Cat', desc: 'Cozy rooftop cat under stars', accent: '#a78bfa' },
-  { id: 'train-window', name: 'Train Journey', desc: 'Sunset railway reflection', accent: '#fb923c' },
-  { id: 'moonlit-shrine', name: 'Moonlit Shrine', desc: 'Full moon over ancient shrine', accent: '#c084fc' },
-  { id: 'harvest-moon', name: 'Harvest Moon', desc: 'Golden autumn leaves & moon', accent: '#eab308' },
-  { id: 'forest-road', name: 'Emerald Forest', desc: 'Tranquil verdant woods road', accent: '#22c55e' },
-  { id: 'moon-field', name: 'Starry Meadow', desc: 'Breezy grass field under stars', accent: '#34d399' },
-  { id: 'crimson-dragon', name: 'Crimson Dragon', desc: 'Fiery dragon emperor realm', accent: '#ef4444' },
-  { id: 'dragon-bride', name: 'Dragon Maiden', desc: 'Ethereal anime fantasy', accent: '#ec4899' },
-  { id: 'new-year', name: 'Lantern Fest', desc: 'Warm glowing festival lanterns', accent: '#f97316' },
-  { id: 'map-room', name: 'Grand Archives', desc: 'Scholarly candlelit library', accent: '#d97706' },
-  { id: 'moon-wanderer', name: 'Moon Wanderer', desc: 'Solitary figure beneath moon', accent: '#93c5fd' },
-  { id: 'sakura-dusk', name: 'Sakura Dusk', desc: 'Pink twilight petals drifting', accent: '#f472b6' }
-];
-
-const ORDER = ['tokyonight', 'catppuccin', 'sakura', 'paper', 'matrix', 'grid', 'orchid', 'dracula', 'nord', 'custom', 'off'];
+const ORDER = ['tokyonight', 'catppuccin', 'sakura', 'paper', 'matrix', 'grid', 'orchid', 'dracula', 'nord', 'off'];
 
 function pvVars(pv) {
   return `--pv-bg:${pv.bg};--pv-text:${pv.text};--pv-line:${pv.line};`
@@ -80,7 +54,14 @@ function pvVars(pv) {
        + `--pv-var:${pv.var};--pv-com:${pv.com};--pv-pn:${pv.pn};`;
 }
 
-function renderGrid(selected) {
+function setAccent(accentColor) {
+  if (accentColor) {
+    document.documentElement.style.setProperty('--pop-accent', accentColor);
+  }
+}
+
+/* ---- Render Solid Themes Grid ---- */
+function renderSolidGrid(selected) {
   const grid = document.getElementById('grid');
   if (!grid) return;
   grid.innerHTML = '';
@@ -110,22 +91,23 @@ function renderGrid(selected) {
       </div>
     `;
 
-    card.addEventListener('click', () => chooseTheme(id));
+    card.addEventListener('click', () => chooseSolidTheme(id));
     grid.appendChild(card);
   });
-
-  setAccent(selected);
 }
 
-function setAccent(id) {
-  const t = THEMES[id] || THEMES.tokyonight;
-  document.documentElement.style.setProperty('--pop-accent', t.accent);
-}
-
-function chooseTheme(id) {
+function chooseSolidTheme(id) {
   document.querySelectorAll('.card').forEach((c) =>
     c.setAttribute('aria-checked', String(c.dataset.id === id)));
-  setAccent(id);
+
+  document.querySelectorAll('.wall-card').forEach((c) => {
+    c.setAttribute('aria-checked', 'false');
+    const badge = c.querySelector('.wall-badge');
+    if (badge) badge.textContent = 'Theme';
+  });
+
+  const t = THEMES[id] || THEMES.tokyonight;
+  setAccent(t.accent);
 
   chrome.storage.local.set({ lcTheme: id, lcThemeStudio: id });
 
@@ -133,60 +115,71 @@ function chooseTheme(id) {
   if (status) {
     status.textContent = id === 'off'
       ? 'Theme off. Standard LeetCode restored.'
-      : `${THEMES[id].name} applied across your problem tabs!`;
+      : `${t.name} applied across your problem tabs!`;
   }
 }
 
-/* ---- Wallpaper Gallery Rendering ---- */
+/* ---- Render Wallpaper Themes Grid ---- */
 function renderWallpaperGrid(activePreset) {
   const wallGrid = document.getElementById('wallGrid');
   if (!wallGrid) return;
   wallGrid.innerHTML = '';
 
-  WALLPAPERS.forEach((w) => {
+  const scenes = globalThis.LCTS_SCENES || {};
+
+  Object.keys(scenes).forEach((sceneId) => {
+    const s = scenes[sceneId];
     const card = document.createElement('button');
     card.className = 'wall-card';
     card.type = 'button';
     card.setAttribute('role', 'radio');
-    card.setAttribute('aria-checked', String(w.id === activePreset));
-    card.dataset.preset = w.id;
-    card.style.setProperty('--card-accent', w.accent);
+    card.setAttribute('aria-checked', String(sceneId === activePreset));
+    card.dataset.preset = sceneId;
+    const accent = s.theme ? s.theme.roles['--lc-accent'] : '#38bdf8';
+    card.style.setProperty('--card-accent', accent);
 
     card.innerHTML = `
-      <img class="wall-thumb" src="../textures/anime/${w.id}-thumb.webp" alt="${w.name}" loading="lazy" />
-      <span class="wall-badge">${w.id === activePreset ? '✓ Active' : 'Theme'}</span>
+      <img class="wall-thumb" src="../textures/anime/${sceneId}-thumb.webp" alt="${s.name}" loading="lazy" />
+      <span class="wall-badge">${sceneId === activePreset ? '✓ Active' : 'Theme'}</span>
       <div class="wall-meta">
-        <span class="wall-name">${w.name}</span>
-        <span class="wall-desc">${w.desc}</span>
+        <span class="wall-name">${s.name}</span>
+        <span class="wall-desc">${s.desc}</span>
       </div>
     `;
 
-    card.addEventListener('click', () => chooseWallpaper(w.id, w.accent, w.name));
+    card.addEventListener('click', () => chooseWallpaperTheme(sceneId));
     wallGrid.appendChild(card);
   });
 }
 
-function chooseWallpaper(preset, accent, name) {
+function chooseWallpaperTheme(sceneId) {
+  const scenes = globalThis.LCTS_SCENES || {};
+  const s = scenes[sceneId];
+  if (!s) return;
+
+  // Clear solid theme checkmarks
+  document.querySelectorAll('.card').forEach((c) => c.setAttribute('aria-checked', 'false'));
+
+  // Update wallpaper checkmarks
   document.querySelectorAll('.wall-card').forEach((c) => {
-    const isThis = c.dataset.preset === preset;
+    const isThis = c.dataset.preset === sceneId;
     c.setAttribute('aria-checked', String(isThis));
     const badge = c.querySelector('.wall-badge');
     if (badge) badge.textContent = isThis ? '✓ Active' : 'Theme';
   });
 
-  const wallConfig = {
-    preset: preset,
-    dataUrl: null,
-    opacity: customWallData.opacity,
-    blur: customWallData.blur,
-    accent: accent
-  };
+  const accent = s.theme ? s.theme.roles['--lc-accent'] : '#ff7eb6';
+  setAccent(accent);
 
-  chrome.storage.local.set({ lcWallpaper: wallConfig, lcCustomWallpaper: wallConfig });
+  chrome.storage.local.set({
+    lcTheme: 'anime',
+    lcThemeStudio: 'anime',
+    lcAnimeScene: sceneId
+  });
 
   const status = document.getElementById('status');
   if (status) {
-    status.textContent = `"${name}" wallpaper enabled across your problem tabs!`;
+    status.textContent = `"${s.name}" wallpaper theme applied across your problem tabs!`;
   }
 }
 
@@ -197,23 +190,58 @@ function disableWallpaper() {
     if (badge) badge.textContent = 'Theme';
   });
 
-  chrome.storage.local.remove(['lcWallpaper', 'lcCustomWallpaper']);
+  chooseSolidTheme('tokyonight');
 
   const status = document.getElementById('status');
   if (status) {
-    status.textContent = 'Wallpaper disabled. Pure solid theme restored.';
+    status.textContent = 'Wallpaper disabled. Tokyo Night theme restored.';
   }
 }
 
 /* ---- Boot & Initial Load ---- */
-chrome.storage.local.get(['lcTheme', 'lcThemeStudio', 'lcWallpaper', 'lcCustomWallpaper'], (res) => {
-  const selectedTheme = (res && res.lcTheme) || (res && res.lcThemeStudio) || 'tokyonight';
-  renderGrid(selectedTheme);
+chrome.storage.local.get(['lcTheme', 'lcThemeStudio', 'lcAnimeScene', 'lcCustomWallpaper'], (res) => {
+  const scenes = globalThis.LCTS_SCENES || {};
+  let currentTheme = (res && res.lcTheme) || (res && res.lcThemeStudio) || 'anime';
+  let currentScene = (res && res.lcAnimeScene) || 'blossom-night';
 
-  const activeWall = (res && res.lcWallpaper) || (res && res.lcCustomWallpaper);
-  const activePreset = activeWall ? activeWall.preset : null;
-  renderWallpaperGrid(activePreset);
+  const isWallpaperMode = currentTheme === 'anime' || !!scenes[currentTheme] || currentTheme === 'custom';
+
+  if (isWallpaperMode) {
+    const activePreset = scenes[currentTheme] ? currentTheme : currentScene;
+    renderWallpaperGrid(activePreset);
+    renderSolidGrid(null);
+
+    const s = scenes[activePreset];
+    if (s && s.theme) setAccent(s.theme.roles['--lc-accent']);
+
+    // Default to displaying the active Wallpaper Themes tab
+    switchSubNav('sub-wallpapers');
+  } else {
+    renderSolidGrid(currentTheme);
+    renderWallpaperGrid(null);
+    if (THEMES[currentTheme]) setAccent(THEMES[currentTheme].accent);
+    switchSubNav('sub-colors');
+  }
 });
+
+/* ---- Sub Navigation (Color Themes vs Wallpaper Themes) ---- */
+function switchSubNav(targetSubtab) {
+  document.querySelectorAll('.sub-nav-btn').forEach((b) => {
+    b.classList.toggle('active', b.dataset.subtab === targetSubtab);
+  });
+  document.querySelectorAll('.sub-pane').forEach((p) => {
+    p.classList.toggle('active', p.id === targetSubtab);
+  });
+}
+
+document.querySelectorAll('.sub-nav-btn').forEach((btn) => {
+  btn.addEventListener('click', () => switchSubNav(btn.dataset.subtab));
+});
+
+const clearWallBtn = document.getElementById('clearWallBtn');
+if (clearWallBtn) {
+  clearWallBtn.addEventListener('click', disableWallpaper);
+}
 
 /* ---- Main Tab Navigation ---- */
 document.querySelectorAll('.tab-btn').forEach((btn) => {
@@ -226,22 +254,6 @@ document.querySelectorAll('.tab-btn').forEach((btn) => {
   });
 });
 
-/* ---- Sub Navigation (Color Themes vs Wallpaper Themes) ---- */
-document.querySelectorAll('.sub-nav-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.sub-nav-btn').forEach((b) => b.classList.remove('active'));
-    document.querySelectorAll('.sub-pane').forEach((p) => p.classList.remove('active'));
-    btn.classList.add('active');
-    const target = document.getElementById(btn.dataset.subtab);
-    if (target) target.classList.add('active');
-  });
-});
-
-const clearWallBtn = document.getElementById('clearWallBtn');
-if (clearWallBtn) {
-  clearWallBtn.addEventListener('click', disableWallpaper);
-}
-
 /* ---- Monaco Editor Theme Select ---- */
 const monacoSelect = document.getElementById('monacoThemeSelect');
 if (monacoSelect) {
@@ -253,7 +265,7 @@ if (monacoSelect) {
   });
 }
 
-/* ---- Wallpaper Settings & Custom Uploader ---- */
+/* ---- Custom Wallpaper Upload & Glass Sliders ---- */
 const customWallToggle = document.getElementById('customWallToggle');
 const customWallBody = document.getElementById('customWallBody');
 const wallFileInput = document.getElementById('wallFileInput');
@@ -264,7 +276,6 @@ const wallBlurRange = document.getElementById('wallBlurRange');
 const wallBlurVal = document.getElementById('wallBlurVal');
 
 let customWallData = {
-  preset: null,
   dataUrl: null,
   opacity: 0.85,
   blur: 0
@@ -278,8 +289,8 @@ if (customWallToggle && customWallBody) {
   });
 }
 
-chrome.storage.local.get(['lcWallpaper', 'lcCustomWallpaper'], (res) => {
-  const wall = (res && res.lcWallpaper) || (res && res.lcCustomWallpaper);
+chrome.storage.local.get('lcCustomWallpaper', (res) => {
+  const wall = res && res.lcCustomWallpaper;
   if (wall) {
     customWallData = Object.assign(customWallData, wall);
     if (wallOpacityRange) wallOpacityRange.value = Math.round(customWallData.opacity * 100);
@@ -289,12 +300,12 @@ chrome.storage.local.get(['lcWallpaper', 'lcCustomWallpaper'], (res) => {
   }
 });
 
-function updateActiveWallpaperSettings() {
-  chrome.storage.local.get(['lcWallpaper', 'lcCustomWallpaper'], (res) => {
-    const wall = (res && res.lcWallpaper) || (res && res.lcCustomWallpaper) || {};
+function updateCustomWallSettings() {
+  chrome.storage.local.get('lcCustomWallpaper', (res) => {
+    const wall = res && res.lcCustomWallpaper ? res.lcCustomWallpaper : {};
     wall.opacity = customWallData.opacity;
     wall.blur = customWallData.blur;
-    chrome.storage.local.set({ lcWallpaper: wall, lcCustomWallpaper: wall });
+    chrome.storage.local.set({ lcCustomWallpaper: wall });
   });
 }
 
@@ -306,17 +317,20 @@ if (wallFileInput && wallUploadBtn) {
     const reader = new FileReader();
     reader.onload = (evt) => {
       customWallData.dataUrl = evt.target.result;
-      customWallData.preset = null;
       wallUploadBtn.textContent = '✓ ' + file.name.slice(0, 14);
 
-      const wallConfig = {
-        preset: null,
+      const art = {
         dataUrl: customWallData.dataUrl,
         opacity: customWallData.opacity,
-        blur: customWallData.blur,
-        accent: '#38bdf8'
+        blur: customWallData.blur
       };
-      chrome.storage.local.set({ lcWallpaper: wallConfig, lcCustomWallpaper: wallConfig });
+
+      chrome.storage.local.set({
+        lcTheme: 'anime',
+        lcThemeStudio: 'anime',
+        lcAnimeScene: 'custom',
+        lcCustomWallpaper: art
+      });
 
       document.querySelectorAll('.wall-card').forEach((c) => {
         c.setAttribute('aria-checked', 'false');
@@ -325,7 +339,7 @@ if (wallFileInput && wallUploadBtn) {
       });
 
       const status = document.getElementById('status');
-      if (status) status.textContent = 'Custom wallpaper uploaded & applied!';
+      if (status) status.textContent = 'Custom wallpaper uploaded and applied!';
     };
     reader.readAsDataURL(file);
   });
@@ -335,7 +349,7 @@ if (wallOpacityRange && wallOpacityVal) {
   wallOpacityRange.addEventListener('input', () => {
     customWallData.opacity = parseInt(wallOpacityRange.value, 10) / 100;
     wallOpacityVal.textContent = wallOpacityRange.value + '%';
-    updateActiveWallpaperSettings();
+    updateCustomWallSettings();
   });
 }
 
@@ -343,7 +357,7 @@ if (wallBlurRange && wallBlurVal) {
   wallBlurRange.addEventListener('input', () => {
     customWallData.blur = parseInt(wallBlurRange.value, 10);
     wallBlurVal.textContent = wallBlurRange.value + 'px';
-    updateActiveWallpaperSettings();
+    updateCustomWallSettings();
   });
 }
 
