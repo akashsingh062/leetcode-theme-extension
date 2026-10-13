@@ -32,19 +32,27 @@
      "SolutionsSolutions", not "Solutions". A substring check on the
      lower-cased text survives both. */
   const TAB_ICON = {
-    testcase: 'testcase', solutions: 'solutions', description: 'description',
-    editorial: 'editorial', submissions: 'submissions'
+    testcase: 'testcase',
+    solutions: 'solutions',
+    description: 'description',
+    editorial: 'editorial',
+    submissions: 'submissions'
   };
 
   function markTabs() {
     document.querySelectorAll('.flexlayout__tab_button_content').forEach((el) => {
       const text = el.textContent.trim().toLowerCase();
       let key = null;
-      for (const label in TAB_ICON) { if (text.includes(label)) { key = TAB_ICON[label]; break; } }
+      for (const label in TAB_ICON) {
+        if (text.includes(label)) {
+          key = TAB_ICON[label];
+          break;
+        }
+      }
       if (key) {
         if (el.getAttribute('data-lctg-icon') !== key) el.setAttribute('data-lctg-icon', key);
       } else if (el.hasAttribute('data-lctg-icon')) {
-        el.removeAttribute('data-lctg-icon');   // label changed (locale, etc.) -- don't leave a stale marker
+        el.removeAttribute('data-lctg-icon'); // label changed (locale, etc.) -- don't leave a stale marker
       }
     });
   }
@@ -58,9 +66,12 @@
     let found = null;
     for (let i = 0; i < candidates.length; i++) {
       const el = candidates[i];
-      if (el.children.length) continue;              // leaf nodes only
-      if (el.closest('.monaco-editor')) continue;     // never the code itself
-      if (el.textContent.trim() === 'Auto') { found = el; break; }
+      if (el.children.length) continue; // leaf nodes only
+      if (el.closest('.monaco-editor')) continue; // never the code itself
+      if (el.textContent.trim() === 'Auto') {
+        found = el;
+        break;
+      }
     }
     const wantParent = found && found.parentElement;
     document.querySelectorAll('[data-lctg-icon="auto"]').forEach((el) => {
@@ -77,7 +88,9 @@
      where all three actually live; still leaf-only and never inside
      .monaco-editor, so user code can't match. */
   const LABELS = {
-    Testcase: 'testcase', 'Test Result': 'test-result', Analysis: 'analysis',
+    Testcase: 'testcase',
+    'Test Result': 'test-result',
+    Analysis: 'analysis',
     'You must run your code first': 'empty-msg'
   };
   function markLabels() {
@@ -96,8 +109,12 @@
            together a few levels up (for a background glow behind both),
            plus the nearest svg icon sitting next to it */
         found['empty-msg'] = el;
-        let box = el, hops = 0;
-        while (box && box.querySelector('svg') === null && hops < 4) { box = box.parentElement; hops++; }
+        let box = el,
+          hops = 0;
+        while (box && box.querySelector('svg') === null && hops < 4) {
+          box = box.parentElement;
+          hops++;
+        }
         if (box) {
           found['empty-chamber'] = box;
           const icon = box.querySelector('svg');
@@ -110,9 +127,13 @@
          button ancestor within a few levels -- same shape as markAuto's
          .parentElement, just walking further since these buttons wrap the
          label in an icon+text row */
-      let target = el, hops = 0;
-      while (target && target.tagName !== 'BUTTON' && hops < 4) { target = target.parentElement; hops++; }
-      found[key] = (target && target.tagName === 'BUTTON') ? target : el;
+      let target = el,
+        hops = 0;
+      while (target && target.tagName !== 'BUTTON' && hops < 4) {
+        target = target.parentElement;
+        hops++;
+      }
+      found[key] = target && target.tagName === 'BUTTON' ? target : el;
     }
     document.querySelectorAll('[data-lctg-label]').forEach((el) => {
       const key = el.getAttribute('data-lctg-label');
@@ -153,21 +174,30 @@
   function markCodeCards() {
     const wanted = new Set();
     document.querySelectorAll('pre').forEach((pre) => {
-      if (pre.closest('.monaco-editor')) return;      // never the code being typed
+      if (pre.closest('.monaco-editor')) return; // never the code being typed
       const direct = pre.parentElement;
       const viaGroup = direct && direct.classList.contains('group') ? direct.parentElement : null;
-      const box = [direct, viaGroup].find((b) => b && b.classList.contains('rounded-lg') && b.classList.contains('bg-fill-3'));
+      const box = [direct, viaGroup].find(
+        (b) => b && b.classList.contains('rounded-lg') && b.classList.contains('bg-fill-3')
+      );
       if (box) wanted.add(box);
     });
     document.querySelectorAll('[data-lctg-code-card]').forEach((el) => {
       if (!wanted.has(el)) el.removeAttribute('data-lctg-code-card');
     });
-    wanted.forEach((el) => { if (!el.hasAttribute('data-lctg-code-card')) el.setAttribute('data-lctg-code-card', ''); });
+    wanted.forEach((el) => {
+      if (!el.hasAttribute('data-lctg-code-card')) el.setAttribute('data-lctg-code-card', '');
+    });
   }
 
   function safe() {
     if (!on()) return;
-    try { markTabs(); markAuto(); markLabels(); markCodeCards(); } catch (e) {}
+    try {
+      markTabs();
+      markAuto();
+      markLabels();
+      markCodeCards();
+    } catch (e) {}
   }
 
   /* decaying catch-up for late-mounting tabs/toolbar, then a light heartbeat
@@ -182,6 +212,8 @@
   setInterval(safe, 2000);
 
   /* our own theme switches, and only ours */
-  new MutationObserver(safe)
-    .observe(root, { attributes: true, attributeFilter: ['data-lc-theme'] });
+  new MutationObserver(safe).observe(root, {
+    attributes: true,
+    attributeFilter: ['data-lc-theme']
+  });
 })();

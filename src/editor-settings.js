@@ -9,11 +9,11 @@
 
   const DEFAULTS = {
     v: 2,
-    font: 'default',        // Preserve LeetCode's native font by default
+    font: 'default', // Preserve LeetCode's native font by default
     ligatures: true,
-    fontSize: 'default',    // Preserve LeetCode's native font size by default
-    lineHeight: 'default',  // Preserve LeetCode's native line height by default
-    cursorStyle: 'blink'    // Standard crisp blink (instant response, zero lag)
+    fontSize: 'default', // Preserve LeetCode's native font size by default
+    lineHeight: 'default', // Preserve LeetCode's native line height by default
+    cursorStyle: 'blink' // Standard crisp blink (instant response, zero lag)
   };
 
   let settings = Object.assign({}, DEFAULTS);

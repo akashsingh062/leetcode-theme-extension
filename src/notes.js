@@ -268,7 +268,9 @@
 
       navigator.clipboard.writeText(text).then(() => {
         copyBtn.textContent = '✓ Copied!';
-        setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 1500);
+        setTimeout(() => {
+          copyBtn.textContent = '📋 Copy';
+        }, 1500);
       });
     });
 

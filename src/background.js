@@ -13,7 +13,12 @@ chrome.commands.onCommand.addListener((command) => {
     });
   } else if (command === 'toggle-blind') {
     chrome.storage.local.get('lcBlindMode', (res) => {
-      const b = res.lcBlindMode || { active: true, hideDifficulty: true, blurTags: true, hideStats: true };
+      const b = res.lcBlindMode || {
+        active: true,
+        hideDifficulty: true,
+        blurTags: true,
+        hideStats: true
+      };
       b.active = !b.active;
       chrome.storage.local.set({ lcBlindMode: b });
     });

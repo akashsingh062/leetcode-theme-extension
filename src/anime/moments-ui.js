@@ -15,18 +15,18 @@
   'use strict';
 
   const VERDICTS = {
-    ac:  { jp: '完了！',   en: 'ACCEPTED' },
-    run: { jp: 'よし！',   en: 'TESTS PASSED' },
-    wa:  { jp: 'まだだ…', en: 'WRONG ANSWER' },
+    ac: { jp: '完了！', en: 'ACCEPTED' },
+    run: { jp: 'よし！', en: 'TESTS PASSED' },
+    wa: { jp: 'まだだ…', en: 'WRONG ANSWER' },
     tle: { jp: '時間切れ', en: 'TIME LIMIT EXCEEDED' },
     mle: { jp: 'メモリ不足', en: 'MEMORY LIMIT EXCEEDED' },
-    err: { jp: 'エラー',   en: 'ERROR' }
+    err: { jp: 'エラー', en: 'ERROR' }
   };
 
   const ARCS = {
-    easy:   { jp: '日常編',   en: 'SLICE-OF-LIFE ARC' },
-    medium: { jp: '修行編',   en: 'TRAINING ARC' },
-    hard:   { jp: '最終決戦', en: 'FINAL BATTLE' }
+    easy: { jp: '日常編', en: 'SLICE-OF-LIFE ARC' },
+    medium: { jp: '修行編', en: 'TRAINING ARC' },
+    hard: { jp: '最終決戦', en: 'FINAL BATTLE' }
   };
 
   /* Web Crawler: same overlay engine and choreography (themes/crawler.css
@@ -35,17 +35,17 @@
      big stamp's primary text" -- it isn't Japanese here, just kept so this
      function doesn't need a second field name. */
   const VERDICTS_CRAWLER = {
-    ac:  { jp: 'NODE COMPILED', en: 'ACCEPTED',              code: '200 OK' },
-    run: { jp: 'TESTS CLEARED', en: 'PASSED',                code: '200 OK' },
-    wa:  { jp: 'MISMATCH',      en: 'WRONG ANSWER',          code: '409 CONFLICT' },
-    tle: { jp: 'TIMEOUT',       en: 'TIME LIMIT EXCEEDED',   code: '408 REQUEST TIMEOUT' },
-    mle: { jp: 'OVERFLOW',      en: 'MEMORY LIMIT EXCEEDED', code: '507 INSUFFICIENT STORAGE' },
-    err: { jp: 'TRACE FAILED',  en: 'ERROR',                 code: '500 INTERNAL ERROR' }
+    ac: { jp: 'NODE COMPILED', en: 'ACCEPTED', code: '200 OK' },
+    run: { jp: 'TESTS CLEARED', en: 'PASSED', code: '200 OK' },
+    wa: { jp: 'MISMATCH', en: 'WRONG ANSWER', code: '409 CONFLICT' },
+    tle: { jp: 'TIMEOUT', en: 'TIME LIMIT EXCEEDED', code: '408 REQUEST TIMEOUT' },
+    mle: { jp: 'OVERFLOW', en: 'MEMORY LIMIT EXCEEDED', code: '507 INSUFFICIENT STORAGE' },
+    err: { jp: 'TRACE FAILED', en: 'ERROR', code: '500 INTERNAL ERROR' }
   };
   const ARCS_CRAWLER = {
-    easy:   { jp: '>>', en: 'THREAT LEVEL: LOW' },
+    easy: { jp: '>>', en: 'THREAT LEVEL: LOW' },
     medium: { jp: '>>', en: 'THREAT LEVEL: ELEVATED' },
-    hard:   { jp: '>>', en: 'THREAT LEVEL: CRITICAL' }
+    hard: { jp: '>>', en: 'THREAT LEVEL: CRITICAL' }
   };
 
   /* ---- Web Crawler: spiders on silk ------------------------------------------
@@ -57,7 +57,7 @@
      never hangs across the stamp's own letters. */
   const DROPS_CRAWLER = {
     ac: [
-      { x: 6,  len: 27, s: 84, d: 120 },
+      { x: 6, len: 27, s: 84, d: 120 },
       { x: 18, len: 13, s: 50, d: 300, sw: 4 },
       { x: 50, len: 24, s: 92, d: 220, sw: 1.6 },
       { x: 82, len: 16, s: 56, d: 260, sw: 4 },
@@ -68,7 +68,7 @@
       { x: 'calc(100% - 4vw - 150px)', len: '30vh', s: 38, d: 200, sw: 5 }
     ],
     wa: [
-      { x: 12, len: 52, s: 74, d: 40,  cls: 'is-hard' },
+      { x: 12, len: 52, s: 74, d: 40, cls: 'is-hard' },
       { x: 88, len: 44, s: 68, d: 110, cls: 'is-hard' },
       { x: 50, len: 20, d: 160, cls: 'is-snap' }
     ],
@@ -77,15 +77,19 @@
       { x: 74, len: 34, s: 62, d: 200, cls: 'is-slow', sw: 1.4, sp: 2400 }
     ],
     mle: [
-      { x: 5,  len: 12, s: 40, d: 40 }, { x: 15, len: 30, s: 52, d: 90 },
-      { x: 27, len: 18, s: 44, d: 140 }, { x: 39, len: 40, s: 56, d: 60 },
-      { x: 61, len: 36, s: 52, d: 120 }, { x: 73, len: 16, s: 42, d: 180 },
-      { x: 85, len: 33, s: 56, d: 100 }, { x: 95, len: 22, s: 46, d: 160 }
+      { x: 5, len: 12, s: 40, d: 40 },
+      { x: 15, len: 30, s: 52, d: 90 },
+      { x: 27, len: 18, s: 44, d: 140 },
+      { x: 39, len: 40, s: 56, d: 60 },
+      { x: 61, len: 36, s: 52, d: 120 },
+      { x: 73, len: 16, s: 42, d: 180 },
+      { x: 85, len: 33, s: 56, d: 100 },
+      { x: 95, len: 22, s: 46, d: 160 }
     ],
     err: [
-      { x: 14, len: 40, s: 68, d: 60,  cls: 'is-glitch' },
+      { x: 14, len: 40, s: 68, d: 60, cls: 'is-glitch' },
       { x: 50, len: 18, s: 52, d: 120, cls: 'is-glitch' },
-      { x: 86, len: 32, s: 68, d: 90,  cls: 'is-glitch' }
+      { x: 86, len: 32, s: 68, d: 90, cls: 'is-glitch' }
     ],
     title: [
       { x: 12, len: 16, s: 52, d: 420 },
@@ -106,7 +110,7 @@
     '<path class="mark" d="M-4.5 6.5H4.5L0 13.5L4.5 20.5H-4.5L0 13.5Z"/>' +
     '<circle class="eye" cx="-3.4" cy="-9.5" r="1.7"/><circle class="eye" cx="3.4" cy="-9.5" r="1.7"/></svg>';
 
-  const cssLen = (v, unit) => typeof v === 'number' ? v + unit : v;
+  const cssLen = (v, unit) => (typeof v === 'number' ? v + unit : v);
 
   function drop(o) {
     const n = el('div', 'lcts-drop' + (o.cls ? ' ' + o.cls : ''));
@@ -120,7 +124,7 @@
     swing.append(el('span', 'lcts-silk'));
     if (o.cls !== 'is-snap') {
       const sp = el('span', 'lcts-spider');
-      sp.innerHTML = SPIDER_SVG;      // a constant string, no page data
+      sp.innerHTML = SPIDER_SVG; // a constant string, no page data
       swing.append(sp);
     }
     n.append(swing);
@@ -132,14 +136,20 @@
      the stylesheet can draw them one after another (pathLength 1 makes the
      dash maths independent of the geometry) */
   function web(cls) {
-    const N = 12, step = Math.PI * 2 / N, tilt = 0.09;
-    const P = (r, a) => (100 + r * Math.cos(a + tilt)).toFixed(1) + ' ' + (100 + r * Math.sin(a + tilt)).toFixed(1);
-    let d = [], i = 0;
-    const path = (v, kind) => '<path class="' + kind + '" style="--i:' + (i++) + '" pathLength="1" d="' + v + '"/>';
+    const N = 12,
+      step = (Math.PI * 2) / N,
+      tilt = 0.09;
+    const P = (r, a) =>
+      (100 + r * Math.cos(a + tilt)).toFixed(1) + ' ' + (100 + r * Math.sin(a + tilt)).toFixed(1);
+    let d = [],
+      i = 0;
+    const path = (v, kind) =>
+      '<path class="' + kind + '" style="--i:' + i++ + '" pathLength="1" d="' + v + '"/>';
     for (let k = 0; k < N; k++) d.push(path('M100 100L' + P(98, k * step), 'spoke'));
     [16, 32, 48, 64, 80, 96].forEach((r) => {
       let s = 'M' + P(r, 0);
-      for (let k = 0; k < N; k++) s += 'Q' + P(r * 0.86, (k + 0.5) * step) + ' ' + P(r, (k + 1) * step);
+      for (let k = 0; k < N; k++)
+        s += 'Q' + P(r * 0.86, (k + 0.5) * step) + ' ' + P(r, (k + 1) * step);
       d.push(path(s, 'ring'));
     });
     const n = el('div', 'lcts-web ' + cls);
@@ -151,9 +161,14 @@
   function bootLog(info) {
     const n = Number(info.number) || 1;
     const depth = { easy: 1, medium: 2, hard: 3 }[(info.difficulty || '').toLowerCase()] || 1;
-    const row = (k, v) => '> ' + k + ' ' + '.'.repeat(Math.max(2, 26 - k.length - String(v).length)) + ' ' + v;
+    const row = (k, v) =>
+      '> ' + k + ' ' + '.'.repeat(Math.max(2, 26 - k.length - String(v).length)) + ' ' + v;
     const log = el('div', 'lcts-log');
-    ['resolving node #' + n + '|ok', 'links found|' + (6 + (n * 7) % 23), 'crawl depth|' + depth].forEach((r, i) => {
+    [
+      'resolving node #' + n + '|ok',
+      'links found|' + (6 + ((n * 7) % 23)),
+      'crawl depth|' + depth
+    ].forEach((r, i) => {
       const [k, v] = r.split('|');
       const line = el('div', 'lcts-logline', row(k, v));
       line.style.setProperty('--i', i);
@@ -176,7 +191,8 @@
     }
     return '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="' + d + '"/></svg>';
   })();
-  const STAR = '<svg viewBox="-10 -10 20 20" aria-hidden="true"><path d="M0 -9L2.6 -3.2 9 -2.8 4.1 1.4 5.6 7.8 0 4.4-5.6 7.8-4.1 1.4-9 -2.8-2.6 -3.2Z"/></svg>';
+  const STAR =
+    '<svg viewBox="-10 -10 20 20" aria-hidden="true"><path d="M0 -9L2.6 -3.2 9 -2.8 4.1 1.4 5.6 7.8 0 4.4-5.6 7.8-4.1 1.4-9 -2.8-2.6 -3.2Z"/></svg>';
 
   function dizzy(big) {
     const orbit = el('span', 'lcts-orbit');
@@ -185,14 +201,14 @@
       const at = el('span', 'lcts-star-at');
       at.style.setProperty('--a', a + 'deg');
       const up = el('span', 'lcts-star' + (i % 2 ? ' is-alt' : ''));
-      up.innerHTML = STAR;            // a constant string, no page data
+      up.innerHTML = STAR; // a constant string, no page data
       at.append(up);
       ring.append(at);
     });
     orbit.append(ring);
     big.append(orbit);
     const swirl = el('div', 'lcts-dz-swirl');
-    swirl.innerHTML = SPIRAL;         // a constant string, no page data
+    swirl.innerHTML = SPIRAL; // a constant string, no page data
     return swirl;
   }
 
@@ -212,7 +228,9 @@
        animation, and Chrome then sends neither animationend nor
        animationcancel -- the node would stay in the page forever. Every
        moment is over within 2.3s, so 3s is always late enough. */
-    node.addEventListener('animationend', (e) => { if (e.target === node) node.remove(); });
+    node.addEventListener('animationend', (e) => {
+      if (e.target === node) node.remove();
+    });
     setTimeout(() => node.remove(), 3000);
     host.appendChild(node);
     return node;
@@ -265,7 +283,9 @@
     node.append(el('div', 'lcts-shade'), el('div', 'lcts-bar top'), el('div', 'lcts-bar bottom'));
     const stage = el('div', 'lcts-stage');
     stage.append(
-      crawler ? el('div', 'lcts-ep', 'CRAWLING…') : el('div', 'lcts-ep lcts-jp', '第' + info.number + '話'),
+      crawler
+        ? el('div', 'lcts-ep', 'CRAWLING…')
+        : el('div', 'lcts-ep lcts-jp', '第' + info.number + '話'),
       el('div', 'lcts-kicker', crawler ? 'NODE #' + info.number : 'EPISODE ' + info.number),
       el('div', 'lcts-rule'),
       el('div', 'lcts-title', info.title)

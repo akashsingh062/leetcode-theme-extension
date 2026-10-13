@@ -11,15 +11,30 @@
   const POPULAR_PROBLEMS = [
     { num: '1', title: 'Two Sum', slug: 'two-sum', diff: 'Easy' },
     { num: '2', title: 'Add Two Numbers', slug: 'add-two-numbers', diff: 'Medium' },
-    { num: '3', title: 'Longest Substring Without Repeating Characters', slug: 'longest-substring-without-repeating-characters', diff: 'Medium' },
-    { num: '5', title: 'Longest Palindromic Substring', slug: 'longest-palindromic-substring', diff: 'Medium' },
+    {
+      num: '3',
+      title: 'Longest Substring Without Repeating Characters',
+      slug: 'longest-substring-without-repeating-characters',
+      diff: 'Medium'
+    },
+    {
+      num: '5',
+      title: 'Longest Palindromic Substring',
+      slug: 'longest-palindromic-substring',
+      diff: 'Medium'
+    },
     { num: '15', title: '3Sum', slug: '3sum', diff: 'Medium' },
     { num: '20', title: 'Valid Parentheses', slug: 'valid-parentheses', diff: 'Easy' },
     { num: '21', title: 'Merge Two Sorted Lists', slug: 'merge-two-sorted-lists', diff: 'Easy' },
     { num: '42', title: 'Trapping Rain Water', slug: 'trapping-rain-water', diff: 'Hard' },
     { num: '53', title: 'Maximum Subarray', slug: 'maximum-subarray', diff: 'Medium' },
     { num: '70', title: 'Climbing Stairs', slug: 'climbing-stairs', diff: 'Easy' },
-    { num: '121', title: 'Best Time to Buy and Sell Stock', slug: 'best-time-to-buy-and-sell-stock', diff: 'Easy' },
+    {
+      num: '121',
+      title: 'Best Time to Buy and Sell Stock',
+      slug: 'best-time-to-buy-and-sell-stock',
+      diff: 'Easy'
+    },
     { num: '146', title: 'LRU Cache', slug: 'lru-cache', diff: 'Medium' },
     { num: '200', title: 'Number of Islands', slug: 'number-of-islands', diff: 'Medium' },
     { num: '206', title: 'Reverse Linked List', slug: 'reverse-linked-list', diff: 'Easy' },
@@ -27,26 +42,118 @@
   ];
 
   const COMMANDS = [
-    { title: 'Theme: Tokyo Night', action: () => chrome.storage.local.set({ lcTheme: 'tokyonight', lcThemeStudio: 'tokyonight' }), icon: '🌃' },
-    { title: 'Theme: Catppuccin Mocha', action: () => chrome.storage.local.set({ lcTheme: 'catppuccin', lcThemeStudio: 'catppuccin' }), icon: '☕' },
-    { title: 'Theme: Sakura Blossom', action: () => chrome.storage.local.set({ lcTheme: 'sakura', lcThemeStudio: 'sakura' }), icon: '🌸' },
-    { title: 'Theme: Vintage Paper', action: () => chrome.storage.local.set({ lcTheme: 'paper', lcThemeStudio: 'paper' }), icon: '📜' },
-    { title: 'Theme: Cyber Matrix', action: () => chrome.storage.local.set({ lcTheme: 'matrix', lcThemeStudio: 'matrix' }), icon: '💻' },
-    { title: 'Theme: Synthwave Grid', action: () => chrome.storage.local.set({ lcTheme: 'grid', lcThemeStudio: 'grid' }), icon: '🌐' },
-    { title: 'Theme: Midnight Orchid', action: () => chrome.storage.local.set({ lcTheme: 'orchid', lcThemeStudio: 'orchid' }), icon: '🔮' },
-    { title: 'Theme: Dracula Dark', action: () => chrome.storage.local.set({ lcTheme: 'dracula', lcThemeStudio: 'dracula' }), icon: '🧛' },
-    { title: 'Theme: Nordic Frost', action: () => chrome.storage.local.set({ lcTheme: 'nord', lcThemeStudio: 'nord' }), icon: '❄️' },
-    { title: 'Theme: Web Crawler', action: () => chrome.storage.local.set({ lcTheme: 'crawler', lcThemeStudio: 'crawler' }), icon: '🕷️' },
-    { title: 'Theme: Adventure RPG', action: () => chrome.storage.local.set({ lcTheme: 'game', lcThemeStudio: 'game' }), icon: '⚔️' },
-    { title: 'Theme: Pixel Art (8-Bit)', action: () => chrome.storage.local.set({ lcTheme: 'pixel', lcThemeStudio: 'pixel' }), icon: '👾' },
-    { title: 'Theme: Default LeetCode (Off)', action: () => chrome.storage.local.set({ lcTheme: 'off', lcThemeStudio: 'off' }), icon: '⚪' },
-    { title: 'Monaco Theme: Tokyo Night', action: () => chrome.storage.local.set({ lcMonacoTheme: 'tokyonight' }), icon: '🎨' },
-    { title: 'Monaco Theme: Catppuccin', action: () => chrome.storage.local.set({ lcMonacoTheme: 'catppuccin' }), icon: '🎨' },
-    { title: 'Monaco Theme: Dracula', action: () => chrome.storage.local.set({ lcMonacoTheme: 'dracula' }), icon: '🎨' },
-    { title: 'Toggle Zen Mode', action: () => chrome.storage.local.get('lcZenMode', (r) => chrome.storage.local.set({ lcZenMode: !(r && r.lcZenMode) })), icon: '🧘' },
-    { title: 'Toggle Problem Notes', action: () => window.dispatchEvent(new CustomEvent('lcts-toggle-notes')), icon: '📝' },
-    { title: 'Toggle Interview Blind Mode', action: () => chrome.storage.local.get('lcBlindMode', (r) => { const b = r.lcBlindMode || {}; chrome.storage.local.set({ lcBlindMode: Object.assign({}, b, { active: !b.active }) }); }), icon: '🎯' },
-    { title: 'Toggle Interview Timer', action: () => chrome.storage.local.get('lcTimerEnabled', (r) => chrome.storage.local.set({ lcTimerEnabled: !(r && r.lcTimerEnabled) })), icon: '⏱️' }
+    {
+      title: 'Theme: Tokyo Night',
+      action: () =>
+        chrome.storage.local.set({ lcTheme: 'tokyonight', lcThemeStudio: 'tokyonight' }),
+      icon: '🌃'
+    },
+    {
+      title: 'Theme: Catppuccin Mocha',
+      action: () =>
+        chrome.storage.local.set({ lcTheme: 'catppuccin', lcThemeStudio: 'catppuccin' }),
+      icon: '☕'
+    },
+    {
+      title: 'Theme: Sakura Blossom',
+      action: () => chrome.storage.local.set({ lcTheme: 'sakura', lcThemeStudio: 'sakura' }),
+      icon: '🌸'
+    },
+    {
+      title: 'Theme: Vintage Paper',
+      action: () => chrome.storage.local.set({ lcTheme: 'paper', lcThemeStudio: 'paper' }),
+      icon: '📜'
+    },
+    {
+      title: 'Theme: Cyber Matrix',
+      action: () => chrome.storage.local.set({ lcTheme: 'matrix', lcThemeStudio: 'matrix' }),
+      icon: '💻'
+    },
+    {
+      title: 'Theme: Synthwave Grid',
+      action: () => chrome.storage.local.set({ lcTheme: 'grid', lcThemeStudio: 'grid' }),
+      icon: '🌐'
+    },
+    {
+      title: 'Theme: Midnight Orchid',
+      action: () => chrome.storage.local.set({ lcTheme: 'orchid', lcThemeStudio: 'orchid' }),
+      icon: '🔮'
+    },
+    {
+      title: 'Theme: Dracula Dark',
+      action: () => chrome.storage.local.set({ lcTheme: 'dracula', lcThemeStudio: 'dracula' }),
+      icon: '🧛'
+    },
+    {
+      title: 'Theme: Nordic Frost',
+      action: () => chrome.storage.local.set({ lcTheme: 'nord', lcThemeStudio: 'nord' }),
+      icon: '❄️'
+    },
+    {
+      title: 'Theme: Web Crawler',
+      action: () => chrome.storage.local.set({ lcTheme: 'crawler', lcThemeStudio: 'crawler' }),
+      icon: '🕷️'
+    },
+    {
+      title: 'Theme: Adventure RPG',
+      action: () => chrome.storage.local.set({ lcTheme: 'game', lcThemeStudio: 'game' }),
+      icon: '⚔️'
+    },
+    {
+      title: 'Theme: Pixel Art (8-Bit)',
+      action: () => chrome.storage.local.set({ lcTheme: 'pixel', lcThemeStudio: 'pixel' }),
+      icon: '👾'
+    },
+    {
+      title: 'Theme: Default LeetCode (Off)',
+      action: () => chrome.storage.local.set({ lcTheme: 'off', lcThemeStudio: 'off' }),
+      icon: '⚪'
+    },
+    {
+      title: 'Monaco Theme: Tokyo Night',
+      action: () => chrome.storage.local.set({ lcMonacoTheme: 'tokyonight' }),
+      icon: '🎨'
+    },
+    {
+      title: 'Monaco Theme: Catppuccin',
+      action: () => chrome.storage.local.set({ lcMonacoTheme: 'catppuccin' }),
+      icon: '🎨'
+    },
+    {
+      title: 'Monaco Theme: Dracula',
+      action: () => chrome.storage.local.set({ lcMonacoTheme: 'dracula' }),
+      icon: '🎨'
+    },
+    {
+      title: 'Toggle Zen Mode',
+      action: () =>
+        chrome.storage.local.get('lcZenMode', (r) =>
+          chrome.storage.local.set({ lcZenMode: !(r && r.lcZenMode) })
+        ),
+      icon: '🧘'
+    },
+    {
+      title: 'Toggle Problem Notes',
+      action: () => window.dispatchEvent(new CustomEvent('lcts-toggle-notes')),
+      icon: '📝'
+    },
+    {
+      title: 'Toggle Interview Blind Mode',
+      action: () =>
+        chrome.storage.local.get('lcBlindMode', (r) => {
+          const b = r.lcBlindMode || {};
+          chrome.storage.local.set({ lcBlindMode: Object.assign({}, b, { active: !b.active }) });
+        }),
+      icon: '🎯'
+    },
+    {
+      title: 'Toggle Interview Timer',
+      action: () =>
+        chrome.storage.local.get('lcTimerEnabled', (r) =>
+          chrome.storage.local.set({ lcTimerEnabled: !(r && r.lcTimerEnabled) })
+        ),
+      icon: '⏱️'
+    }
   ];
 
   let isOpen = false;
@@ -201,7 +308,8 @@
         updateActiveItem();
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        activeIndex = (activeIndex - 1 + currentResults.length) % Math.max(1, currentResults.length);
+        activeIndex =
+          (activeIndex - 1 + currentResults.length) % Math.max(1, currentResults.length);
         updateActiveItem();
       } else if (e.key === 'Enter') {
         e.preventDefault();
@@ -227,7 +335,9 @@
       currentResults.push({
         type: 'jump',
         title: `Search Problem #${q}`,
-        action: () => { window.location.href = `https://leetcode.com/problemset/all/?search=${q}`; },
+        action: () => {
+          window.location.href = `https://leetcode.com/problemset/all/?search=${q}`;
+        },
         badge: 'Jump'
       });
     }
@@ -251,7 +361,9 @@
         currentResults.push({
           type: 'problem',
           title: `${p.num}. ${p.title}`,
-          action: () => { window.location.href = `/problems/${p.slug}/`; },
+          action: () => {
+            window.location.href = `/problems/${p.slug}/`;
+          },
           icon: '📄',
           badge: p.diff
         });
@@ -259,7 +371,8 @@
     });
 
     if (!currentResults.length) {
-      list.innerHTML = '<div style="padding: 16px; text-align: center; color: #94a3b8;">No matching problems or commands.</div>';
+      list.innerHTML =
+        '<div style="padding: 16px; text-align: center; color: #94a3b8;">No matching problems or commands.</div>';
       return;
     }
 
@@ -321,7 +434,8 @@
     // Ctrl+K or Cmd+K
     if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
       e.preventDefault();
-      if (isOpen) close(); else open();
+      if (isOpen) close();
+      else open();
     }
   });
 })();

@@ -25,10 +25,24 @@
   let cacheReady = false;
   const readyWaiters = [];
 
-  const slugOf = () => { const m = /^\/problems\/([^/]+)/.exec(location.pathname); return m ? m[1] : null; };
-  const norm = (d) => { d = String(d || '').trim().toLowerCase(); return /^(easy|medium|hard)$/.test(d) ? d : null; };
+  const slugOf = () => {
+    const m = /^\/problems\/([^/]+)/.exec(location.pathname);
+    return m ? m[1] : null;
+  };
+  const norm = (d) => {
+    d = String(d || '')
+      .trim()
+      .toLowerCase();
+    return /^(easy|medium|hard)$/.test(d) ? d : null;
+  };
 
-  function fire() { subs.forEach((fn) => { try { fn(Object.assign({}, cur)); } catch (e) {} }); }
+  function fire() {
+    subs.forEach((fn) => {
+      try {
+        fn(Object.assign({}, cur));
+      } catch (e) {}
+    });
+  }
 
   /* the title is only trusted once its link points at the current slug:
      after an in-app navigation the previous problem's title lingers briefly */
@@ -45,11 +59,14 @@
 
   function remember(slug, info) {
     const prev = cache[slug];
-    if (prev && prev.d === info.difficulty && prev.n === info.number && prev.t === info.title) return;
+    if (prev && prev.d === info.difficulty && prev.n === info.number && prev.t === info.title)
+      return;
     cache[slug] = { d: info.difficulty, n: info.number, t: info.title };
     const keys = Object.keys(cache);
     if (keys.length > 400) keys.slice(0, keys.length - 400).forEach((k) => delete cache[k]);
-    try { chrome.storage.local.set({ [KEY]: cache }); } catch (e) {}
+    try {
+      chrome.storage.local.set({ [KEY]: cache });
+    } catch (e) {}
   }
 
   /* On a full page load, LeetCode's server-rendered data (__NEXT_DATA__) has
@@ -63,11 +80,13 @@
   function ssr(slug) {
     if (!ssrMap) {
       const el = document.getElementById('__NEXT_DATA__');
-      if (!el) return null;                       // not parsed yet: try again later
+      if (!el) return null; // not parsed yet: try again later
       /* the HTML streams in, so the element can exist with half its JSON:
          a failed parse is retried until the document has finished loading */
       let data;
-      try { data = JSON.parse(el.textContent); } catch (e) {
+      try {
+        data = JSON.parse(el.textContent);
+      } catch (e) {
         if (document.readyState === 'loading') return null;
       }
       ssrMap = {};
@@ -75,8 +94,12 @@
         data.props.pageProps.dehydratedState.queries.forEach((q) => {
           const d = q && q.state && q.state.data && q.state.data.question;
           if (d && d.titleSlug && d.questionFrontendId) {
-            ssrMap[d.titleSlug] = { number: String(d.questionFrontendId), title: d.title || d.questionTitle || '',
-                                    difficulty: norm(d.difficulty), status: d.status || null };
+            ssrMap[d.titleSlug] = {
+              number: String(d.questionFrontendId),
+              title: d.title || d.questionTitle || '',
+              difficulty: norm(d.difficulty),
+              status: d.status || null
+            };
           }
         });
       } catch (e) {}
@@ -89,12 +112,23 @@
     clearInterval(pollTimer);
     let tries = 0;
     pollTimer = setInterval(() => {
-      if (slug !== cur.slug || ++tries > 55) { clearInterval(pollTimer); return; }
+      if (slug !== cur.slug || ++tries > 55) {
+        clearInterval(pollTimer);
+        return;
+      }
       const info = readDom(slug) || ssr(slug);
       if (!info) return;
-      const changed = info.title !== cur.title || (info.difficulty && info.difficulty !== cur.difficulty);
-      Object.assign(cur, { number: info.number, title: info.title, difficulty: info.difficulty || cur.difficulty });
-      if (info.difficulty) { clearInterval(pollTimer); remember(slug, cur); }
+      const changed =
+        info.title !== cur.title || (info.difficulty && info.difficulty !== cur.difficulty);
+      Object.assign(cur, {
+        number: info.number,
+        title: info.title,
+        difficulty: info.difficulty || cur.difficulty
+      });
+      if (info.difficulty) {
+        clearInterval(pollTimer);
+        remember(slug, cur);
+      }
       if (changed) fire();
     }, 150);
   }
@@ -114,14 +148,22 @@
     check();
     readyWaiters.splice(0).forEach((fn) => fn());
   });
-  setInterval(() => { if (cacheReady) check(); }, 1000);
+  setInterval(() => {
+    if (cacheReady) check();
+  }, 1000);
 
   globalThis.LCTSProblem = {
     get: () => Object.assign({}, cur),
-    onChange(fn) { subs.push(fn); },
+    onChange(fn) {
+      subs.push(fn);
+    },
     /* resolves once the per-slug cache is loaded, so a caller can decide
        before the first paint whether the difficulty is already known */
-    ready: () => new Promise((res) => { if (cacheReady) res(); else readyWaiters.push(res); }),
+    ready: () =>
+      new Promise((res) => {
+        if (cacheReady) res();
+        else readyWaiters.push(res);
+      }),
     slugOf,
     /* the server-rendered record for this slug, or null (see above) */
     ssr

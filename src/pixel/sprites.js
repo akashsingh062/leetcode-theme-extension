@@ -15,9 +15,18 @@
   if (globalThis.LCTSPixelSprites) return;
 
   const PAL = {
-    k: '#0d0e17', d: '#333c57', s: '#566c86', g: '#94b0c2', w: '#f4f4f4',
-    y: '#ffcd75', o: '#ef7d57', r: '#b13e53', b: '#29366f', c: '#41a6f6',
-    t: '#73eff7', p: '#5d275d'
+    k: '#0d0e17',
+    d: '#333c57',
+    s: '#566c86',
+    g: '#94b0c2',
+    w: '#f4f4f4',
+    y: '#ffcd75',
+    o: '#ef7d57',
+    r: '#b13e53',
+    b: '#29366f',
+    c: '#41a6f6',
+    t: '#73eff7',
+    p: '#5d275d'
   };
 
   const BODY = [
@@ -39,16 +48,8 @@
     '...kkk..kkk.'
   ];
   const FRAMES = {
-    'hero-a': BODY.concat([
-      'o.kkdddkk...',
-      'ooookbbbbk..',
-      '.oo.kbbbbbk.'
-    ], LEGS),
-    'hero-b': BODY.concat([
-      '..okdddkk...',
-      '.oookbbbbk..',
-      'oo..kbbbbbk.'
-    ], LEGS),
+    'hero-a': BODY.concat(['o.kkdddkk...', 'ooookbbbbk..', '.oo.kbbbbbk.'], LEGS),
+    'hero-b': BODY.concat(['..okdddkk...', '.oookbbbbk..', 'oo..kbbbbbk.'], LEGS),
     gun: [
       '...kkkkkkkk....',
       'kkkssssssssskkk',
@@ -56,12 +57,7 @@
       'kkkssssssssskkk',
       '..kk...........'
     ],
-    rocket: [
-      '.kk....',
-      'kgggrok',
-      'kwggroy',
-      '.kk....'
-    ]
+    rocket: ['.kk....', 'kgggrok', 'kwggroy', '.kk....']
   };
 
   const cache = {};
@@ -69,14 +65,22 @@
     if (cache[name]) return cache[name];
     const rows = FRAMES[name];
     if (!rows) return null;
-    const w = Math.max.apply(null, rows.map((r) => r.length)), h = rows.length;
+    const w = Math.max.apply(
+        null,
+        rows.map((r) => r.length)
+      ),
+      h = rows.length;
     const cv = document.createElement('canvas');
-    cv.width = w; cv.height = h;
+    cv.width = w;
+    cv.height = h;
     const c = cv.getContext('2d');
     rows.forEach((row, y) => {
       for (let x = 0; x < row.length; x++) {
         const col = PAL[row[x]];
-        if (col) { c.fillStyle = col; c.fillRect(x, y, 1, 1); }
+        if (col) {
+          c.fillStyle = col;
+          c.fillRect(x, y, 1, 1);
+        }
       }
     });
     return (cache[name] = cv);
@@ -90,11 +94,18 @@
     const f = frame(name);
     if (!f) return null;
     const cv = document.createElement('canvas');
-    cv.width = f.width + 2; cv.height = f.height + 2;
+    cv.width = f.width + 2;
+    cv.height = f.height + 2;
     const c = cv.getContext('2d');
-    [[0, 1], [2, 1], [1, 0], [1, 2]].forEach(([x, y]) => c.drawImage(f, x, y));
+    [
+      [0, 1],
+      [2, 1],
+      [1, 0],
+      [1, 2]
+    ].forEach(([x, y]) => c.drawImage(f, x, y));
     c.globalCompositeOperation = 'source-in';
-    c.fillStyle = color; c.fillRect(0, 0, cv.width, cv.height);
+    c.fillStyle = color;
+    c.fillRect(0, 0, cv.width, cv.height);
     c.globalCompositeOperation = 'source-over';
     c.drawImage(f, 1, 1);
     return (cache[key] = cv);
@@ -104,5 +115,12 @@
   const SHOULDER = { x: 7, y: 9 };
   const GUN_GRIP = { x: 3, y: 2 };
 
-  globalThis.LCTSPixelSprites = { frame, outlined, PAL, SHOULDER, GUN_GRIP, names: Object.keys(FRAMES) };
+  globalThis.LCTSPixelSprites = {
+    frame,
+    outlined,
+    PAL,
+    SHOULDER,
+    GUN_GRIP,
+    names: Object.keys(FRAMES)
+  };
 })();

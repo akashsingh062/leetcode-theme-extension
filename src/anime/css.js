@@ -11,7 +11,7 @@
 
   function rgba(hex, a) {
     const n = parseInt(hex.slice(1), 16);
-    return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${+a.toFixed(3)})`;
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${+a.toFixed(3)})`;
   }
 
   /* the alpha a layer needs over an already-veiled layer to total `total` */
@@ -19,9 +19,12 @@
 
   /* theme: what LCTSAnimeSolver.analyze returned; urls: { wall, blur } */
   function build(theme, urls) {
-    const r = theme.roles, a = theme.alpha, scrim = theme.scrim;
+    const r = theme.roles,
+      a = theme.alpha,
+      scrim = theme.scrim;
     const veil = (x) => `linear-gradient(${rgba(scrim, x)},${rgba(scrim, x)})`;
-    const wall = `url("${urls.wall}")`, blur = `url("${urls.blur}")`;
+    const wall = `url("${urls.wall}")`,
+      blur = `url("${urls.blur}")`;
     const out = Object.keys(r).map((k) => `${k}:${r[k]};`);
     out.push(
       `color-scheme:${theme.mode};`,

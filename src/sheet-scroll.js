@@ -30,7 +30,9 @@
 (() => {
   const ATTR = 'data-lcts-scroll';
   const PANE = 'data-lcts-pane';
-  const MAX_NODES = 80, MAX_DEPTH = 5, MIN_OVERFLOW = 48;
+  const MAX_NODES = 80,
+    MAX_DEPTH = 5,
+    MIN_OVERFLOW = 48;
 
   /* themes whose panels are a printed sheet that should travel with the words */
   const SHEET_THEMES = { paper: 1, bloom: 1 };
@@ -63,17 +65,27 @@
     const half = window.innerWidth / 2;
     const plan = [];
     for (const tab of tabs) {
-      if (tab.querySelector('.monaco-editor')) { plan.push([tab, 'code', null]); continue; }
+      if (tab.querySelector('.monaco-editor')) {
+        plan.push([tab, 'code', null]);
+        continue;
+      }
       const r = tab.getBoundingClientRect();
       const pane = r.left < half ? 'desc' : 'console';
 
-      let queue = [[tab, 0]], seen = 0, found = null;
+      let queue = [[tab, 0]],
+        seen = 0,
+        found = null;
       while (queue.length && seen < MAX_NODES) {
-        const item = queue.shift(), el = item[0], d = item[1];
+        const item = queue.shift(),
+          el = item[0],
+          d = item[1];
         seen++;
         if (d > 0 && el.scrollHeight - el.clientHeight > MIN_OVERFLOW) {
           const ov = getComputedStyle(el).overflowY;
-          if (ov === 'auto' || ov === 'scroll') { found = el; break; }
+          if (ov === 'auto' || ov === 'scroll') {
+            found = el;
+            break;
+          }
         }
         if (d < MAX_DEPTH) for (const ch of el.children) queue.push([ch, d + 1]);
       }
@@ -82,7 +94,9 @@
 
     /* ---------- writes ---------- */
     for (const item of plan) {
-      const tab = item[0], pane = item[1], found = item[2];
+      const tab = item[0],
+        pane = item[1],
+        found = item[2];
       if (tab.getAttribute(PANE) !== pane) tab.setAttribute(PANE, pane);
       const stale = tab.querySelectorAll('[' + ATTR + ']');
       for (const n of stale) if (n !== found) n.removeAttribute(ATTR);
@@ -94,29 +108,47 @@
     if (!needsPaneTag()) return;
     const tabs = document.querySelectorAll('.flexlayout__tab');
     if (!tabs.length || settled(tabs)) return;
-    try { walk(); } catch (e) {}
+    try {
+      walk();
+    } catch (e) {}
   }
 
-  function nudge(ms) { setTimeout(() => { try { beat(); } catch (e) {} }, ms || 250); }
+  function nudge(ms) {
+    setTimeout(() => {
+      try {
+        beat();
+      } catch (e) {}
+    }, ms || 250);
+  }
 
   setInterval(beat, 1500);
   beat();
 
   /* a tab switch replaces the panel contents; catch it once, cheaply */
-  document.addEventListener('click', (e) => {
-    const t = e.target;
-    if (t && t.closest && t.closest('.flexlayout__tab_button')) { nudge(120); nudge(600); }
-  }, true);
+  document.addEventListener(
+    'click',
+    (e) => {
+      const t = e.target;
+      if (t && t.closest && t.closest('.flexlayout__tab_button')) {
+        nudge(120);
+        nudge(600);
+      }
+    },
+    true
+  );
 
   let rz;
   window.addEventListener('resize', () => {
     clearTimeout(rz);
     rz = setTimeout(() => {
-      for (const tab of document.querySelectorAll('.flexlayout__tab')) tab.removeAttribute('data-lcts-pane');
+      for (const tab of document.querySelectorAll('.flexlayout__tab'))
+        tab.removeAttribute('data-lcts-pane');
       beat();
     }, 250);
   });
 
-  new MutationObserver(() => nudge(200))
-    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lc-theme'] });
+  new MutationObserver(() => nudge(200)).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-lc-theme']
+  });
 })();

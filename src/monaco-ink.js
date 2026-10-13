@@ -42,30 +42,66 @@
   const INK = {
     paper: {
       a: 1,
-      variable:'#241d14', comment:'#332e25', keyword:'#650500', control:'#5f0043',
-      string:'#003804',   number:'#00343f',  func:'#00208a',    type:'#4a007b',
-      param:'#1a2d5a',    operator:'#3a2d1d', regexp:'#003804', invalid:'#650500'
+      variable: '#241d14',
+      comment: '#332e25',
+      keyword: '#650500',
+      control: '#5f0043',
+      string: '#003804',
+      number: '#00343f',
+      func: '#00208a',
+      type: '#4a007b',
+      param: '#1a2d5a',
+      operator: '#3a2d1d',
+      regexp: '#003804',
+      invalid: '#650500'
     },
     sakura: {
       a: 1,
-      variable:'#ece9ff', comment:'#6b6395', keyword:'#ff7eb6', control:'#ff7eb6',
-      string:'#ffd479',   number:'#b98cff',  func:'#6ee7f0',    type:'#7ee8a5',
-      param:'#c9a6ff',    operator:'#ff9ec8', regexp:'#ffd479', invalid:'#ff6b8b'
+      variable: '#ece9ff',
+      comment: '#6b6395',
+      keyword: '#ff7eb6',
+      control: '#ff7eb6',
+      string: '#ffd479',
+      number: '#b98cff',
+      func: '#6ee7f0',
+      type: '#7ee8a5',
+      param: '#c9a6ff',
+      operator: '#ff9ec8',
+      regexp: '#ffd479',
+      invalid: '#ff6b8b'
     },
     grid: {
       a: 1,
-      variable:'#d7e0ec', comment:'#56687f', keyword:'#58a6ff', control:'#58a6ff',
-      string:'#a5d6ff',   number:'#ffa657',  func:'#35e0a1',    type:'#d2a8ff',
-      param:'#9db0c6',    operator:'#79c0ff', regexp:'#a5d6ff', invalid:'#ff7b72'
+      variable: '#d7e0ec',
+      comment: '#56687f',
+      keyword: '#58a6ff',
+      control: '#58a6ff',
+      string: '#a5d6ff',
+      number: '#ffa657',
+      func: '#35e0a1',
+      type: '#d2a8ff',
+      param: '#9db0c6',
+      operator: '#79c0ff',
+      regexp: '#a5d6ff',
+      invalid: '#ff7b72'
     },
     /* Risograph: fluorescent pink is 2.4:1 on this stock, so type never uses
        it -- the printable pink carries the hue instead, exactly as a real riso
        does. Every value clears 4.5:1 on the brightest 10% of the baked stock. */
     bloom: {
       a: 1,
-      variable:'#f4ecf7', comment:'#9b86a9', keyword:'#ff9ec9', control:'#ff9ec9',
-      string:'#f0c27b',   number:'#d89bff',  func:'#7fe3c0',    type:'#a8b8ff',
-      param:'#d2c2db',    operator:'#e3a88f', regexp:'#f0c27b', invalid:'#ff9ab0'
+      variable: '#f4ecf7',
+      comment: '#9b86a9',
+      keyword: '#ff9ec9',
+      control: '#ff9ec9',
+      string: '#f0c27b',
+      number: '#d89bff',
+      func: '#7fe3c0',
+      type: '#a8b8ff',
+      param: '#d2c2db',
+      operator: '#e3a88f',
+      regexp: '#f0c27b',
+      invalid: '#ff9ab0'
     },
     /* Web Crawler — crimson and electric blue split the two control-flow
        roles (keyword vs control) so the theme's own duality reads inside the
@@ -73,9 +109,18 @@
        comfortably, since the surface is near-black. */
     crawler: {
       a: 1,
-      variable:'#eceaf2', comment:'#6e6e7a', keyword:'#4db2ff', control:'#ff4568',
-      string:'#ffcf6b',   number:'#c792ea',  func:'#4ce0b3',    type:'#b39dff',
-      param:'#b7b7c4',    operator:'#ff8aa8', regexp:'#ffcf6b', invalid:'#ff2d4d'
+      variable: '#eceaf2',
+      comment: '#6e6e7a',
+      keyword: '#4db2ff',
+      control: '#ff4568',
+      string: '#ffcf6b',
+      number: '#c792ea',
+      func: '#4ce0b3',
+      type: '#b39dff',
+      param: '#b7b7c4',
+      operator: '#ff8aa8',
+      regexp: '#ffcf6b',
+      invalid: '#ff2d4d'
     },
     /* Gaming Theme dark fallback (Medium/Hard, and Easy before its difficulty
        is known) -- solved against --lc-bg2 #182a1e. The Easy tier's own
@@ -86,45 +131,108 @@
        --lc-bg2 (#262b44) as it renders under the 2x2 dither. */
     pixel: {
       a: 1,
-      variable:'#f4f4f4', comment:'#8b9bb4', keyword:'#ffcd75', control:'#ff8fa3',
-      string:'#a7f070',   number:'#c9a0ff',  func:'#73eff7',    type:'#6cb6ff',
-      param:'#c5d3e0',    operator:'#ffa36b', regexp:'#a7f070', invalid:'#ff6f86'
+      variable: '#f4f4f4',
+      comment: '#8b9bb4',
+      keyword: '#ffcd75',
+      control: '#ff8fa3',
+      string: '#a7f070',
+      number: '#c9a0ff',
+      func: '#73eff7',
+      type: '#6cb6ff',
+      param: '#c5d3e0',
+      operator: '#ffa36b',
+      regexp: '#a7f070',
+      invalid: '#ff6f86'
     },
     game: {
       a: 1,
-      variable:'#eef2ea', comment:'#748a76', keyword:'#d4af6a', control:'#d4af6a',
-      string:'#9fd88f',   number:'#7fc9c0',  func:'#8fb8e0',    type:'#c9a6ff',
-      param:'#cbb08a',    operator:'#d7c9a0', regexp:'#9fd88f', invalid:'#e0715a'
+      variable: '#eef2ea',
+      comment: '#748a76',
+      keyword: '#d4af6a',
+      control: '#d4af6a',
+      string: '#9fd88f',
+      number: '#7fc9c0',
+      func: '#8fb8e0',
+      type: '#c9a6ff',
+      param: '#cbb08a',
+      operator: '#d7c9a0',
+      regexp: '#9fd88f',
+      invalid: '#e0715a'
     },
     tokyonight: {
       a: 1,
-      variable:'#c0caf5', comment:'#565f89', keyword:'#bb9af7', control:'#bb9af7',
-      string:'#9ece6a',   number:'#ff9e64',  func:'#7aa2f7',    type:'#2ac3de',
-      param:'#e0af68',    operator:'#89ddff', regexp:'#b4f9f8', invalid:'#f7768e'
+      variable: '#c0caf5',
+      comment: '#565f89',
+      keyword: '#bb9af7',
+      control: '#bb9af7',
+      string: '#9ece6a',
+      number: '#ff9e64',
+      func: '#7aa2f7',
+      type: '#2ac3de',
+      param: '#e0af68',
+      operator: '#89ddff',
+      regexp: '#b4f9f8',
+      invalid: '#f7768e'
     },
     catppuccin: {
       a: 1,
-      variable:'#cdd6f4', comment:'#6c7086', keyword:'#cba6f7', control:'#cba6f7',
-      string:'#a6e3a1',   number:'#fab387',  func:'#89b4fa',    type:'#f9e2af',
-      param:'#eba0ac',    operator:'#94e2d5', regexp:'#f5c2e7', invalid:'#f38ba8'
+      variable: '#cdd6f4',
+      comment: '#6c7086',
+      keyword: '#cba6f7',
+      control: '#cba6f7',
+      string: '#a6e3a1',
+      number: '#fab387',
+      func: '#89b4fa',
+      type: '#f9e2af',
+      param: '#eba0ac',
+      operator: '#94e2d5',
+      regexp: '#f5c2e7',
+      invalid: '#f38ba8'
     },
     dracula: {
       a: 1,
-      variable:'#f8f8f2', comment:'#6272a4', keyword:'#ff79c6', control:'#ff79c6',
-      string:'#f1fa8c',   number:'#bd93f9',  func:'#50fa7b',    type:'#8be9fd',
-      param:'#ffb86c',    operator:'#ff79c6', regexp:'#f1fa8c', invalid:'#ff5555'
+      variable: '#f8f8f2',
+      comment: '#6272a4',
+      keyword: '#ff79c6',
+      control: '#ff79c6',
+      string: '#f1fa8c',
+      number: '#bd93f9',
+      func: '#50fa7b',
+      type: '#8be9fd',
+      param: '#ffb86c',
+      operator: '#ff79c6',
+      regexp: '#f1fa8c',
+      invalid: '#ff5555'
     },
     nord: {
       a: 1,
-      variable:'#eceff4', comment:'#616e88', keyword:'#81a1c1', control:'#81a1c1',
-      string:'#a3be8c',   number:'#b48ead',  func:'#88c0d0',    type:'#8fbcbb',
-      param:'#d8dee9',    operator:'#81a1c1', regexp:'#ebcb8b', invalid:'#bf616a'
+      variable: '#eceff4',
+      comment: '#616e88',
+      keyword: '#81a1c1',
+      control: '#81a1c1',
+      string: '#a3be8c',
+      number: '#b48ead',
+      func: '#88c0d0',
+      type: '#8fbcbb',
+      param: '#d8dee9',
+      operator: '#81a1c1',
+      regexp: '#ebcb8b',
+      invalid: '#bf616a'
     },
     matrix: {
       a: 1,
-      variable:'#e2fced', comment:'#4b6354', keyword:'#22c55e', control:'#22c55e',
-      string:'#86efac',   number:'#facc15',  func:'#38bdf8',    type:'#4ade80',
-      param:'#a7f3d0',    operator:'#10b981', regexp:'#86efac', invalid:'#ef4444'
+      variable: '#e2fced',
+      comment: '#4b6354',
+      keyword: '#22c55e',
+      control: '#22c55e',
+      string: '#86efac',
+      number: '#facc15',
+      func: '#38bdf8',
+      type: '#4ade80',
+      param: '#a7f3d0',
+      operator: '#10b981',
+      regexp: '#86efac',
+      invalid: '#ef4444'
     }
   };
   INK.orchid = INK.bloom;
@@ -133,26 +241,49 @@
      roles semantically right; anything else falls through to the hue
      classifier, which still keeps distinct colours distinct. */
   const KNOWN = {
-    '569cd6':'keyword',  'c586c0':'control',  '4ec9b0':'type',     'dcdcaa':'func',
-    '9cdcfe':'param',    'ce9178':'string',   'b5cea8':'number',   '6a9955':'comment',
-    'd4d4d4':'variable', 'd16969':'regexp',   '4fc1ff':'param',    'c8c8c8':'variable',
-    '808080':'comment',  'd7ba7d':'number',   'f44747':'invalid',  'b267e6':'type',
-    '000080':'operator', '646695':'operator', 'ffd700':'operator', 'da70d6':'operator',
-    '179fff':'func',     '3794ff':'func',     'cccccc':'variable', 'e6e6e6':'variable'
+    '569cd6': 'keyword',
+    c586c0: 'control',
+    '4ec9b0': 'type',
+    dcdcaa: 'func',
+    '9cdcfe': 'param',
+    ce9178: 'string',
+    b5cea8: 'number',
+    '6a9955': 'comment',
+    d4d4d4: 'variable',
+    d16969: 'regexp',
+    '4fc1ff': 'param',
+    c8c8c8: 'variable',
+    808080: 'comment',
+    d7ba7d: 'number',
+    f44747: 'invalid',
+    b267e6: 'type',
+    '000080': 'operator',
+    646695: 'operator',
+    ffd700: 'operator',
+    da70d6: 'operator',
+    '179fff': 'func',
+    '3794ff': 'func',
+    cccccc: 'variable',
+    e6e6e6: 'variable'
   };
 
   function hsl(hex) {
-    const r = parseInt(hex.slice(0,2),16)/255,
-          g = parseInt(hex.slice(2,4),16)/255,
-          b = parseInt(hex.slice(4,6),16)/255;
-    const mx = Math.max(r,g,b), mn = Math.min(r,g,b), d = mx - mn;
+    const r = parseInt(hex.slice(0, 2), 16) / 255,
+      g = parseInt(hex.slice(2, 4), 16) / 255,
+      b = parseInt(hex.slice(4, 6), 16) / 255;
+    const mx = Math.max(r, g, b),
+      mn = Math.min(r, g, b),
+      d = mx - mn;
     let h = 0;
     if (d) {
-      if (mx===r) h = ((g-b)/d) % 6; else if (mx===g) h = (b-r)/d + 2; else h = (r-g)/d + 4;
-      h *= 60; if (h < 0) h += 360;
+      if (mx === r) h = ((g - b) / d) % 6;
+      else if (mx === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
     }
-    const l = (mx+mn)/2;
-    return [h, d ? d/(1-Math.abs(2*l-1)) : 0, l];
+    const l = (mx + mn) / 2;
+    return [h, d ? d / (1 - Math.abs(2 * l - 1)) : 0, l];
   }
 
   /* If inject.js managed to define a real Monaco theme, Monaco writes OUR
@@ -172,11 +303,14 @@
   function classify(hex) {
     const k = KNOWN[hex] || OURS[hex];
     if (k) return k;
-    const t = hsl(hex), h = t[0], s = t[1], l = t[2];
+    const t = hsl(hex),
+      h = t[0],
+      s = t[1],
+      l = t[2];
     if (s < 0.18) return l > 0.45 ? 'variable' : 'comment';
     if (h < 20 || h >= 345) return 'keyword';
-    if (h < 45)  return 'string';
-    if (h < 70)  return 'func';
+    if (h < 45) return 'string';
+    if (h < 70) return 'func';
     if (h < 160) return 'number';
     if (h < 200) return 'type';
     if (h < 255) return 'param';
@@ -187,11 +321,23 @@
   function rgba(hex, a) {
     if (a >= 1) return hex;
     const h = hex.slice(1);
-    return 'rgba(' + parseInt(h.slice(0,2),16) + ',' + parseInt(h.slice(2,4),16)
-         + ',' + parseInt(h.slice(4,6),16) + ',' + a + ')';
+    return (
+      'rgba(' +
+      parseInt(h.slice(0, 2), 16) +
+      ',' +
+      parseInt(h.slice(2, 4), 16) +
+      ',' +
+      parseInt(h.slice(4, 6), 16) +
+      ',' +
+      a +
+      ')'
+    );
   }
 
-  let sheets = [], sig = -1, lastTheme = '', styleCount = -1;
+  let sheets = [],
+    sig = -1,
+    lastTheme = '',
+    styleCount = -1;
   const COLOR_RULE = /\.mtk\d+\s*\{\s*color\s*:\s*#[0-9a-fA-F]{6}/;
 
   /* WHY THIS MERGES RATHER THAN PICKS ONE SHEET
@@ -217,7 +363,7 @@
     const all = document.querySelectorAll('style');
     for (let i = 0; i < all.length; i++) {
       const st = all[i];
-      if (st.id === STYLE_ID || notPalette.has(st)) continue;   // never read ourselves back
+      if (st.id === STYLE_ID || notPalette.has(st)) continue; // never read ourselves back
       const text = st.textContent;
       if (COLOR_RULE.test(text)) found.push(st);
       else if (text.length) notPalette.add(st);
@@ -239,7 +385,8 @@
     const map = {};
     const re = /\.mtk(\d+)\s*\{\s*color\s*:\s*#([0-9a-fA-F]{6})/g;
     for (let i = 0; i < sheets.length; i++) {
-      let m; re.lastIndex = 0;
+      let m;
+      re.lastIndex = 0;
       while ((m = re.exec(sheets[i].textContent))) map[m[1]] = m[2].toLowerCase();
     }
     return map;
@@ -263,18 +410,21 @@
 
   function apply(force) {
     const activeTheme = document.documentElement.getAttribute('data-lc-theme') || '';
-    const theme = (userSyntaxTheme && userSyntaxTheme !== 'default') ? userSyntaxTheme : activeTheme;
+    const theme = userSyntaxTheme && userSyntaxTheme !== 'default' ? userSyntaxTheme : activeTheme;
     /* the anime theme's inks are solved from its scene and published by
        src/anime/anime.js into this shared isolated world. The game theme's
        Easy tier overrides the static dark-fallback ink above the same way,
        via src/game/game.js's __lctsGameInk. */
-    const ink = (theme === 'game' && globalThis.__lctsGameInk) || INK[theme]
-      || (theme === 'anime' ? globalThis.__lctsAnimeInk : null);
+    const ink =
+      (theme === 'game' && globalThis.__lctsGameInk) ||
+      INK[theme] ||
+      (theme === 'anime' ? globalThis.__lctsAnimeInk : null);
     if (!ink) {
       /* theme off: take the override away so LeetCode's own colours return */
       const old = document.getElementById(STYLE_ID);
       if (old) old.remove();
-      sig = -1; lastTheme = '';
+      sig = -1;
+      lastTheme = '';
       return false;
     }
 
@@ -283,7 +433,8 @@
        Monaco has already registered its own. */
     const n = document.querySelectorAll('style').length;
     if (!sheets.length || n !== styleCount || signature() === -1) {
-      styleCount = n; sheets = findSheets();
+      styleCount = n;
+      sheets = findSheets();
     }
     if (!sheets.length) return false;
 
@@ -291,8 +442,12 @@
     const now = signature();
     if (!force && now === sig && theme === lastTheme) return true;
     /* a sheet was replaced rather than edited: rediscover before parsing */
-    if (now === -1) { sheets = findSheets(); if (!sheets.length) return false; }
-    sig = signature(); lastTheme = theme;
+    if (now === -1) {
+      sheets = findSheets();
+      if (!sheets.length) return false;
+    }
+    sig = signature();
+    lastTheme = theme;
 
     const map = palette();
     const rules = [];
@@ -315,7 +470,13 @@
     return true;
   }
 
-  function safe(force) { try { return apply(force); } catch (e) { return false; } }
+  function safe(force) {
+    try {
+      return apply(force);
+    } catch (e) {
+      return false;
+    }
+  }
 
   /* decaying catch-up: eight scans spread over 40s, then done */
   let delay = 300;
@@ -327,12 +488,17 @@
   })();
 
   /* heartbeat: one string-length read every 2s, forever, costs nothing */
-  setInterval(function () { safe(false); }, 2000);
+  setInterval(function () {
+    safe(false);
+  }, 2000);
 
   /* a new anime scene changes the inks without changing the theme id */
-  globalThis.__lctsInkRefresh = function () { safe(true); };
+  globalThis.__lctsInkRefresh = function () {
+    safe(true);
+  };
 
   /* our own theme switches, and only ours */
-  new MutationObserver(function () { safe(true); })
-    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lc-theme'] });
+  new MutationObserver(function () {
+    safe(true);
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lc-theme'] });
 })();

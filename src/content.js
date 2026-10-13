@@ -13,14 +13,43 @@
   const KEY = 'lcThemeStudio';
   const ALT_KEY = 'lcTheme';
   const DEFAULT = 'anime';
-  const DARK_THEMES = new Set(['sakura', 'grid', 'bloom', 'orchid', 'pixel', 'crawler', 'tokyonight', 'catppuccin', 'dracula', 'nord', 'matrix']); // paper is light
-  const VALID = new Set(['paper', 'sakura', 'grid', 'bloom', 'orchid', 'anime', 'crawler', 'game', 'pixel', 'tokyonight', 'catppuccin', 'dracula', 'nord', 'matrix', 'off']);
+  const DARK_THEMES = new Set([
+    'sakura',
+    'grid',
+    'bloom',
+    'orchid',
+    'pixel',
+    'crawler',
+    'tokyonight',
+    'catppuccin',
+    'dracula',
+    'nord',
+    'matrix'
+  ]); // paper is light
+  const VALID = new Set([
+    'paper',
+    'sakura',
+    'grid',
+    'bloom',
+    'orchid',
+    'anime',
+    'crawler',
+    'game',
+    'pixel',
+    'tokyonight',
+    'catppuccin',
+    'dracula',
+    'nord',
+    'matrix',
+    'off'
+  ]);
 
-  const isDark = (theme) => theme === 'anime'
-    ? globalThis.__lctsAnimeMode !== 'light'
-    : theme === 'game'
-    ? globalThis.__lctsGameMode !== 'light'
-    : DARK_THEMES.has(theme);
+  const isDark = (theme) =>
+    theme === 'anime'
+      ? globalThis.__lctsAnimeMode !== 'light'
+      : theme === 'game'
+        ? globalThis.__lctsGameMode !== 'light'
+        : DARK_THEMES.has(theme);
   const root = document.documentElement;
 
   const site = {
@@ -28,7 +57,9 @@
     light: root.classList.contains('light'),
     dataTheme: root.getAttribute('data-theme'),
     scheme: root.style.colorScheme,
-    bodySeen: false, bodyDark: false, bodyLight: false,
+    bodySeen: false,
+    bodyDark: false,
+    bodyLight: false
   };
   function captureBody() {
     if (site.bodySeen || !document.body) return;
@@ -78,7 +109,9 @@
     setBaseMode(theme);
   }
 
-  globalThis.__lctsReassertMode = () => { if (current && current !== 'off') setBaseMode(current); };
+  globalThis.__lctsReassertMode = () => {
+    if (current && current !== 'off') setBaseMode(current);
+  };
 
   apply(DEFAULT);
   function syncMonacoTheme(val) {
@@ -121,7 +154,10 @@
       setBaseMode(current);
     }
   });
-  guard.observe(root, { attributes: true, attributeFilter: ['class', 'data-lc-theme', 'data-theme'] });
+  guard.observe(root, {
+    attributes: true,
+    attributeFilter: ['class', 'data-lc-theme', 'data-theme']
+  });
 
   /* Custom Wallpaper support for developer and solid themes */
   function syncWallpaper(customWall, animeArt) {
@@ -129,13 +165,15 @@
       root.removeAttribute('data-lc-has-wallpaper');
       return;
     }
-    const wallUrl = (customWall && (customWall.dataUrl || customWall.url)) || (animeArt && animeArt.wall) || null;
+    const wallUrl =
+      (customWall && (customWall.dataUrl || customWall.url)) || (animeArt && animeArt.wall) || null;
     if (wallUrl && (!customWall || customWall.enabled !== false)) {
       root.setAttribute('data-lc-has-wallpaper', 'true');
       root.style.setProperty('--lc-wallpaper-url', `url("${wallUrl}")`);
-      const opacity = (customWall && typeof customWall.opacity === 'number') ? customWall.opacity : 0.22;
+      const opacity =
+        customWall && typeof customWall.opacity === 'number' ? customWall.opacity : 0.22;
       root.style.setProperty('--lc-wallpaper-opacity', String(opacity));
-      const blur = (customWall && typeof customWall.blur === 'number') ? customWall.blur : 0;
+      const blur = customWall && typeof customWall.blur === 'number' ? customWall.blur : 0;
       root.style.setProperty('--lc-wallpaper-blur', `${blur}px`);
     } else {
       root.removeAttribute('data-lc-has-wallpaper');

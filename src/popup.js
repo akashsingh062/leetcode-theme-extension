@@ -5,65 +5,237 @@
 
 const THEMES = {
   tokyonight: {
-    name: 'Tokyo Night', desc: 'Midnight indigo, neon violet & cyan', accent: '#7aa2f7',
-    pv: { bg:'#1a1b26', text:'#c0caf5', line:'#3b4261', kw:'#bb9af7', fn:'#7aa2f7', num:'#ff9e64', var:'#c0caf5', com:'#565f89', pn:'#89ddff' }
+    name: 'Tokyo Night',
+    desc: 'Midnight indigo, neon violet & cyan',
+    accent: '#7aa2f7',
+    pv: {
+      bg: '#1a1b26',
+      text: '#c0caf5',
+      line: '#3b4261',
+      kw: '#bb9af7',
+      fn: '#7aa2f7',
+      num: '#ff9e64',
+      var: '#c0caf5',
+      com: '#565f89',
+      pn: '#89ddff'
+    }
   },
   catppuccin: {
-    name: 'Catppuccin Mocha', desc: 'Warm soothing dark & pastels', accent: '#cba6f7',
-    pv: { bg:'#1e1e2e', text:'#cdd6f4', line:'#45475a', kw:'#cba6f7', fn:'#89b4fa', num:'#fab387', var:'#cdd6f4', com:'#6c7086', pn:'#94e2d5' }
+    name: 'Catppuccin Mocha',
+    desc: 'Warm soothing dark & pastels',
+    accent: '#cba6f7',
+    pv: {
+      bg: '#1e1e2e',
+      text: '#cdd6f4',
+      line: '#45475a',
+      kw: '#cba6f7',
+      fn: '#89b4fa',
+      num: '#fab387',
+      var: '#cdd6f4',
+      com: '#6c7086',
+      pn: '#94e2d5'
+    }
   },
   sakura: {
-    name: 'Sakura Night', desc: 'Plum indigo with cherry blossom pink', accent: '#ff7eb6',
-    pv: { bg:'#1f1a2e', text:'#f5e9f2', line:'#4a385c', kw:'#ff7eb6', fn:'#6ee7f0', num:'#b98cff', var:'#ece9ff', com:'#7e7399', pn:'#ff9ec8' }
+    name: 'Sakura Night',
+    desc: 'Plum indigo with cherry blossom pink',
+    accent: '#ff7eb6',
+    pv: {
+      bg: '#1f1a2e',
+      text: '#f5e9f2',
+      line: '#4a385c',
+      kw: '#ff7eb6',
+      fn: '#6ee7f0',
+      num: '#b98cff',
+      var: '#ece9ff',
+      com: '#7e7399',
+      pn: '#ff9ec8'
+    }
   },
   paper: {
-    name: 'Vintage Paper', desc: 'Warm parchment kraft & sepia ink', accent: '#8b3a2b',
-    pv: { bg:'#ebdcc4', text:'#2c251e', line:'#9c8c77', kw:'#7f1d1d', fn:'#1e3a8a', num:'#0e7490', var:'#292524', com:'#78716c', pn:'#44403c' }
+    name: 'Vintage Paper',
+    desc: 'Warm parchment kraft & sepia ink',
+    accent: '#8b3a2b',
+    pv: {
+      bg: '#ebdcc4',
+      text: '#2c251e',
+      line: '#9c8c77',
+      kw: '#7f1d1d',
+      fn: '#1e3a8a',
+      num: '#0e7490',
+      var: '#292524',
+      com: '#78716c',
+      pn: '#44403c'
+    }
   },
   matrix: {
-    name: 'Cyber Matrix', desc: 'Obsidian terminal & phosphor green', accent: '#22c55e',
-    pv: { bg:'#0b0f12', text:'#e2fced', line:'#203328', kw:'#22c55e', fn:'#38bdf8', num:'#facc15', var:'#e2fced', com:'#4b6354', pn:'#10b981' }
+    name: 'Cyber Matrix',
+    desc: 'Obsidian terminal & phosphor green',
+    accent: '#22c55e',
+    pv: {
+      bg: '#0b0f12',
+      text: '#e2fced',
+      line: '#203328',
+      kw: '#22c55e',
+      fn: '#38bdf8',
+      num: '#facc15',
+      var: '#e2fced',
+      com: '#4b6354',
+      pn: '#10b981'
+    }
   },
   grid: {
-    name: 'Synthwave Grid', desc: 'Blueprint dark navy & electric cyan', accent: '#06b6d4',
-    pv: { bg:'#0f172a', text:'#e2e8f0', line:'#334155', kw:'#38bdf8', fn:'#06b6d4', num:'#fb923c', var:'#e2e8f0', com:'#64748b', pn:'#0ea5e9' }
+    name: 'Synthwave Grid',
+    desc: 'Blueprint dark navy & electric cyan',
+    accent: '#06b6d4',
+    pv: {
+      bg: '#0f172a',
+      text: '#e2e8f0',
+      line: '#334155',
+      kw: '#38bdf8',
+      fn: '#06b6d4',
+      num: '#fb923c',
+      var: '#e2e8f0',
+      com: '#64748b',
+      pn: '#0ea5e9'
+    }
   },
   orchid: {
-    name: 'Midnight Orchid', desc: 'Royal dark velvet & magenta glow', accent: '#d946ef',
-    pv: { bg:'#181124', text:'#f3e8ff', line:'#422b5e', kw:'#d946ef', fn:'#c084fc', num:'#fb7185', var:'#f3e8ff', com:'#705888', pn:'#e879f9' }
+    name: 'Midnight Orchid',
+    desc: 'Royal dark velvet & magenta glow',
+    accent: '#d946ef',
+    pv: {
+      bg: '#181124',
+      text: '#f3e8ff',
+      line: '#422b5e',
+      kw: '#d946ef',
+      fn: '#c084fc',
+      num: '#fb7185',
+      var: '#f3e8ff',
+      com: '#705888',
+      pn: '#e879f9'
+    }
   },
   dracula: {
-    name: 'Dracula Dark', desc: 'Classic gothic slate & vibrant accents', accent: '#ff79c6',
-    pv: { bg:'#282a36', text:'#f8f8f2', line:'#44475a', kw:'#ff79c6', fn:'#50fa7b', num:'#bd93f9', var:'#f8f8f2', com:'#6272a4', pn:'#ff79c6' }
+    name: 'Dracula Dark',
+    desc: 'Classic gothic slate & vibrant accents',
+    accent: '#ff79c6',
+    pv: {
+      bg: '#282a36',
+      text: '#f8f8f2',
+      line: '#44475a',
+      kw: '#ff79c6',
+      fn: '#50fa7b',
+      num: '#bd93f9',
+      var: '#f8f8f2',
+      com: '#6272a4',
+      pn: '#ff79c6'
+    }
   },
   nord: {
-    name: 'Nordic Frost', desc: 'Arctic polar night & frost teal', accent: '#88c0d0',
-    pv: { bg:'#2e3440', text:'#eceff4', line:'#4c566a', kw:'#81a1c1', fn:'#88c0d0', num:'#b48ead', var:'#eceff4', com:'#616e88', pn:'#81a1c1' }
+    name: 'Nordic Frost',
+    desc: 'Arctic polar night & frost teal',
+    accent: '#88c0d0',
+    pv: {
+      bg: '#2e3440',
+      text: '#eceff4',
+      line: '#4c566a',
+      kw: '#81a1c1',
+      fn: '#88c0d0',
+      num: '#b48ead',
+      var: '#eceff4',
+      com: '#616e88',
+      pn: '#81a1c1'
+    }
   },
   crawler: {
-    name: 'Web Crawler', desc: 'Charcoal web & crimson electric current', accent: '#e0223f',
-    pv: { bg:'#17171c', text:'#eceaf2', line:'#38384a', kw:'#4db2ff', fn:'#4ce0b3', num:'#c792ea', var:'#eceaf2', com:'#6e6e7a', pn:'#ff8aa8' }
+    name: 'Web Crawler',
+    desc: 'Charcoal web & crimson electric current',
+    accent: '#e0223f',
+    pv: {
+      bg: '#17171c',
+      text: '#eceaf2',
+      line: '#38384a',
+      kw: '#4db2ff',
+      fn: '#4ce0b3',
+      num: '#c792ea',
+      var: '#eceaf2',
+      com: '#6e6e7a',
+      pn: '#ff8aa8'
+    }
   },
   game: {
-    name: 'Adventure RPG', desc: 'Moonlit realm, HUD sidebar & quests', accent: '#7dd3fc',
-    pv: { bg:'#101a2c', text:'#e6edf3', line:'#6b86a6', kw:'#b9a7ff', fn:'#67d9e8', num:'#e7c873', var:'#e6edf3', com:'#71869a', pn:'#b8c7d9' }
+    name: 'Adventure RPG',
+    desc: 'Moonlit realm, HUD sidebar & quests',
+    accent: '#7dd3fc',
+    pv: {
+      bg: '#101a2c',
+      text: '#e6edf3',
+      line: '#6b86a6',
+      kw: '#b9a7ff',
+      fn: '#67d9e8',
+      num: '#e7c873',
+      var: '#e6edf3',
+      com: '#71869a',
+      pn: '#b8c7d9'
+    }
   },
   pixel: {
-    name: 'Pixel Art (8-Bit)', desc: 'Sweetie-16 palette & retro celebration', accent: '#ffcd75',
-    pv: { bg:'#262b44', text:'#f4f4f4', line:'#566c86', kw:'#ffcd75', fn:'#73eff7', num:'#c9a0ff', var:'#c5d3e0', com:'#8b9bb4', pn:'#ffa36b' }
+    name: 'Pixel Art (8-Bit)',
+    desc: 'Sweetie-16 palette & retro celebration',
+    accent: '#ffcd75',
+    pv: {
+      bg: '#262b44',
+      text: '#f4f4f4',
+      line: '#566c86',
+      kw: '#ffcd75',
+      fn: '#73eff7',
+      num: '#c9a0ff',
+      var: '#c5d3e0',
+      com: '#8b9bb4',
+      pn: '#ffa36b'
+    }
   },
   off: {
-    name: 'Default LeetCode', desc: 'Standard un-themed view', accent: '#94a3b8',
-    pv: { bg:'#1a1a1a', text:'#eff1f6', line:'#404040', kw:'#c678dd', fn:'#61afef', num:'#d19a66', var:'#eff1f6', com:'#7f848e', pn:'#abb2bf' }
+    name: 'Default LeetCode',
+    desc: 'Standard un-themed view',
+    accent: '#94a3b8',
+    pv: {
+      bg: '#1a1a1a',
+      text: '#eff1f6',
+      line: '#404040',
+      kw: '#c678dd',
+      fn: '#61afef',
+      num: '#d19a66',
+      var: '#eff1f6',
+      com: '#7f848e',
+      pn: '#abb2bf'
+    }
   }
 };
 
-const ORDER = ['tokyonight', 'catppuccin', 'sakura', 'paper', 'matrix', 'grid', 'orchid', 'dracula', 'nord', 'crawler', 'game', 'pixel', 'off'];
+const ORDER = [
+  'tokyonight',
+  'catppuccin',
+  'sakura',
+  'paper',
+  'matrix',
+  'grid',
+  'orchid',
+  'dracula',
+  'nord',
+  'crawler',
+  'game',
+  'pixel',
+  'off'
+];
 
 function pvVars(pv) {
-  return `--pv-bg:${pv.bg};--pv-text:${pv.text};--pv-line:${pv.line};`
-       + `--pv-kw:${pv.kw};--pv-fn:${pv.fn};--pv-num:${pv.num};`
-       + `--pv-var:${pv.var};--pv-com:${pv.com};--pv-pn:${pv.pn};`;
+  return (
+    `--pv-bg:${pv.bg};--pv-text:${pv.text};--pv-line:${pv.line};` +
+    `--pv-kw:${pv.kw};--pv-fn:${pv.fn};--pv-num:${pv.num};` +
+    `--pv-var:${pv.var};--pv-com:${pv.com};--pv-pn:${pv.pn};`
+  );
 }
 
 function setAccent(accentColor) {
@@ -78,7 +250,8 @@ function renderSolidGrid(selected) {
   if (!grid) return;
   grid.innerHTML = '';
 
-  const CHECK = '<svg viewBox="0 0 12 12" fill="none" style="width:12px;height:12px;"><path d="M2.5 6.2 5 8.7 9.6 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CHECK =
+    '<svg viewBox="0 0 12 12" fill="none" style="width:12px;height:12px;"><path d="M2.5 6.2 5 8.7 9.6 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   ORDER.forEach((id) => {
     const t = THEMES[id];
@@ -109,8 +282,9 @@ function renderSolidGrid(selected) {
 }
 
 function chooseSolidTheme(id) {
-  document.querySelectorAll('.card').forEach((c) =>
-    c.setAttribute('aria-checked', String(c.dataset.id === id)));
+  document
+    .querySelectorAll('.card')
+    .forEach((c) => c.setAttribute('aria-checked', String(c.dataset.id === id)));
 
   document.querySelectorAll('.wall-card').forEach((c) => {
     c.setAttribute('aria-checked', 'false');
@@ -125,9 +299,10 @@ function chooseSolidTheme(id) {
 
   const status = document.getElementById('status');
   if (status) {
-    status.textContent = id === 'off'
-      ? 'Theme off. Standard LeetCode restored.'
-      : `${t.name} applied across your problem tabs!`;
+    status.textContent =
+      id === 'off'
+        ? 'Theme off. Standard LeetCode restored.'
+        : `${t.name} applied across your problem tabs!`;
   }
 }
 
@@ -411,6 +586,7 @@ const fontSelect = document.getElementById('fontSelect');
 const ligaturesToggle = document.getElementById('ligaturesToggle');
 const fontSizeRange = document.getElementById('fontSizeRange');
 const fontSizeVal = document.getElementById('fontSizeVal');
+const lineHeightSelect = document.getElementById('lineHeightSelect');
 const cursorSelect = document.getElementById('cursorSelect');
 
 function saveEditorSettings() {
@@ -420,7 +596,7 @@ function saveEditorSettings() {
     font: fontSelect ? fontSelect.value : 'default',
     ligatures: ligaturesToggle ? ligaturesToggle.checked : true,
     fontSize: isCustomSize ? parseInt(fontSizeRange.value, 10) : 'default',
-    lineHeight: 'default',
+    lineHeight: lineHeightSelect ? lineHeightSelect.value : 'default',
     cursorStyle: cursorSelect ? cursorSelect.value : 'blink'
   };
   chrome.storage.local.set({ lcEditorSettings: settings });
@@ -443,6 +619,9 @@ if (fontSelect && ligaturesToggle && fontSizeRange && cursorSelect) {
       fontSizeRange.dataset.touched = 'false';
       if (fontSizeVal) fontSizeVal.textContent = 'Default';
     }
+    if (lineHeightSelect && s.v === 2 && s.lineHeight) {
+      lineHeightSelect.value = s.lineHeight;
+    }
     if (s.v === 2 && s.cursorStyle) {
       cursorSelect.value = s.cursorStyle;
     } else {
@@ -452,6 +631,7 @@ if (fontSelect && ligaturesToggle && fontSizeRange && cursorSelect) {
 
   fontSelect.addEventListener('change', saveEditorSettings);
   ligaturesToggle.addEventListener('change', saveEditorSettings);
+  if (lineHeightSelect) lineHeightSelect.addEventListener('change', saveEditorSettings);
   fontSizeRange.addEventListener('input', () => {
     fontSizeRange.dataset.touched = 'true';
     if (fontSizeVal) fontSizeVal.textContent = fontSizeRange.value + 'px';
@@ -470,6 +650,7 @@ if (resetEditorBtn) {
       fontSizeRange.dataset.touched = 'false';
     }
     if (fontSizeVal) fontSizeVal.textContent = 'Default';
+    if (lineHeightSelect) lineHeightSelect.value = 'default';
     if (cursorSelect) cursorSelect.value = 'blink';
     saveEditorSettings();
     if (monacoSelect) {
@@ -485,21 +666,29 @@ if (resetEditorBtn) {
 const blindMaster = document.getElementById('blindMasterToggle');
 const blindDiff = document.getElementById('blindDiffToggle');
 const blindTags = document.getElementById('blindTagsToggle');
-const blindStats = document.getElementById('blindStatsToggle');
+const blindAcceptance = document.getElementById('blindAcceptanceToggle');
+const blindSubmissions = document.getElementById('blindSubmissionsToggle');
+const contestMode = document.getElementById('contestModeToggle');
 
 function saveBlindMode() {
+  const isAcc = blindAcceptance ? blindAcceptance.checked : true;
+  const isSub = blindSubmissions ? blindSubmissions.checked : true;
   const mode = {
     active: blindMaster ? blindMaster.checked : false,
     hideDifficulty: blindDiff ? blindDiff.checked : true,
     blurTags: blindTags ? blindTags.checked : true,
-    hideStats: blindStats ? blindStats.checked : true
+    hideStats: isAcc || isSub,
+    hideAcceptance: isAcc,
+    hideSubmissions: isSub,
+    contestMode: contestMode ? contestMode.checked : false,
+    contestRevealed: false
   };
   chrome.storage.local.set({ lcBlindMode: mode });
 }
 
 function syncBlindVisuals() {
   const isActive = blindMaster && blindMaster.checked;
-  [blindDiff, blindTags, blindStats].forEach((el) => {
+  [blindDiff, blindTags, blindAcceptance, blindSubmissions, contestMode].forEach((el) => {
     if (el) {
       const row = el.closest('.control-row');
       if (row && row !== blindMaster.closest('.control-row')) {
@@ -510,19 +699,37 @@ function syncBlindVisuals() {
   });
 }
 
-if (blindMaster && blindDiff && blindTags && blindStats) {
+if (blindMaster) {
   chrome.storage.local.get('lcBlindMode', (res) => {
     const b = res && res.lcBlindMode ? res.lcBlindMode : null;
     if (b) {
       blindMaster.checked = b.active !== false;
-      if (b.hideDifficulty !== undefined) blindDiff.checked = !!b.hideDifficulty;
-      if (b.blurTags !== undefined) blindTags.checked = !!b.blurTags;
-      if (b.hideStats !== undefined) blindStats.checked = !!b.hideStats;
+      if (blindDiff && b.hideDifficulty !== undefined) blindDiff.checked = !!b.hideDifficulty;
+      if (blindTags && b.blurTags !== undefined) blindTags.checked = !!b.blurTags;
+      if (blindAcceptance) {
+        blindAcceptance.checked =
+          b.hideAcceptance !== undefined
+            ? !!b.hideAcceptance
+            : b.hideStats !== undefined
+              ? !!b.hideStats
+              : true;
+      }
+      if (blindSubmissions) {
+        blindSubmissions.checked =
+          b.hideSubmissions !== undefined
+            ? !!b.hideSubmissions
+            : b.hideStats !== undefined
+              ? !!b.hideStats
+              : true;
+      }
+      if (contestMode && b.contestMode !== undefined) contestMode.checked = !!b.contestMode;
     } else {
       blindMaster.checked = true;
-      blindDiff.checked = true;
-      blindTags.checked = true;
-      blindStats.checked = true;
+      if (blindDiff) blindDiff.checked = true;
+      if (blindTags) blindTags.checked = true;
+      if (blindAcceptance) blindAcceptance.checked = true;
+      if (blindSubmissions) blindSubmissions.checked = true;
+      if (contestMode) contestMode.checked = false;
       saveBlindMode();
     }
     syncBlindVisuals();
@@ -533,11 +740,15 @@ if (blindMaster && blindDiff && blindTags && blindStats) {
     saveBlindMode();
   });
 
-  [blindDiff, blindTags, blindStats].forEach((el) => {
+  [blindDiff, blindTags, blindAcceptance, blindSubmissions, contestMode].forEach((el) => {
+    if (!el) return;
     el.addEventListener('change', () => {
-      const anyChecked = (blindDiff && blindDiff.checked) ||
-                         (blindTags && blindTags.checked) ||
-                         (blindStats && blindStats.checked);
+      const anyChecked =
+        (blindDiff && blindDiff.checked) ||
+        (blindTags && blindTags.checked) ||
+        (blindAcceptance && blindAcceptance.checked) ||
+        (blindSubmissions && blindSubmissions.checked) ||
+        (contestMode && contestMode.checked);
       if (anyChecked && blindMaster && !blindMaster.checked) {
         blindMaster.checked = true;
       }
@@ -622,7 +833,10 @@ function saveDayNightConfig() {
 
 if (dayNightToggle) {
   chrome.storage.local.get('lcDayNight', (res) => {
-    const dn = res && res.lcDayNight ? res.lcDayNight : { enabled: false, mode: 'time', dayTheme: 'paper', nightTheme: 'tokyonight' };
+    const dn =
+      res && res.lcDayNight
+        ? res.lcDayNight
+        : { enabled: false, mode: 'time', dayTheme: 'paper', nightTheme: 'tokyonight' };
     dayNightToggle.checked = !!dn.enabled;
     if (dayNightOptions) dayNightOptions.style.display = dn.enabled ? 'flex' : 'none';
     if (dayNightModeSelect && dn.mode) dayNightModeSelect.value = dn.mode;

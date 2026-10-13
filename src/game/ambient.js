@@ -42,13 +42,15 @@
      /problemset/ and anywhere else in the app, since on() only ever checked
      the theme's on/off state, never the URL. Ambient decoration belongs on
      the page you're actually solving a problem on. */
-  const on = () => root.getAttribute('data-lc-theme') === 'game' &&
+  const on = () =>
+    root.getAttribute('data-lc-theme') === 'game' &&
     root.getAttribute('data-lc-game-level') === 'easy' &&
     /^\/problems\/[^/]+/.test(location.pathname);
 
-  const PETAL_URL = (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL)
-    ? chrome.runtime.getURL('textures/game/sakura.png')
-    : 'textures/game/sakura.png';
+  const PETAL_URL =
+    typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL
+      ? chrome.runtime.getURL('textures/game/sakura.png')
+      : 'textures/game/sakura.png';
 
   /* LeetCode's own modals (Notes, the Submissions detail panel, etc.) sit
      ABOVE this layer -- it's aria-hidden decoration, not real UI, so it has
@@ -80,12 +82,18 @@
     return r.width > 0 && r.right > 0 && r.left < innerWidth;
   }
 
-  let wrap = null, mounted = false, hidden = false, blickersOff = false;
+  let wrap = null,
+    mounted = false,
+    hidden = false,
+    blickersOff = false;
 
-  function rand(min, max) { return min + Math.random() * (max - min); }
+  function rand(min, max) {
+    return min + Math.random() * (max - min);
+  }
 
   function buildBlickers(host) {
-    const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced =
+      typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     const n = 12;
     for (let i = 0; i < n; i++) {
       const dot = document.createElement('span');
@@ -97,9 +105,9 @@
          moonlit photo. Spreading the light out is what makes it a bloom --
          dimming it as well is what made it invisible. */
       dot.style.setProperty('--size', rand(26, 56).toFixed(0) + 'px');
-      dot.style.setProperty('--peak', rand(0.40, 0.60).toFixed(2));
+      dot.style.setProperty('--peak', rand(0.4, 0.6).toFixed(2));
       if (reduced) {
-        dot.style.opacity = String(rand(0.10, 0.18));
+        dot.style.opacity = String(rand(0.1, 0.18));
       } else {
         /* slow: a swell you notice only if you look at it */
         dot.style.animationDuration = rand(6000, 12000).toFixed(0) + 'ms';
@@ -114,7 +122,8 @@
      a negative animation-delay starts it mid-cycle so the page doesn't open
      with every petal stacked at the top edge */
   function buildPetals(host) {
-    const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced =
+      typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     const n = 14;
     for (let i = 0; i < n; i++) {
       const p = document.createElement('span');
@@ -124,7 +133,7 @@
       p.style.setProperty('--size', rand(14, 26).toFixed(0) + 'px');
       p.style.setProperty('--drift', rand(-70, 70).toFixed(0) + 'px');
       p.style.setProperty('--rot', rand(160, 340).toFixed(0) + 'deg');
-      p.style.setProperty('--peak', rand(0.14, 0.30).toFixed(2));
+      p.style.setProperty('--peak', rand(0.14, 0.3).toFixed(2));
       if (reduced) {
         p.style.opacity = String(rand(0.08, 0.16));
       } else {
@@ -148,7 +157,8 @@
 
   function unmount() {
     if (wrap) wrap.remove();
-    wrap = null; mounted = false;
+    wrap = null;
+    mounted = false;
   }
 
   function applyDialogState() {
@@ -166,10 +176,19 @@
   }
 
   function safe() {
-    if (!on()) { if (mounted) unmount(); return; }
-    if (mounted && wrap && wrap.isConnected) { applyDialogState(); return; }   // already mounted and current
+    if (!on()) {
+      if (mounted) unmount();
+      return;
+    }
+    if (mounted && wrap && wrap.isConnected) {
+      applyDialogState();
+      return;
+    } // already mounted and current
     if (mounted) unmount();
-    if (document.body) { mount(); applyDialogState(); }
+    if (document.body) {
+      mount();
+      applyDialogState();
+    }
   }
 
   /* a modal opening/closing is (almost always) body gaining/losing a direct
@@ -186,19 +205,34 @@
   let bodyWatcher = null;
   function watchBody() {
     if (bodyWatcher || !document.body) return;
-    bodyWatcher = new MutationObserver(() => { try { applyDialogState(); } catch (e) {} });
+    bodyWatcher = new MutationObserver(() => {
+      try {
+        applyDialogState();
+      } catch (e) {}
+    });
     bodyWatcher.observe(document.body, { childList: true });
   }
 
   let delay = 300;
   (function tick() {
-    try { safe(); watchBody(); } catch (e) {}
+    try {
+      safe();
+      watchBody();
+    } catch (e) {}
     if (delay > 20000) return;
     setTimeout(tick, delay);
     delay *= 2;
   })();
-  setInterval(() => { try { safe(); watchBody(); } catch (e) {} }, 1500);
+  setInterval(() => {
+    try {
+      safe();
+      watchBody();
+    } catch (e) {}
+  }, 1500);
 
-  new MutationObserver(() => { try { safe(); } catch (e) {} })
-    .observe(root, { attributes: true, attributeFilter: ['data-lc-theme', 'data-lc-game-level'] });
+  new MutationObserver(() => {
+    try {
+      safe();
+    } catch (e) {}
+  }).observe(root, { attributes: true, attributeFilter: ['data-lc-theme', 'data-lc-game-level'] });
 })();

@@ -1,0 +1,50 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  verify:
+    name: Lint, Type-Check, Build & Sanity Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Verify Code Formatting (Prettier)
+        run: npm run format
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: TypeScript Type-Check
+        run: npm run type-check
+
+      - name: Compile & Bundle Extension (Vite Zero-FOUC)
+        run: npm run build
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Tests
+        run: npm test
+
+      - name: Archive Extension Distribution Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leetcode-theme-extension-v3
+          path: dist/
+          retention-days: 14

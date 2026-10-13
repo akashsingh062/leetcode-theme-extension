@@ -9,23 +9,30 @@
 (function (root) {
   'use strict';
 
-  var DEFAULT_IMAGE_URL = (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL)
-    ? chrome.runtime.getURL('textures/game/sakura.png')
-    : 'textures/game/sakura.png';
+  var DEFAULT_IMAGE_URL =
+    typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL
+      ? chrome.runtime.getURL('textures/game/sakura.png')
+      : 'textures/game/sakura.png';
 
   var imgCache = {};
   function loadImage(src) {
     if (imgCache[src]) return imgCache[src];
     imgCache[src] = new Promise(function (resolve) {
       var i = new Image();
-      i.onload = function () { resolve(i); };
-      i.onerror = function () { resolve(null); };
+      i.onload = function () {
+        resolve(i);
+      };
+      i.onerror = function () {
+        resolve(null);
+      };
       i.src = src;
     });
     return imgCache[src];
   }
 
-  function rand(min, max) { return min + Math.random() * (max - min); }
+  function rand(min, max) {
+    return min + Math.random() * (max - min);
+  }
 
   /* subtle: a small pool, not a shower -- and every petal drifts the SAME
      way (a light rightward base drift, matching the shared gust direction
@@ -38,7 +45,8 @@
     /* particles that are already "entering" (no delay) start partway into
        the scene rather than stacked at the very top edge, so the card's
        first frame doesn't read as empty while the rest drift in from top. */
-    var startY = delayMs > 0 ? rand(-height * 0.3, -height * 0.05) : rand(-height * 0.12, height * 0.4);
+    var startY =
+      delayMs > 0 ? rand(-height * 0.3, -height * 0.05) : rand(-height * 0.12, height * 0.4);
     return {
       x: rand(0, width),
       y: startY,
@@ -91,7 +99,7 @@
       w.gustT = 0;
       w.gustDur = rand(1000, 2000);
       w.gustStrength = rand(9, 22);
-      w.gustDir = 1;   // always the same direction as the base drift -- one wind, not gusts from anywhere
+      w.gustDir = 1; // always the same direction as the base drift -- one wind, not gusts from anywhere
     }
 
     var gust = 0;
@@ -142,7 +150,8 @@
     opts = opts || {};
     var count = opts.count || 10;
     var opac = opts.opacity || [0.2, 0.4];
-    var reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var reduced =
+      typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     var canvas = document.createElement('canvas');
     canvas.className = 'lctg-petals' + (opts.className ? ' ' + opts.className : '');
@@ -150,11 +159,16 @@
     container.appendChild(canvas);
     var ctx = canvas.getContext('2d');
 
-    var width = 0, height = 0, baseSize = 32;
+    var width = 0,
+      height = 0,
+      baseSize = 32;
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     var particles = [];
     var wind = createWind();
-    var raf = null, last = 0, destroyed = false, ro = null;
+    var raf = null,
+      last = 0,
+      destroyed = false,
+      ro = null;
 
     function resize() {
       var rect = container.getBoundingClientRect();
@@ -231,7 +245,8 @@
       destroy: function () {
         destroyed = true;
         if (raf) cancelAnimationFrame(raf);
-        if (ro) ro.disconnect(); else window.removeEventListener('resize', resize);
+        if (ro) ro.disconnect();
+        else window.removeEventListener('resize', resize);
         canvas.remove();
       }
     };

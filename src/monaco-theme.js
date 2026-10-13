@@ -10,73 +10,168 @@
 
   const PALETTES = {
     tokyonight: {
-      keyword: '#bb9af7', control: '#9d7cd8', string: '#9ece6a', number: '#ff9e64',
-      func: '#7aa2f7', type: '#2ac3de', variable: '#c0caf5', param: '#e0af68',
-      comment: '#565f89', operator: '#89ddff'
+      keyword: '#bb9af7',
+      control: '#9d7cd8',
+      string: '#9ece6a',
+      number: '#ff9e64',
+      func: '#7aa2f7',
+      type: '#2ac3de',
+      variable: '#c0caf5',
+      param: '#e0af68',
+      comment: '#565f89',
+      operator: '#89ddff'
     },
     catppuccin: {
-      keyword: '#cba6f7', control: '#f38ba8', string: '#a6e3a1', number: '#fab387',
-      func: '#89b4fa', type: '#f9e2af', variable: '#cdd6f4', param: '#eba0ac',
-      comment: '#6c7086', operator: '#94e2d5'
+      keyword: '#cba6f7',
+      control: '#f38ba8',
+      string: '#a6e3a1',
+      number: '#fab387',
+      func: '#89b4fa',
+      type: '#f9e2af',
+      variable: '#cdd6f4',
+      param: '#eba0ac',
+      comment: '#6c7086',
+      operator: '#94e2d5'
     },
     sakura: {
-      keyword: '#ff7eb6', control: '#ff7eb6', string: '#ffd479', number: '#b98cff',
-      func: '#6ee7f0', type: '#7ee8a5', variable: '#ece9ff', param: '#c9a6ff',
-      comment: '#7e7399', operator: '#ff9ec8'
+      keyword: '#ff7eb6',
+      control: '#ff7eb6',
+      string: '#ffd479',
+      number: '#b98cff',
+      func: '#6ee7f0',
+      type: '#7ee8a5',
+      variable: '#ece9ff',
+      param: '#c9a6ff',
+      comment: '#7e7399',
+      operator: '#ff9ec8'
     },
     paper: {
-      keyword: '#7f1d1d', control: '#701a75', string: '#14532d', number: '#0e7490',
-      func: '#1e3a8a', type: '#581c87', variable: '#292524', param: '#1e293b',
-      comment: '#78716c', operator: '#44403c'
+      keyword: '#7f1d1d',
+      control: '#701a75',
+      string: '#14532d',
+      number: '#0e7490',
+      func: '#1e3a8a',
+      type: '#581c87',
+      variable: '#292524',
+      param: '#1e293b',
+      comment: '#78716c',
+      operator: '#44403c'
     },
     matrix: {
-      keyword: '#22c55e', control: '#4ade80', string: '#86efac', number: '#facc15',
-      func: '#38bdf8', type: '#a7f3d0', variable: '#e2fced', param: '#bbf7d0',
-      comment: '#4b6354', operator: '#10b981'
+      keyword: '#22c55e',
+      control: '#4ade80',
+      string: '#86efac',
+      number: '#facc15',
+      func: '#38bdf8',
+      type: '#a7f3d0',
+      variable: '#e2fced',
+      param: '#bbf7d0',
+      comment: '#4b6354',
+      operator: '#10b981'
     },
     grid: {
-      keyword: '#38bdf8', control: '#818cf8', string: '#34d399', number: '#fb923c',
-      func: '#06b6d4', type: '#a78bfa', variable: '#e2e8f0', param: '#94a3b8',
-      comment: '#64748b', operator: '#0ea5e9'
+      keyword: '#38bdf8',
+      control: '#818cf8',
+      string: '#34d399',
+      number: '#fb923c',
+      func: '#06b6d4',
+      type: '#a78bfa',
+      variable: '#e2e8f0',
+      param: '#94a3b8',
+      comment: '#64748b',
+      operator: '#0ea5e9'
     },
     orchid: {
-      keyword: '#d946ef', control: '#f43f5e', string: '#fde047', number: '#fb7185',
-      func: '#c084fc', type: '#e879f9', variable: '#f3e8ff', param: '#f5d0fe',
-      comment: '#705888', operator: '#e879f9'
+      keyword: '#d946ef',
+      control: '#f43f5e',
+      string: '#fde047',
+      number: '#fb7185',
+      func: '#c084fc',
+      type: '#e879f9',
+      variable: '#f3e8ff',
+      param: '#f5d0fe',
+      comment: '#705888',
+      operator: '#e879f9'
     },
     dracula: {
-      keyword: '#ff79c6', control: '#ff79c6', string: '#f1fa8c', number: '#bd93f9',
-      func: '#50fa7b', type: '#8be9fd', variable: '#f8f8f2', param: '#ffb86c',
-      comment: '#6272a4', operator: '#ff79c6'
+      keyword: '#ff79c6',
+      control: '#ff79c6',
+      string: '#f1fa8c',
+      number: '#bd93f9',
+      func: '#50fa7b',
+      type: '#8be9fd',
+      variable: '#f8f8f2',
+      param: '#ffb86c',
+      comment: '#6272a4',
+      operator: '#ff79c6'
     },
     nord: {
-      keyword: '#81a1c1', control: '#81a1c1', string: '#a3be8c', number: '#b48ead',
-      func: '#88c0d0', type: '#8fbcbb', variable: '#eceff4', param: '#d8dee9',
-      comment: '#616e88', operator: '#81a1c1'
+      keyword: '#81a1c1',
+      control: '#81a1c1',
+      string: '#a3be8c',
+      number: '#b48ead',
+      func: '#88c0d0',
+      type: '#8fbcbb',
+      variable: '#eceff4',
+      param: '#d8dee9',
+      comment: '#616e88',
+      operator: '#81a1c1'
     },
     custom: {
-      keyword: '#38bdf8', control: '#818cf8', string: '#34d399', number: '#fb923c',
-      func: '#06b6d4', type: '#a78bfa', variable: '#f8fafc', param: '#94a3b8',
-      comment: '#64748b', operator: '#0ea5e9'
+      keyword: '#38bdf8',
+      control: '#818cf8',
+      string: '#34d399',
+      number: '#fb923c',
+      func: '#06b6d4',
+      type: '#a78bfa',
+      variable: '#f8fafc',
+      param: '#94a3b8',
+      comment: '#64748b',
+      operator: '#0ea5e9'
     }
   };
 
   // Known VS Code / Monaco default token hex mappings
   const ROLE_MAP = {
     // Dark+ / Monaco Default Dark
-    '569cd6': 'keyword',   'c586c0': 'control',   'ce9178': 'string',   'b5cea8': 'number',
-    'dcdcaa': 'func',      '4ec9b0': 'type',      'd4d4d4': 'variable', '9cdcfe': 'param',
-    '6a9955': 'comment',   '808080': 'comment',   '608b4e': 'comment',  'da70d6': 'operator',
-    'ffd700': 'operator',  '179fff': 'operator',  'd16969': 'regex',    'f44747': 'error',
-    '3dc9b0': 'type',      '4fc1ff': 'type',      'c8c8c8': 'variable',
+    '569cd6': 'keyword',
+    c586c0: 'control',
+    ce9178: 'string',
+    b5cea8: 'number',
+    dcdcaa: 'func',
+    '4ec9b0': 'type',
+    d4d4d4: 'variable',
+    '9cdcfe': 'param',
+    '6a9955': 'comment',
+    808080: 'comment',
+    '608b4e': 'comment',
+    da70d6: 'operator',
+    ffd700: 'operator',
+    '179fff': 'operator',
+    d16969: 'regex',
+    f44747: 'error',
+    '3dc9b0': 'type',
+    '4fc1ff': 'type',
+    c8c8c8: 'variable',
 
     // Light / Monaco Default Light (vs)
-    '0000ff': 'keyword',   'af00db': 'control',   'a31515': 'string',   '098658': 'number',
-    '795e26': 'func',      '267f99': 'type',      '001080': 'variable', '008000': 'comment',
-    '811f3f': 'regex',     'cd3131': 'error',     '0451a5': 'variable',
+    '0000ff': 'keyword',
+    af00db: 'control',
+    a31515: 'string',
+    '098658': 'number',
+    '795e26': 'func',
+    '267f99': 'type',
+    '001080': 'variable',
+    '008000': 'comment',
+    '811f3f': 'regex',
+    cd3131: 'error',
+    '0451a5': 'variable',
 
     // High Contrast
-    '00ffff': 'type',      'ff00ff': 'keyword',   'ffff00': 'string',   '00ff00': 'comment'
+    '00ffff': 'type',
+    ff00ff: 'keyword',
+    ffff00: 'string',
+    '00ff00': 'comment'
   };
 
   // Pre-seed all palette colors to prevent recursive reclassification
@@ -111,23 +206,36 @@
 
   function hexToHsl(hex) {
     hex = hex.replace('#', '');
-    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    if (hex.length === 3)
+      hex = hex
+        .split('')
+        .map((c) => c + c)
+        .join('');
     const num = parseInt(hex, 16);
     if (isNaN(num)) return { h: 0, s: 0, l: 50 };
     const r = ((num >> 16) & 255) / 255;
     const g = ((num >> 8) & 255) / 255;
     const b = (num & 255) / 255;
 
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h = 0, s = 0, l = (max + min) / 2;
+    const max = Math.max(r, g, b),
+      min = Math.min(r, g, b);
+    let h = 0,
+      s = 0,
+      l = (max + min) / 2;
 
     if (max !== min) {
       const d = max - min;
       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
       switch (max) {
-        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-        case g: h = ((b - r) / d + 2) / 6; break;
-        case b: h = ((r - g) / d + 4) / 6; break;
+        case r:
+          h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+          break;
+        case g:
+          h = ((b - r) / d + 2) / 6;
+          break;
+        case b:
+          h = ((r - g) / d + 4) / 6;
+          break;
       }
     }
     return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
@@ -142,16 +250,16 @@
       return l < 58 ? 'comment' : 'variable';
     }
     if (h >= 75 && h <= 155) {
-      return (s < 45 && l < 50) ? 'comment' : 'string';
+      return s < 45 && l < 50 ? 'comment' : 'string';
     }
     if (h >= 255 && h <= 325) {
       return 'keyword';
     }
     if (h >= 170 && h < 255) {
-      return (h < 210) ? 'type' : 'func';
+      return h < 210 ? 'type' : 'func';
     }
     if (h >= 25 && h < 75) {
-      return (h >= 40 && h <= 68) ? 'func' : 'number';
+      return h >= 40 && h <= 68 ? 'func' : 'number';
     }
     if (h >= 325 || h < 25) {
       return 'control';
@@ -291,8 +399,10 @@
   });
 
   // Watch for theme and scene attribute changes on documentElement
-  new MutationObserver(() => applyHighlighting())
-    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lc-theme', 'data-lc-scene'] });
+  new MutationObserver(() => applyHighlighting()).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-lc-theme', 'data-lc-scene']
+  });
 
   window.addEventListener('lcts-theme-changed', () => applyHighlighting());
 

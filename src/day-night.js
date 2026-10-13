@@ -8,7 +8,7 @@
 
   const DEFAULTS = {
     enabled: false,
-    mode: 'time',       // 'time' or 'system'
+    mode: 'time', // 'time' or 'system'
     dayTheme: 'paper',
     nightTheme: 'anime'
   };

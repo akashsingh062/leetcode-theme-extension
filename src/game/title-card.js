@@ -35,8 +35,8 @@
      not any recognisable game/franchise mark */
   var EMBLEM_SVG =
     '<svg class="lctg-star" viewBox="0 0 40 40" aria-hidden="true">' +
-      '<path class="lctg-star-v" d="M20 1 L24 20 L20 39 L16 20 Z"/>' +
-      '<path class="lctg-star-h" d="M1 20 L20 16 L39 20 L20 24 Z"/>' +
+    '<path class="lctg-star-v" d="M20 1 L24 20 L20 39 L16 20 Z"/>' +
+    '<path class="lctg-star-h" d="M1 20 L20 16 L39 20 L20 24 Z"/>' +
     '</svg>';
 
   /* info: { level, levelLabel, tagline, title } */
@@ -44,12 +44,12 @@
     info = info || {};
     host = host || document.body || document.documentElement;
     host.querySelectorAll(':scope > .lctg-card').forEach(function (n) {
-      if (n._lctgPetals) n._lctgPetals.destroy();   // stop its rAF loop, not just detach the node
+      if (n._lctgPetals) n._lctgPetals.destroy(); // stop its rAF loop, not just detach the node
       n.remove();
     });
 
     var level = info.level || 1;
-    var levelLabel = info.levelLabel || ('LEVEL ' + level);
+    var levelLabel = info.levelLabel || 'LEVEL ' + level;
     var tagline = info.tagline || 'MYSTICAL NIGHT';
     var taglineWords = tagline.split(' ');
     var mid = Math.ceil(taglineWords.length / 2);
@@ -62,16 +62,26 @@
     node.append(el('div', 'lctg-dim'), el('div', 'lctg-bar top'), el('div', 'lctg-bar bottom'));
 
     var emblem = el('div', 'lctg-emblem');
-    emblem.append(el('span', 'lctg-emblem-line l'), svg(EMBLEM_SVG), el('span', 'lctg-emblem-line r'));
+    emblem.append(
+      el('span', 'lctg-emblem-line l'),
+      svg(EMBLEM_SVG),
+      el('span', 'lctg-emblem-line r')
+    );
 
     var main = el('div', 'lctg-main');
     main.append(
-      el('span', 'lctg-half l', left), el('span', 'lctg-half r', right),
-      el('div', 'lctg-glint a'), el('div', 'lctg-glint b')
+      el('span', 'lctg-half l', left),
+      el('span', 'lctg-half r', right),
+      el('div', 'lctg-glint a'),
+      el('div', 'lctg-glint b')
     );
 
     var lower = el('div', 'lctg-lower');
-    lower.append(el('span', 'lctg-emblem-line l'), el('span', 'lctg-diamond'), el('span', 'lctg-emblem-line r'));
+    lower.append(
+      el('span', 'lctg-emblem-line l'),
+      el('span', 'lctg-diamond'),
+      el('span', 'lctg-emblem-line r')
+    );
 
     var stage = el('div', 'lctg-stage');
     stage.append(
@@ -84,10 +94,13 @@
     node.append(stage);
 
     host.appendChild(node);
-    var petals = root.LCTSGamePetals ? root.LCTSGamePetals.mount(node, { imageUrl: info.petalImageUrl }) : null;
+    var petals = root.LCTSGamePetals
+      ? root.LCTSGamePetals.mount(node, { imageUrl: info.petalImageUrl })
+      : null;
     node._lctgPetals = petals;
 
-    var removed = false, leaving = false;
+    var removed = false,
+      leaving = false;
     function cleanup() {
       if (removed) return;
       removed = true;
@@ -105,9 +118,11 @@
     /* any key dismisses it, and the key still reaches the editor */
     document.addEventListener('keydown', leave, true);
     /* the shell's own exit animation is the last thing to finish */
-    node.addEventListener('animationend', function (e) { if (e.target === node && leaving) cleanup(); });
+    node.addEventListener('animationend', function (e) {
+      if (e.target === node && leaving) cleanup();
+    });
     var holdTimer = setTimeout(leave, 3300);
-    setTimeout(cleanup, 4500);           // backstop: see moments-ui.js's note on display:none cancelling animations
+    setTimeout(cleanup, 4500); // backstop: see moments-ui.js's note on display:none cancelling animations
 
     return node;
   }

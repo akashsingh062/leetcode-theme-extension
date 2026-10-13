@@ -20,7 +20,8 @@
      lcFocus     true while focus mode is on
 ============================================================================= */
 (() => {
-  const SCENES = globalThis.LCTS_SCENES, DEF = globalThis.LCTS_SCENE_DEFAULT;
+  const SCENES = globalThis.LCTS_SCENES,
+    DEF = globalThis.LCTS_SCENE_DEFAULT;
   const THEME_KEY = 'lcThemeStudio';
   const STYLE_ID = 'lcts-anime-roles';
   const root = document.documentElement;
@@ -44,9 +45,12 @@
   }
 
   function publish(theme, urls) {
-    globalThis.__lctsAnimeScene = { wall: urls.wall };     // read by src/share.js
+    globalThis.__lctsAnimeScene = { wall: urls.wall }; // read by src/share.js
     const css = globalThis.LCTSAnimeCss.build(theme, urls);
-    if (css !== published) { styleEl().textContent = css; published = css; }
+    if (css !== published) {
+      styleEl().textContent = css;
+      published = css;
+    }
     globalThis.__lctsAnimeInk = theme.ink;
     const modeChanged = globalThis.__lctsAnimeMode !== theme.mode;
     globalThis.__lctsAnimeMode = theme.mode;
@@ -63,7 +67,7 @@
      dozen characters rather than megabytes of base64 through every recalc */
   function toObjectUrl(dataUrl) {
     const comma = dataUrl.indexOf(',');
-    const type = (dataUrl.slice(5, comma).split(';')[0]) || 'image/webp';
+    const type = dataUrl.slice(5, comma).split(';')[0] || 'image/webp';
     const bin = atob(dataUrl.slice(comma + 1));
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
@@ -81,12 +85,13 @@
 
   /* if a future page policy ever refuses blob: images, fall back to the
      default scene instead of leaving the panels bare */
-  const loads = (url) => new Promise((res) => {
-    const im = new Image();
-    im.onload = () => res(true);
-    im.onerror = () => res(false);
-    im.src = url;
-  });
+  const loads = (url) =>
+    new Promise((res) => {
+      const im = new Image();
+      im.onload = () => res(true);
+      im.onerror = () => res(false);
+      im.src = url;
+    });
 
   /* the pre-solved default goes in at once, before storage answers, so the
      first paint under the anime theme is never unstyled */
@@ -98,7 +103,8 @@
      Your own picture always wins, for every difficulty. Someone who had
      picked a single scene before arcs existed keeps it (arcs off). */
   const ARC = globalThis.LCTS_ARC_DEFAULT || {};
-  const arcsOn = (cfg) => cfg.scene !== 'custom' && (cfg.arcs !== undefined ? !!cfg.arcs : !cfg.scene);
+  const arcsOn = (cfg) =>
+    cfg.scene !== 'custom' && (cfg.arcs !== undefined ? !!cfg.arcs : !cfg.scene);
   function sceneFor(cfg, difficulty) {
     if (!arcsOn(cfg)) return SCENES[cfg.scene] ? cfg.scene : DEF;
     const arcs = Object.assign({}, ARC, cfg.arcScenes || {});
@@ -107,9 +113,12 @@
   }
   /* the Studio saves a solve per scene for the user's glass settings */
   const solvedFor = (cfg, id) =>
-    (cfg.themes && cfg.themes[id]) || (cfg.theme && cfg.themeFor === id ? cfg.theme : null) || SCENES[id].theme;
+    (cfg.themes && cfg.themes[id]) ||
+    (cfg.theme && cfg.themeFor === id ? cfg.theme : null) ||
+    SCENES[id].theme;
 
-  let cfgNow = null, shownId = null;
+  let cfgNow = null,
+    shownId = null;
   function showPreset(cfg) {
     const P = globalThis.LCTSProblem;
     const id = sceneFor(cfg, P ? P.get().difficulty : null);
@@ -126,7 +135,10 @@
       if (ticket !== loading) return;
       root.toggleAttribute('data-lc-focus', !!res.lcFocus);
       /* nothing saved = a fresh install, which content.js runs as anime (its DEFAULT) */
-      if ((res[THEME_KEY] || 'anime') !== 'anime') { cfgNow = null; return; }   // nothing to load for other themes
+      if ((res[THEME_KEY] || 'anime') !== 'anime') {
+        cfgNow = null;
+        return;
+      } // nothing to load for other themes
 
       const cfg = res.lcAnime || {};
       if (cfg.scene !== 'custom') {
@@ -134,20 +146,29 @@
            (a few ms) and the right scene is up before the first paint */
         if (globalThis.LCTSProblem) await globalThis.LCTSProblem.ready();
         if (ticket !== loading) return;
-        cfgNow = cfg; shownId = null;
+        cfgNow = cfg;
+        shownId = null;
         showPreset(cfg);
         return;
       }
-      cfgNow = null; shownId = 'custom';
+      cfgNow = null;
+      shownId = 'custom';
       const customTheme = (cfg.themes && cfg.themes.custom) || cfg.theme;
 
       chrome.storage.local.get('lcAnimeArt', async (r2) => {
         if (ticket !== loading) return;
         const art = r2.lcAnimeArt;
-        if (!art || !art.wall || !art.blur || !customTheme) { publishPreset(DEF); return; }
+        if (!art || !art.wall || !art.blur || !customTheme) {
+          publishPreset(DEF);
+          return;
+        }
         try {
           const urls = { wall: toObjectUrl(art.wall), blur: toObjectUrl(art.blur) };
-          if (!(await loads(urls.wall))) { releaseObjectUrls(); publishPreset(DEF); return; }
+          if (!(await loads(urls.wall))) {
+            releaseObjectUrls();
+            publishPreset(DEF);
+            return;
+          }
           if (ticket !== loading) return;
           publish(customTheme, urls);
           releaseObjectUrls([urls.wall, urls.blur]);
@@ -168,7 +189,10 @@
   load();
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-    if (changes[THEME_KEY] || changes.lcAnime || changes.lcAnimeArt) { load(); return; }
+    if (changes[THEME_KEY] || changes.lcAnime || changes.lcAnimeArt) {
+      load();
+      return;
+    }
     if (changes.lcFocus) root.toggleAttribute('data-lc-focus', !!changes.lcFocus.newValue);
   });
 })();

@@ -26,19 +26,35 @@
 
   /* where a viewer of the post can get the extension */
   const SHARE_URL = '';
-  const W = 1200, H = 630;
+  const W = 1200,
+    H = 630;
   const root = document.documentElement;
   const themeId = () => root.getAttribute('data-lc-theme');
 
   let enabled = true;
-  chrome.storage.local.get('lcShare', (r) => { enabled = !(r.lcShare && r.lcShare.enabled === false); });
-  chrome.storage.onChanged.addListener((ch, area) => {
-    if (area === 'local' && ch.lcShare) enabled = !(ch.lcShare.newValue && ch.lcShare.newValue.enabled === false);
+  chrome.storage.local.get('lcShare', (r) => {
+    enabled = !(r.lcShare && r.lcShare.enabled === false);
   });
-  const turnOff = () => { enabled = false; chrome.storage.local.set({ lcShare: { enabled: false } }); };
+  chrome.storage.onChanged.addListener((ch, area) => {
+    if (area === 'local' && ch.lcShare)
+      enabled = !(ch.lcShare.newValue && ch.lcShare.newValue.enabled === false);
+  });
+  const turnOff = () => {
+    enabled = false;
+    chrome.storage.local.set({ lcShare: { enabled: false } });
+  };
 
   /* ---- streak ------------------------------------------------------------- */
-  const localDay = (d) => { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const localDay = (d) => {
+    d = d || new Date();
+    return (
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(d.getDate()).padStart(2, '0')
+    );
+  };
   function recordClear() {
     return new Promise((res) => {
       chrome.storage.local.get('lcStats', (r) => {
@@ -50,15 +66,23 @@
         chrome.storage.local.set({ lcStats: st });
         /* consecutive days ending today */
         const set = new Set(st.days);
-        let streak = 0; const d = new Date();
-        while (set.has(localDay(d))) { streak++; d.setDate(d.getDate() - 1); }
+        let streak = 0;
+        const d = new Date();
+        while (set.has(localDay(d))) {
+          streak++;
+          d.setDate(d.getDate() - 1);
+        }
         res({ streak, clears: st.clears });
       });
     });
   }
 
   /* ---- the card ------------------------------------------------------------ */
-  const ARC = { easy: ['日常編', 'SLICE-OF-LIFE ARC'], medium: ['修行編', 'TRAINING ARC'], hard: ['最終決戦', 'FINAL BATTLE'] };
+  const ARC = {
+    easy: ['日常編', 'SLICE-OF-LIFE ARC'],
+    medium: ['修行編', 'TRAINING ARC'],
+    hard: ['最終決戦', 'FINAL BATTLE']
+  };
   const DIFF_COLOR = { easy: '#34d399', medium: '#fbbf24', hard: '#fb7185' };
   const cssVar = (n, fb) => (getComputedStyle(root).getPropertyValue(n) || '').trim() || fb;
   const DISPLAY = '"Dela Gothic One", "Inter", system-ui, sans-serif';
@@ -66,18 +90,29 @@
 
   /* colours as the browser resolves them, so hex, rgb() and color-mix() all work */
   function rgbOf(css) {
-    const p = document.createElement('span'); p.style.color = css; p.style.display = 'none';
+    const p = document.createElement('span');
+    p.style.color = css;
+    p.style.display = 'none';
     document.body.appendChild(p);
-    const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)/.exec(getComputedStyle(p).color); p.remove();
+    const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)/.exec(getComputedStyle(p).color);
+    p.remove();
     return m ? [+m[1], +m[2], +m[3]] : [249, 141, 193];
   }
-  const lum = ([r, g, b]) => [r, g, b].map((v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); })
-    .reduce((t, v, i) => t + v * [0.2126, 0.7152, 0.0722][i], 0);
+  const lum = ([r, g, b]) =>
+    [r, g, b]
+      .map((v) => {
+        v /= 255;
+        return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      })
+      .reduce((t, v, i) => t + v * [0.2126, 0.7152, 0.0722][i], 0);
   const hex = (c) => '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
   /* the card is always dark, so a light theme's accent (an ink tuned for
      paper) is swapped for its rule colour, or lifted toward white */
   function brightOnDark(candidates) {
-    for (const cc of candidates) { const c = rgbOf(cc); if (lum(c) >= 0.18) return hex(c); }
+    for (const cc of candidates) {
+      const c = rgbOf(cc);
+      if (lum(c) >= 0.18) return hex(c);
+    }
     const c = rgbOf(candidates[0]);
     let mix = c;
     for (let t = 0.1; t <= 1 && lum(mix) < 0.18; t += 0.1) mix = c.map((v) => v + (255 - v) * t);
@@ -86,101 +121,187 @@
   const inkOn = (bg) => (lum(rgbOf(bg)) > 0.35 ? '#0b0a10' : '#ffffff');
 
   async function bitmapFrom(url) {
-    try { const b = await (await fetch(url)).blob(); return await createImageBitmap(b); } catch (e) { return null; }
+    try {
+      const b = await (await fetch(url)).blob();
+      return await createImageBitmap(b);
+    } catch (e) {
+      return null;
+    }
   }
 
   function roundRect(c, x, y, w, h, r) {
-    c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
-    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
   }
   function chip(c, x, y, text, fg, bg, font) {
     c.font = font || '600 22px ' + SANS;
     const w = c.measureText(text).width + 32;
-    roundRect(c, x, y, w, 42, 21); c.fillStyle = bg; c.fill();
-    c.fillStyle = fg; c.textBaseline = 'middle'; c.fillText(text, x + 16, y + 22);
+    roundRect(c, x, y, w, 42, 21);
+    c.fillStyle = bg;
+    c.fill();
+    c.fillStyle = fg;
+    c.textBaseline = 'middle';
+    c.fillText(text, x + 16, y + 22);
     return x + w + 12;
   }
   function wrap(c, text, maxW, maxLines) {
-    const words = String(text).split(/\s+/), lines = [];
+    const words = String(text).split(/\s+/),
+      lines = [];
     let line = '';
     for (const w of words) {
       const t = line ? line + ' ' + w : w;
-      if (c.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t;
+      if (c.measureText(t).width > maxW && line) {
+        lines.push(line);
+        line = w;
+      } else line = t;
     }
     if (line) lines.push(line);
-    if (lines.length > maxLines) { lines.length = maxLines; lines[maxLines - 1] = lines[maxLines - 1].replace(/\s*\S*$/, '') + '…'; }
+    if (lines.length > maxLines) {
+      lines.length = maxLines;
+      lines[maxLines - 1] = lines[maxLines - 1].replace(/\s*\S*$/, '') + '…';
+    }
     return lines;
   }
 
   async function drawCard(d) {
-    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const cv = document.createElement('canvas');
+    cv.width = W;
+    cv.height = H;
     const c = cv.getContext('2d');
     const accent = brightOnDark([cssVar('--lc-accent', '#f98dc1'), cssVar('--lc-rule', '#f98dc1')]);
-    const accent2 = brightOnDark([cssVar('--lc-accent-2', '#a78bfa'), cssVar('--lc-rule', '#a78bfa')]);
+    const accent2 = brightOnDark([
+      cssVar('--lc-accent-2', '#a78bfa'),
+      cssVar('--lc-rule', '#a78bfa')
+    ]);
     const desk = cssVar('--lc-desk', '#120d1c');
-    try { await document.fonts.load('80px "Dela Gothic One"'); } catch (e) {}
+    try {
+      await document.fonts.load('80px "Dela Gothic One"');
+    } catch (e) {}
 
     /* background: the scene the user codes on, or the theme's own colours */
     const scene = themeId() === 'anime' && globalThis.__lctsAnimeScene;
     const bmp = scene && scene.wall ? await bitmapFrom(scene.wall) : null;
-    c.fillStyle = desk; c.fillRect(0, 0, W, H);
+    c.fillStyle = desk;
+    c.fillRect(0, 0, W, H);
     if (bmp) {
       const s = Math.max(W / bmp.width, H / bmp.height);
-      c.drawImage(bmp, (W - bmp.width * s) / 2, (H - bmp.height * s) / 2, bmp.width * s, bmp.height * s);
+      c.drawImage(
+        bmp,
+        (W - bmp.width * s) / 2,
+        (H - bmp.height * s) / 2,
+        bmp.width * s,
+        bmp.height * s
+      );
     } else {
       const g = c.createLinearGradient(0, 0, W, H);
-      g.addColorStop(0, desk); g.addColorStop(1, cssVar('--lc-bg2', '#1f1830'));
-      c.fillStyle = g; c.fillRect(0, 0, W, H);
-      c.globalAlpha = 0.18; c.strokeStyle = accent; c.lineWidth = 2;
-      for (let x = -H; x < W; x += 34) { c.beginPath(); c.moveTo(x, H); c.lineTo(x + H, 0); c.stroke(); }
+      g.addColorStop(0, desk);
+      g.addColorStop(1, cssVar('--lc-bg2', '#1f1830'));
+      c.fillStyle = g;
+      c.fillRect(0, 0, W, H);
+      c.globalAlpha = 0.18;
+      c.strokeStyle = accent;
+      c.lineWidth = 2;
+      for (let x = -H; x < W; x += 34) {
+        c.beginPath();
+        c.moveTo(x, H);
+        c.lineTo(x + H, 0);
+        c.stroke();
+      }
       c.globalAlpha = 1;
       const glow = c.createRadialGradient(W * 0.85, H * 0.2, 10, W * 0.85, H * 0.2, 520);
-      glow.addColorStop(0, accent + '66'); glow.addColorStop(1, 'transparent');
-      c.fillStyle = glow; c.fillRect(0, 0, W, H);
+      glow.addColorStop(0, accent + '66');
+      glow.addColorStop(1, 'transparent');
+      c.fillStyle = glow;
+      c.fillRect(0, 0, W, H);
     }
     /* a readable dark side for the words, the art stays bright on the right */
     const veil = c.createLinearGradient(0, 0, W * 0.78, 0);
-    veil.addColorStop(0, 'rgba(8,6,14,.92)'); veil.addColorStop(0.62, 'rgba(8,6,14,.62)'); veil.addColorStop(1, 'rgba(8,6,14,0)');
-    c.fillStyle = veil; c.fillRect(0, 0, W, H);
+    veil.addColorStop(0, 'rgba(8,6,14,.92)');
+    veil.addColorStop(0.62, 'rgba(8,6,14,.62)');
+    veil.addColorStop(1, 'rgba(8,6,14,0)');
+    c.fillStyle = veil;
+    c.fillRect(0, 0, W, H);
     const foot = c.createLinearGradient(0, H - 150, 0, H);
-    foot.addColorStop(0, 'rgba(8,6,14,0)'); foot.addColorStop(1, 'rgba(8,6,14,.75)');
-    c.fillStyle = foot; c.fillRect(0, H - 150, W, 150);
+    foot.addColorStop(0, 'rgba(8,6,14,0)');
+    foot.addColorStop(1, 'rgba(8,6,14,.75)');
+    c.fillStyle = foot;
+    c.fillRect(0, H - 150, W, 150);
 
     const X = 64;
     const arc = ARC[d.difficulty] || null;
     /* each theme's card speaks its own moments' language */
     const n = d.number;
     const WORDS = {
-      anime:   { kick: (n ? 'EPISODE ' + n : 'EPISODE') + (arc ? '  ·  ' + arc[1] : ''), stamp: n ? '第' + n + '話' : '完了！', line: 'CLEARED' },
-      crawler: { kick: (n ? 'NODE #' + n : 'NODE') + '  ·  CRAWL COMPLETE', stamp: '200 OK', line: 'NODE COMPILED' },
-      game:    { kick: n ? 'LEVEL ' + n : 'LEVEL', stamp: 'QUEST', line: 'COMPLETE' },
-      pixel:   { kick: n ? 'STAGE ' + n : 'STAGE', stamp: 'STAGE', line: 'CLEAR!' }
+      anime: {
+        kick: (n ? 'EPISODE ' + n : 'EPISODE') + (arc ? '  ·  ' + arc[1] : ''),
+        stamp: n ? '第' + n + '話' : '完了！',
+        line: 'CLEARED'
+      },
+      crawler: {
+        kick: (n ? 'NODE #' + n : 'NODE') + '  ·  CRAWL COMPLETE',
+        stamp: '200 OK',
+        line: 'NODE COMPILED'
+      },
+      game: { kick: n ? 'LEVEL ' + n : 'LEVEL', stamp: 'QUEST', line: 'COMPLETE' },
+      pixel: { kick: n ? 'STAGE ' + n : 'STAGE', stamp: 'STAGE', line: 'CLEAR!' }
     };
-    const w = WORDS[themeId()] || { kick: n ? 'PROBLEM ' + n : 'LEETCODE', stamp: 'SOLVED', line: 'ACCEPTED' };
+    const w = WORDS[themeId()] || {
+      kick: n ? 'PROBLEM ' + n : 'LEETCODE',
+      stamp: 'SOLVED',
+      line: 'ACCEPTED'
+    };
     c.textBaseline = 'alphabetic';
-    c.font = '26px ' + DISPLAY; c.fillStyle = accent;
+    c.font = '26px ' + DISPLAY;
+    c.fillStyle = accent;
     c.fillText(w.kick, X, 84);
 
     /* the stamp, shrunk to fit if it is a long word */
     c.save();
-    c.translate(X - 6, 236); c.rotate(-0.05);
+    c.translate(X - 6, 236);
+    c.rotate(-0.05);
     let size = 132;
     c.font = size + 'px ' + DISPLAY;
-    while (c.measureText(w.stamp).width > 640 && size > 60) { size -= 6; c.font = size + 'px ' + DISPLAY; }
-    c.lineJoin = 'round'; c.lineWidth = 14; c.strokeStyle = 'rgba(8,6,14,.9)'; c.strokeText(w.stamp, 0, 0);
-    c.fillStyle = accent; c.fillText(w.stamp, 6, 6);
-    c.fillStyle = '#ffffff'; c.fillText(w.stamp, 0, 0);
+    while (c.measureText(w.stamp).width > 640 && size > 60) {
+      size -= 6;
+      c.font = size + 'px ' + DISPLAY;
+    }
+    c.lineJoin = 'round';
+    c.lineWidth = 14;
+    c.strokeStyle = 'rgba(8,6,14,.9)';
+    c.strokeText(w.stamp, 0, 0);
+    c.fillStyle = accent;
+    c.fillText(w.stamp, 6, 6);
+    c.fillStyle = '#ffffff';
+    c.fillText(w.stamp, 0, 0);
     c.restore();
-    c.font = '46px ' + DISPLAY; c.fillStyle = '#ffffff';
+    c.font = '46px ' + DISPLAY;
+    c.fillStyle = '#ffffff';
     c.fillText(w.line, X, 304);
 
     /* the problem */
-    c.font = '700 44px ' + SANS; c.fillStyle = '#f5f3fa';
-    wrap(c, d.title || 'LeetCode problem', 700, 2).forEach((l, i) => c.fillText(l, X, 374 + i * 54));
+    c.font = '700 44px ' + SANS;
+    c.fillStyle = '#f5f3fa';
+    wrap(c, d.title || 'LeetCode problem', 700, 2).forEach((l, i) =>
+      c.fillText(l, X, 374 + i * 54)
+    );
 
     /* stats */
-    let x = X; const y = d.title && wrap(c, d.title, 700, 2).length > 1 ? 446 : 406;
-    if (d.difficulty) x = chip(c, x, y, d.difficulty[0].toUpperCase() + d.difficulty.slice(1), '#0b0a10', DIFF_COLOR[d.difficulty]);
+    let x = X;
+    const y = d.title && wrap(c, d.title, 700, 2).length > 1 ? 446 : 406;
+    if (d.difficulty)
+      x = chip(
+        c,
+        x,
+        y,
+        d.difficulty[0].toUpperCase() + d.difficulty.slice(1),
+        '#0b0a10',
+        DIFF_COLOR[d.difficulty]
+      );
     if (d.beats) x = chip(c, x, y, 'Beats ' + d.beats + '%', inkOn(accent), accent);
     if (d.lang) x = chip(c, x, y, d.lang, '#ffffff', 'rgba(255,255,255,.14)');
     if (d.runtime) x = chip(c, x, y, d.runtime, '#ffffff', 'rgba(255,255,255,.14)');
@@ -188,12 +309,18 @@
 
     /* signature */
     c.textBaseline = 'alphabetic';
-    c.font = '600 22px ' + SANS; c.fillStyle = 'rgba(255,255,255,.92)';
+    c.font = '600 22px ' + SANS;
+    c.fillStyle = 'rgba(255,255,255,.92)';
     c.fillText('Theme Studio for LeetCode', X, H - 50);
-    c.font = '20px ' + SANS; c.fillStyle = 'rgba(255,255,255,.62)';
+    c.font = '20px ' + SANS;
+    c.fillStyle = 'rgba(255,255,255,.62)';
     c.fillText('LeetCode Themes', X, H - 22);
     c.textAlign = 'right';
-    c.fillText(new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }), W - 40, H - 22);
+    c.fillText(
+      new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }),
+      W - 40,
+      H - 22
+    );
     c.textAlign = 'left';
 
     return new Promise((res) => cv.toBlob((b) => res(b), 'image/png'));
@@ -201,9 +328,16 @@
 
   function caption(d) {
     const parts = [];
-    parts.push((d.number && themeId() === 'anime' ? 'Episode ' + d.number + ' cleared' : 'Solved') + ' ✅ ' + (d.title || 'a LeetCode problem') +
-      (d.difficulty ? ' (' + d.difficulty[0].toUpperCase() + d.difficulty.slice(1) + ')' : '') + ' on LeetCode' +
-      (d.beats ? ', beats ' + d.beats + '%' : '') + (d.lang ? ' in ' + d.lang : '') + '.');
+    parts.push(
+      (d.number && themeId() === 'anime' ? 'Episode ' + d.number + ' cleared' : 'Solved') +
+        ' ✅ ' +
+        (d.title || 'a LeetCode problem') +
+        (d.difficulty ? ' (' + d.difficulty[0].toUpperCase() + d.difficulty.slice(1) + ')' : '') +
+        ' on LeetCode' +
+        (d.beats ? ', beats ' + d.beats + '%' : '') +
+        (d.lang ? ' in ' + d.lang : '') +
+        '.'
+    );
     if (d.streak >= 2) parts.push('Day ' + d.streak + ' of my streak.');
     parts.push('\nSolved with LeetCode Themes');
     parts.push('\n#LeetCode #100DaysOfCode #DSA');
@@ -259,75 +393,129 @@
 `;
   function ensureStyle() {
     if (document.getElementById('lcts-share-style')) return;
-    const s = document.createElement('style'); s.id = 'lcts-share-style'; s.textContent = STYLE;
+    const s = document.createElement('style');
+    s.id = 'lcts-share-style';
+    s.textContent = STYLE;
     (document.head || root).appendChild(s);
   }
-  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const el = (tag, cls, text) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  };
 
   async function copyImage(blob) {
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       return true;
-    } catch (e) { return false; }
+    } catch (e) {
+      return false;
+    }
   }
   function download(blob, d) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'leetcode-' + (d.number || 'clear') + '-cleared.png';
-    document.body.appendChild(a); a.click(); a.remove();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }
 
   let toast = null;
-  function closeToast() { if (toast) { toast.remove(); toast = null; } }
+  function closeToast() {
+    if (toast) {
+      toast.remove();
+      toast = null;
+    }
+  }
 
   function openDialog(blob, url, d) {
     closeToast();
     ensureStyle();
     const modal = el('div', 'lcts-share-modal');
     const box = el('div', 'lcts-share-box');
-    const img = el('img'); img.src = url; img.alt = 'Your share card';
-    const text = el('textarea'); text.value = caption(d); text.setAttribute('aria-label', 'Post text');
+    const img = el('img');
+    img.src = url;
+    img.alt = 'Your share card';
+    const text = el('textarea');
+    text.value = caption(d);
+    text.setAttribute('aria-label', 'Post text');
     const hint = el('p', 'lcts-share-hint');
     const row = el('div', 'lcts-share-row');
-    const close = () => { modal.remove(); document.removeEventListener('keydown', onKey, true); };
-    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    const close = () => {
+      modal.remove();
+      document.removeEventListener('keydown', onKey, true);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') close();
+    };
     document.addEventListener('keydown', onKey, true);
 
     /* the image goes to the clipboard first (while this click still counts as
        a user gesture), then the composer opens with the text filled in */
     const post = (label, makeUrl) => {
-      const b = el('button', 'lcts-share-btn primary', label); b.type = 'button';
+      const b = el('button', 'lcts-share-btn primary', label);
+      b.type = 'button';
       b.addEventListener('click', async () => {
         const ok = await copyImage(blob);
         if (!ok) download(blob, d);
         window.open(makeUrl(text.value), '_blank', 'noopener');
-        hint.textContent = ok ? 'Card copied. In the post, press Ctrl+V (⌘V on Mac) to add it.'
-                              : 'Card downloaded. Attach it to your post.';
+        hint.textContent = ok
+          ? 'Card copied. In the post, press Ctrl+V (⌘V on Mac) to add it.'
+          : 'Card downloaded. Attach it to your post.';
       });
       return b;
     };
     row.append(
-      post('Post on LinkedIn', (t) => 'https://www.linkedin.com/feed/?shareActive=true&text=' + encodeURIComponent(t)),
+      post(
+        'Post on LinkedIn',
+        (t) => 'https://www.linkedin.com/feed/?shareActive=true&text=' + encodeURIComponent(t)
+      ),
       post('Post on X', (t) => 'https://x.com/intent/post?text=' + encodeURIComponent(t))
     );
-    const copyBtn = el('button', 'lcts-share-btn', 'Copy image'); copyBtn.type = 'button';
-    copyBtn.addEventListener('click', async () => { hint.textContent = (await copyImage(blob)) ? 'Card copied.' : 'Copying is blocked here. Use Download instead.'; });
-    const dl = el('button', 'lcts-share-btn', 'Download'); dl.type = 'button';
-    dl.addEventListener('click', () => { download(blob, d); hint.textContent = 'Saved.'; });
+    const copyBtn = el('button', 'lcts-share-btn', 'Copy image');
+    copyBtn.type = 'button';
+    copyBtn.addEventListener('click', async () => {
+      hint.textContent = (await copyImage(blob))
+        ? 'Card copied.'
+        : 'Copying is blocked here. Use Download instead.';
+    });
+    const dl = el('button', 'lcts-share-btn', 'Download');
+    dl.type = 'button';
+    dl.addEventListener('click', () => {
+      download(blob, d);
+      hint.textContent = 'Saved.';
+    });
     row.append(copyBtn, dl);
 
     const foot = el('div', 'lcts-share-foot');
-    const lab = el('label'); const cb = el('input'); cb.type = 'checkbox';
-    cb.addEventListener('change', () => { if (cb.checked) turnOff(); else { enabled = true; chrome.storage.local.set({ lcShare: { enabled: true } }); } });
+    const lab = el('label');
+    const cb = el('input');
+    cb.type = 'checkbox';
+    cb.addEventListener('change', () => {
+      if (cb.checked) turnOff();
+      else {
+        enabled = true;
+        chrome.storage.local.set({ lcShare: { enabled: true } });
+      }
+    });
     lab.append(cb, document.createTextNode("Don't offer this after Accepted"));
-    const done = el('button', 'lcts-share-btn', 'Close'); done.type = 'button'; done.addEventListener('click', close);
+    const done = el('button', 'lcts-share-btn', 'Close');
+    done.type = 'button';
+    done.addEventListener('click', close);
     foot.append(lab, done);
 
-    const x = el('button', 'lcts-share-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', close);
+    const x = el('button', 'lcts-share-x', '×');
+    x.type = 'button';
+    x.setAttribute('aria-label', 'Close');
+    x.addEventListener('click', close);
     box.append(x, img, text, row, hint, foot);
     modal.append(box);
-    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) close();
+    });
     document.body.appendChild(modal);
   }
 
@@ -338,20 +526,36 @@
     closeToast();
     ensureStyle();
     toast = el('div', 'lcts-share-toast');
-    toast.setAttribute('role', 'dialog'); toast.setAttribute('aria-label', 'Share your clear');
-    const img = el('img'); img.src = url; img.alt = '';
+    toast.setAttribute('role', 'dialog');
+    toast.setAttribute('aria-label', 'Share your clear');
+    const img = el('img');
+    img.src = url;
+    img.alt = '';
     const body = el('div');
     const row = el('div', 'lcts-share-row');
-    const share = el('button', 'lcts-share-btn primary', 'Share'); share.type = 'button';
+    const share = el('button', 'lcts-share-btn primary', 'Share');
+    share.type = 'button';
     share.addEventListener('click', () => openDialog(blob, url, d));
     img.addEventListener('click', () => openDialog(blob, url, d));
-    const later = el('button', 'lcts-share-btn', 'Not now'); later.type = 'button'; later.addEventListener('click', closeToast);
+    const later = el('button', 'lcts-share-btn', 'Not now');
+    later.type = 'button';
+    later.addEventListener('click', closeToast);
     row.append(share, later);
-    const off = el('button', 'lcts-share-link', "Don't show again"); off.type = 'button';
-    off.addEventListener('click', () => { turnOff(); closeToast(); });
-    body.append(el('b', null, (d.number ? 'Episode ' + d.number : 'Problem') + ' cleared'),
-                el('p', null, 'Your card is ready. Share it in one click.'), row);
-    const x = el('button', 'lcts-share-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', closeToast);
+    const off = el('button', 'lcts-share-link', "Don't show again");
+    off.type = 'button';
+    off.addEventListener('click', () => {
+      turnOff();
+      closeToast();
+    });
+    body.append(
+      el('b', null, (d.number ? 'Episode ' + d.number : 'Problem') + ' cleared'),
+      el('p', null, 'Your card is ready. Share it in one click.'),
+      row
+    );
+    const x = el('button', 'lcts-share-x', '×');
+    x.type = 'button';
+    x.setAttribute('aria-label', 'Close');
+    x.addEventListener('click', closeToast);
     body.append(off);
     toast.append(img, body, x);
     document.body.appendChild(toast);
@@ -360,24 +564,35 @@
     void toast.offsetWidth;
     toast.classList.add('is-in');
     const mine = toast;
-    setTimeout(() => { if (toast === mine && !mine.matches(':hover')) closeToast(); }, 14000);
+    setTimeout(() => {
+      if (toast === mine && !mine.matches(':hover')) closeToast();
+    }, 14000);
   }
 
   /* ---- trigger ------------------------------------------------------------------ */
   /* ms to wait for each theme's Accepted moment; Pixel Art's squad takes longer */
   const MOMENT_THEMES = { anime: 2100, crawler: 2100, game: 2100, pixel: 4300 };
   async function onAccepted(v) {
-    if (!themeId()) return;                       // "Off" means off
+    if (!themeId()) return; // "Off" means off
     const { streak } = await recordClear();
     if (!enabled || root.hasAttribute('data-lc-focus')) return;
     const p = globalThis.LCTSProblem ? globalThis.LCTSProblem.get() : {};
-    const d = { number: p.number, title: p.title || document.title.replace(/\s*-\s*LeetCode\s*$/, ''),
-                difficulty: p.difficulty, beats: v.beats, lang: v.lang, runtime: v.runtime, streak };
+    const d = {
+      number: p.number,
+      title: p.title || document.title.replace(/\s*-\s*LeetCode\s*$/, ''),
+      difficulty: p.difficulty,
+      beats: v.beats,
+      lang: v.lang,
+      runtime: v.runtime,
+      streak
+    };
     /* after the Accepted moment has had its stage */
     setTimeout(() => offer(d), MOMENT_THEMES[themeId()] || 700);
   }
   if (globalThis.LCTSVerdict) {
-    globalThis.LCTSVerdict.subscribe((v) => { if (v.kind === 'ac' && v.action === 'submit') onAccepted(v); });
+    globalThis.LCTSVerdict.subscribe((v) => {
+      if (v.kind === 'ac' && v.action === 'submit') onAccepted(v);
+    });
   }
 
   globalThis.LCTSShare = { drawCard, caption, offer };

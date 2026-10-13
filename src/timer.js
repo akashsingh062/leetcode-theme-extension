@@ -11,7 +11,7 @@
   let enabled = false;
 
   let state = {
-    mode: '25m',        // 'stopwatch', '15m', '25m', '45m'
+    mode: '25m', // 'stopwatch', '15m', '25m', '45m'
     remaining: 25 * 60, // in seconds
     isRunning: false,
     startTime: 0,
@@ -19,11 +19,51 @@
   };
 
   const PRESETS = {
-    'stopwatch': 0,
+    stopwatch: 0,
     '15m': 15 * 60,
+    '20m': 20 * 60,
     '25m': 25 * 60,
+    '30m': 30 * 60,
     '45m': 45 * 60
   };
+
+  let audioWarned5m = false;
+
+  function playTimerChime(type = 'warn5m') {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      if (type === 'warn5m') {
+        // Subtle, elegant chime for 5 minutes remaining
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.46);
+      } else if (type === 'timeup') {
+        // Triple chime for time up
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(554.37, now + 0.15);
+        osc.frequency.setValueAtTime(659.25, now + 0.3);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.72);
+      }
+    } catch (e) {}
+  }
 
   function formatTime(totalSec) {
     const sec = Math.max(0, Math.floor(totalSec));
@@ -78,6 +118,13 @@
         color: #38bdf8;
         min-width: 48px;
         text-align: center;
+      }
+      #${CONTAINER_ID}.warning-5m {
+        border-color: rgba(245, 158, 11, 0.7);
+        box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+      }
+      #${CONTAINER_ID} .lcts-timer-digits.warning-5m {
+        color: #fbbf24;
       }
       #${CONTAINER_ID} .lcts-timer-digits.warning {
         color: #f87171;
@@ -136,12 +183,14 @@
       <select class="lcts-timer-select" title="Timer Mode">
         <option value="25m">25m</option>
         <option value="15m">15m</option>
+        <option value="20m">20m</option>
+        <option value="30m">30m</option>
         <option value="45m">45m</option>
         <option value="stopwatch">Stopwatch</option>
       </select>
       <span class="lcts-timer-digits">25:00</span>
-      <button class="lcts-timer-btn lcts-play-btn" title="Start/Pause">▶</button>
-      <button class="lcts-timer-btn lcts-reset-btn" title="Reset">↺</button>
+      <button class="lcts-timer-btn lcts-play-btn" title="Start/Pause (Alt+Shift+T)">▶</button>
+      <button class="lcts-timer-btn lcts-reset-btn" title="Reset (Alt+Shift+R)">↺</button>
     `;
 
     container.appendChild(style);
@@ -159,7 +208,10 @@
 
     // Make timer draggable anywhere
     let isDragging = false;
-    let startX = 0, startY = 0, initL = 0, initT = 0;
+    let startX = 0,
+      startY = 0,
+      initL = 0,
+      initT = 0;
 
     container.addEventListener('mousedown', (e) => {
       if (e.target.closest('button') || e.target.closest('select')) return;
@@ -180,8 +232,14 @@
       if (!isDragging) return;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
-      const newX = Math.max(10, Math.min(window.innerWidth - container.offsetWidth - 10, initL + dx));
-      const newY = Math.max(10, Math.min(window.innerHeight - container.offsetHeight - 10, initT + dy));
+      const newX = Math.max(
+        10,
+        Math.min(window.innerWidth - container.offsetWidth - 10, initL + dx)
+      );
+      const newY = Math.max(
+        10,
+        Math.min(window.innerHeight - container.offsetHeight - 10, initT + dy)
+      );
       container.style.left = newX + 'px';
       container.style.top = newY + 'px';
     });
@@ -190,7 +248,10 @@
       if (isDragging) {
         isDragging = false;
         try {
-          sessionStorage.setItem('lcts_timer_pos', JSON.stringify({ left: container.style.left, top: container.style.top }));
+          sessionStorage.setItem(
+            'lcts_timer_pos',
+            JSON.stringify({ left: container.style.left, top: container.style.top })
+          );
         } catch (e) {}
       }
     });
@@ -215,11 +276,12 @@
 
     select.addEventListener('change', () => {
       pause();
+      audioWarned5m = false;
       state.mode = select.value;
       if (state.mode === 'stopwatch') {
         state.remaining = 0;
       } else {
-        state.remaining = PRESETS[state.mode] || (25 * 60);
+        state.remaining = PRESETS[state.mode] || 25 * 60;
       }
       updateUI();
       saveState();
@@ -235,10 +297,11 @@
 
     resetBtn.addEventListener('click', () => {
       pause();
+      audioWarned5m = false;
       if (state.mode === 'stopwatch') {
         state.remaining = 0;
       } else {
-        state.remaining = PRESETS[state.mode] || (25 * 60);
+        state.remaining = PRESETS[state.mode] || 25 * 60;
       }
       updateUI();
       saveState();
@@ -261,10 +324,26 @@
 
     if (digits) {
       digits.textContent = formatTime(state.remaining);
-      if (state.mode !== 'stopwatch' && state.remaining <= 60 && state.remaining > 0) {
-        digits.classList.add('warning');
+      if (state.mode !== 'stopwatch') {
+        if (state.remaining <= 60 && state.remaining > 0) {
+          digits.classList.remove('warning-5m');
+          digits.classList.add('warning');
+          container.classList.add('warning-5m');
+        } else if (state.remaining <= 300 && state.remaining > 60) {
+          digits.classList.add('warning-5m');
+          digits.classList.remove('warning');
+          container.classList.add('warning-5m');
+        } else if (state.remaining <= 0) {
+          digits.classList.remove('warning-5m', 'warning');
+          digits.classList.add('time-up');
+          container.classList.add('warning-5m');
+        } else {
+          digits.classList.remove('warning', 'warning-5m', 'time-up');
+          container.classList.remove('warning-5m');
+        }
       } else {
-        digits.classList.remove('warning');
+        digits.classList.remove('warning', 'warning-5m', 'time-up');
+        container.classList.remove('warning-5m');
       }
     }
   }
@@ -276,9 +355,13 @@
       state.remaining += 1;
     } else {
       state.remaining -= 1;
-      if (state.remaining <= 0) {
+      if (state.remaining === 300 && !audioWarned5m) {
+        audioWarned5m = true;
+        playTimerChime('warn5m');
+      } else if (state.remaining <= 0) {
         state.remaining = 0;
         pause();
+        playTimerChime('timeup');
       }
     }
     updateUI();
@@ -305,6 +388,38 @@
   function saveState() {
     chrome.storage.local.set({ lcTimerState: state });
   }
+
+  // Keyboard shortcuts from anywhere (including Monaco Editor)
+  // Alt+Shift+T: Start / Pause
+  // Alt+Shift+R: Reset
+  window.addEventListener(
+    'keydown',
+    (e) => {
+      if (e.altKey && e.shiftKey && (e.key === 'T' || e.key === 't')) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!enabled) setVisibility(true);
+        if (state.isRunning) {
+          pause();
+        } else {
+          start();
+        }
+      } else if (e.altKey && e.shiftKey && (e.key === 'R' || e.key === 'r')) {
+        e.preventDefault();
+        e.stopPropagation();
+        pause();
+        audioWarned5m = false;
+        if (state.mode === 'stopwatch') {
+          state.remaining = 0;
+        } else {
+          state.remaining = PRESETS[state.mode] || 25 * 60;
+        }
+        updateUI();
+        saveState();
+      }
+    },
+    true
+  );
 
   function setVisibility(show) {
     enabled = !!show;

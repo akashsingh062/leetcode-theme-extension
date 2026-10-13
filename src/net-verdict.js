@@ -17,17 +17,27 @@
 
   function inspect(url, d) {
     if (!d || typeof d !== 'object') return;
-    if (RUN.test(url) && d.interpret_id) { actionOf.set(String(d.interpret_id), 'run'); return; }
-    if (SUBMIT.test(url) && d.submission_id != null) { actionOf.set(String(d.submission_id), 'submit'); return; }
+    if (RUN.test(url) && d.interpret_id) {
+      actionOf.set(String(d.interpret_id), 'run');
+      return;
+    }
+    if (SUBMIT.test(url) && d.submission_id != null) {
+      actionOf.set(String(d.submission_id), 'submit');
+      return;
+    }
     const m = CHECK.exec(url);
     if (!m || d.state !== 'SUCCESS') return;
     const id = m[1];
     if (sent.has(id)) return;
     sent.add(id);
-    const action = actionOf.get(id) ||
-      (/^runcode/.test(id) || 'correct_answer' in d || 'expected_code_answer' in d ? 'run' : 'submit');
+    const action =
+      actionOf.get(id) ||
+      (/^runcode/.test(id) || 'correct_answer' in d || 'expected_code_answer' in d
+        ? 'run'
+        : 'submit');
     const out = {
-      id, action,
+      id,
+      action,
       status: String(d.status_msg || ''),
       correct: typeof d.correct_answer === 'boolean' ? d.correct_answer : null,
       beats: typeof d.runtime_percentile === 'number' ? d.runtime_percentile : null,
@@ -48,9 +58,20 @@
       try {
         const url = typeof input === 'string' ? input : (input && input.url) || String(input || '');
         if (interesting(url)) {
-          p.then((res) => {
-            try { res.clone().json().then((d) => inspect(url, d), () => {}); } catch (e) {}
-          }, () => {});
+          p.then(
+            (res) => {
+              try {
+                res
+                  .clone()
+                  .json()
+                  .then(
+                    (d) => inspect(url, d),
+                    () => {}
+                  );
+              } catch (e) {}
+            },
+            () => {}
+          );
         }
       } catch (e) {}
       return p;
@@ -60,9 +81,12 @@
   /* ---- XMLHttpRequest ---- */
   const X = window.XMLHttpRequest && window.XMLHttpRequest.prototype;
   if (X) {
-    const origOpen = X.open, origSend = X.send;
+    const origOpen = X.open,
+      origSend = X.send;
     X.open = function (method, url) {
-      try { this.__lctsUrl = String(url || ''); } catch (e) {}
+      try {
+        this.__lctsUrl = String(url || '');
+      } catch (e) {}
       return origOpen.apply(this, arguments);
     };
     X.send = function () {
@@ -73,7 +97,8 @@
             try {
               let d = null;
               if (this.responseType === 'json') d = this.response;
-              else if (this.responseType === '' || this.responseType === 'text') d = JSON.parse(this.responseText);
+              else if (this.responseType === '' || this.responseType === 'text')
+                d = JSON.parse(this.responseText);
               inspect(url, d);
             } catch (e) {}
           });

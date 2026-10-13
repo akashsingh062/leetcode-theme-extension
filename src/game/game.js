@@ -28,9 +28,18 @@
      to read as magic caught in the dark rather than a normal syntax theme. */
   const EASY_INK = {
     a: 1,
-    variable:'#e6edf3', comment:'#71869a', keyword:'#b9a7ff', control:'#b9a7ff',
-    string:'#8dd6b8',   number:'#e7c873',  func:'#67d9e8',    type:'#9ccbff',
-    param:'#c7d6e8',    operator:'#b8c7d9', regexp:'#8dd6b8', invalid:'#e88a7a'
+    variable: '#e6edf3',
+    comment: '#71869a',
+    keyword: '#b9a7ff',
+    control: '#b9a7ff',
+    string: '#8dd6b8',
+    number: '#e7c873',
+    func: '#67d9e8',
+    type: '#9ccbff',
+    param: '#c7d6e8',
+    operator: '#b8c7d9',
+    regexp: '#8dd6b8',
+    invalid: '#e88a7a'
   };
 
   const on = () => root.getAttribute('data-lc-theme') === 'game';
@@ -74,7 +83,10 @@
   }
 
   /* ---- reading the open problem: same hooks as src/anime/moments.js ------- */
-  const slugOf = () => { const m = /^\/problems\/([^/]+)/.exec(location.pathname); return m ? m[1] : null; };
+  const slugOf = () => {
+    const m = /^\/problems\/([^/]+)/.exec(location.pathname);
+    return m ? m[1] : null;
+  };
 
   function titleEl(slug) {
     const t = document.querySelector('.flexlayout__tab .text-title-large');
@@ -93,13 +105,20 @@
     return { number: m[1], title: m[2], difficulty: d ? d.textContent.trim() : '' };
   }
 
-  const whenVisible = () => new Promise((res) => {
-    if (document.visibilityState === 'visible') return res();
-    const f = () => { if (document.visibilityState === 'visible') { document.removeEventListener('visibilitychange', f); res(); } };
-    document.addEventListener('visibilitychange', f);
-  });
+  const whenVisible = () =>
+    new Promise((res) => {
+      if (document.visibilityState === 'visible') return res();
+      const f = () => {
+        if (document.visibilityState === 'visible') {
+          document.removeEventListener('visibilitychange', f);
+          res();
+        }
+      };
+      document.addEventListener('visibilitychange', f);
+    });
 
-  let lastSlug = null, ticket = 0;
+  let lastSlug = null,
+    ticket = 0;
   function poll() {
     if (!on()) return;
     const slug = slugOf();
@@ -108,14 +127,20 @@
     /* a tab not clicked yet plays its cues through the offscreen page: open it now */
     if (globalThis.LCTSSounds) globalThis.LCTSSounds.prime('game');
     const my = ++ticket;
-    let tries = 0, since = 0;
+    let tries = 0,
+      since = 0;
     const P = globalThis.LCTSProblem;
     const iv = setInterval(async () => {
-      if (my !== ticket || ++tries > 90 || !on()) { clearInterval(iv); return; }
+      if (my !== ticket || ++tries > 90 || !on()) {
+        clearInterval(iv);
+        return;
+      }
       /* a full page load: LeetCode's server-rendered data has the problem ~1.2 s
          in, seconds before the panel layout draws its title (src/problem.js) */
       const s = P && P.ssr(slug);
-      const info = s ? { number: s.number, title: s.title, difficulty: s.difficulty || '' } : readTitle(slug);
+      const info = s
+        ? { number: s.number, title: s.title, difficulty: s.difficulty || '' }
+        : readTitle(slug);
       if (!info) return;
       setLevel((info.difficulty || '').toLowerCase() === 'easy' ? 'easy' : 'other');
       /* from the page, give title/difficulty ~0.7 s to settle -- by the clock:
@@ -145,13 +170,18 @@
      load. Now that every difficulty resolves to the same material there is
      nothing to wait for. */
   if (on()) setLevel('easy');
-  new MutationObserver(() => { if (on()) setLevel('easy'); })
-    .observe(root, { attributes: true, attributeFilter: ['data-lc-theme'] });
+  new MutationObserver(() => {
+    if (on()) setLevel('easy');
+  }).observe(root, { attributes: true, attributeFilter: ['data-lc-theme'] });
 
   poll();
   setInterval(poll, 1000);
 
   /* our own theme switches: re-check the level at once, no page reload */
-  new MutationObserver(() => { if (on()) { lastSlug = null; poll(); } })
-    .observe(root, { attributes: true, attributeFilter: ['data-lc-theme'] });
+  new MutationObserver(() => {
+    if (on()) {
+      lastSlug = null;
+      poll();
+    }
+  }).observe(root, { attributes: true, attributeFilter: ['data-lc-theme'] });
 })();

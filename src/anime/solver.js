@@ -42,11 +42,16 @@
   const ratio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 
   function hslToRgb(h, s, l) {
-    h = ((h % 360) + 360) % 360 / 360;
-    if (!s) { const v = round(l * 255); return [v, v, v]; }
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+    h = (((h % 360) + 360) % 360) / 360;
+    if (!s) {
+      const v = round(l * 255);
+      return [v, v, v];
+    }
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s,
+      p = 2 * l - q;
     const f = (t) => {
-      if (t < 0) t += 1; if (t > 1) t -= 1;
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
       if (t < 1 / 6) return p + (q - p) * 6 * t;
       if (t < 1 / 2) return q;
       if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
@@ -55,27 +60,43 @@
     return [round(f(h + 1 / 3) * 255), round(f(h) * 255), round(f(h - 1 / 3) * 255)];
   }
   function rgbToHsl(c) {
-    const r = c[0] / 255, g = c[1] / 255, b = c[2] / 255;
-    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    const r = c[0] / 255,
+      g = c[1] / 255,
+      b = c[2] / 255;
+    const mx = Math.max(r, g, b),
+      mn = Math.min(r, g, b),
+      d = mx - mn;
     let h = 0;
     if (d) {
-      if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4;
-      h *= 60; if (h < 0) h += 360;
+      if (mx === r) h = ((g - b) / d) % 6;
+      else if (mx === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
     }
     const l = (mx + mn) / 2;
     return [h, d ? d / (1 - Math.abs(2 * l - 1)) : 0, l];
   }
   const hex = (c) => '#' + c.map((v) => round(v).toString(16).padStart(2, '0')).join('');
   const rgba = (c, a) => `rgba(${round(c[0])},${round(c[1])},${round(c[2])},${+a.toFixed(3)})`;
-  const hueDist = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+  const hueDist = (a, b) => {
+    const d = Math.abs(a - b) % 360;
+    return d > 180 ? 360 - d : d;
+  };
   /* core.css reads the --sd-* tokens as hsl(var(--x)) */
   function hslStr(c, alpha) {
     const t = rgbToHsl(c);
-    const h = Math.round(t[0]), s = Math.round(t[1] * 100), l = Math.round(t[2] * 100);
+    const h = Math.round(t[0]),
+      s = Math.round(t[1] * 100),
+      l = Math.round(t[2] * 100);
     return alpha === undefined ? `${h} ${s}% ${l}%` : `${h},${s}%,${l}%,${alpha}`;
   }
   /* scrim over pixel, as the browser composites it */
-  const over = (scrim, a, p) => [scrim[0] * a + p[0] * (1 - a), scrim[1] * a + p[1] * (1 - a), scrim[2] * a + p[2] * (1 - a)];
+  const over = (scrim, a, p) => [
+    scrim[0] * a + p[0] * (1 - a),
+    scrim[1] * a + p[1] * (1 - a),
+    scrim[2] * a + p[2] * (1 - a)
+  ];
 
   /* ---- sampling ---------------------------------------------------------- */
   function pixels(data) {
@@ -103,18 +124,26 @@
   function solveAlpha(fgL, scrim, cands, target, pct, lo, hi) {
     if (worstRatio(fgL, scrim, lo, cands, pct) >= target) return lo;
     if (worstRatio(fgL, scrim, hi, cands, pct) < target) return hi;
-    let a = lo, b = hi;
+    let a = lo,
+      b = hi;
     for (let i = 0; i < 18; i++) {
       const m = (a + b) / 2;
-      if (worstRatio(fgL, scrim, m, cands, pct) >= target) b = m; else a = m;
+      if (worstRatio(fgL, scrim, m, cands, pct) >= target) b = m;
+      else a = m;
     }
     return b;
   }
 
   /* one representative surface: the average pixel under the scrim */
   function meanOver(scrim, a, px) {
-    let r = 0, g = 0, b = 0;
-    px.forEach((p) => { r += p[0]; g += p[1]; b += p[2]; });
+    let r = 0,
+      g = 0,
+      b = 0;
+    px.forEach((p) => {
+      r += p[0];
+      g += p[1];
+      b += p[2];
+    });
     const n = px.length || 1;
     return over(scrim, a, [r / n, g / n, b / n]);
   }
@@ -122,34 +151,61 @@
   /* ---- palette: k-means on the picture ------------------------------------ */
   function kmeans(px, k, seed) {
     let s = seed || 7;
-    const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+    const rnd = () => {
+      s = (s * 16807) % 2147483647;
+      return s / 2147483647;
+    };
     const step = Math.max(1, Math.floor(px.length / 2400));
-    const pts = []; for (let i = 0; i < px.length; i += step) pts.push(px[i]);
+    const pts = [];
+    for (let i = 0; i < px.length; i += step) pts.push(px[i]);
     const d2 = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
     /* k-means++ seeding, deterministic */
     const cents = [pts[Math.floor(rnd() * pts.length)].slice()];
     while (cents.length < k) {
       const ds = pts.map((p) => Math.min(...cents.map((c) => d2(p, c))));
-      let t = rnd() * ds.reduce((x, y) => x + y, 0), i = 0;
+      let t = rnd() * ds.reduce((x, y) => x + y, 0),
+        i = 0;
       while (i < ds.length - 1 && (t -= ds[i]) > 0) i++;
       cents.push(pts[i].slice());
     }
     let assign = new Array(pts.length).fill(0);
     for (let it = 0; it < 12; it++) {
-      assign = pts.map((p) => { let bi = 0, bd = Infinity; cents.forEach((c, j) => { const d = d2(p, c); if (d < bd) { bd = d; bi = j; } }); return bi; });
+      assign = pts.map((p) => {
+        let bi = 0,
+          bd = Infinity;
+        cents.forEach((c, j) => {
+          const d = d2(p, c);
+          if (d < bd) {
+            bd = d;
+            bi = j;
+          }
+        });
+        return bi;
+      });
       const sum = cents.map(() => [0, 0, 0, 0]);
-      pts.forEach((p, i) => { const t = sum[assign[i]]; t[0] += p[0]; t[1] += p[1]; t[2] += p[2]; t[3]++; });
-      sum.forEach((t, j) => { if (t[3]) cents[j] = [t[0] / t[3], t[1] / t[3], t[2] / t[3]]; });
+      pts.forEach((p, i) => {
+        const t = sum[assign[i]];
+        t[0] += p[0];
+        t[1] += p[1];
+        t[2] += p[2];
+        t[3]++;
+      });
+      sum.forEach((t, j) => {
+        if (t[3]) cents[j] = [t[0] / t[3], t[1] / t[3], t[2] / t[3]];
+      });
     }
-    const counts = cents.map(() => 0); assign.forEach((j) => counts[j]++);
-    return cents.map((c, j) => ({ rgb: c, weight: counts[j] / pts.length, hsl: rgbToHsl(c) }))
+    const counts = cents.map(() => 0);
+    assign.forEach((j) => counts[j]++);
+    return cents
+      .map((c, j) => ({ rgb: c, weight: counts[j] / pts.length, hsl: rgbToHsl(c) }))
       .sort((a, b) => b.weight - a.weight);
   }
 
   const chroma = (hsl) => hsl[1] * (1 - Math.abs(2 * hsl[2] - 1));
 
   function accents(clusters) {
-    const colourful = clusters.filter((c) => chroma(c.hsl) > 0.12)
+    const colourful = clusters
+      .filter((c) => chroma(c.hsl) > 0.12)
       .map((c) => ({ c, score: Math.sqrt(c.weight) * chroma(c.hsl) }))
       .sort((a, b) => b.score - a.score);
     /* a greyscale picture still gets a voice: sakura pink and sky cyan */
@@ -171,13 +227,19 @@
     if (dark) {
       for (let l = lMin; l <= lMax + 1e-9; l += 0.005) {
         const c = hslToRgb(h, s, l);
-        if (ratio(lumOf(c), bgL) >= target) { best = c; break; }
+        if (ratio(lumOf(c), bgL) >= target) {
+          best = c;
+          break;
+        }
       }
       if (!best) best = hslToRgb(h, s * 0.4, 0.97);
     } else {
       for (let l = lMax; l >= lMin - 1e-9; l -= 0.005) {
         const c = hslToRgb(h, s, l);
-        if (ratio(lumOf(c), bgL) >= target) { best = c; break; }
+        if (ratio(lumOf(c), bgL) >= target) {
+          best = c;
+          break;
+        }
       }
       if (!best) best = hslToRgb(h, s * 0.4, 0.04);
     }
@@ -197,14 +259,23 @@
     if (hueDist(a, b) < 50) b = (a + 180) % 360;
     if (!dark && muddyOnLight(b)) b = (b + 150) % 360;
     const placed = { keyword: a, func: b };
-    const want = [['string', 110], ['type', 190], ['number', 30], ['control', 290]];
+    const want = [
+      ['string', 110],
+      ['type', 190],
+      ['number', 30],
+      ['control', 290]
+    ];
     want.forEach(([role, canon]) => {
-      let best = 0, bestScore = -Infinity;
+      let best = 0,
+        bestScore = -Infinity;
       for (let h = 0; h < 360; h += 5) {
         if (!dark && muddyOnLight(h)) continue;
         const minD = Math.min(...Object.values(placed).map((p) => hueDist(h, p)));
         const score = Math.min(minD, 60) - 0.35 * hueDist(h, canon);
-        if (score > bestScore) { bestScore = score; best = h; }
+        if (score > bestScore) {
+          bestScore = score;
+          best = h;
+        }
       }
       placed[role] = best;
     });
@@ -219,7 +290,8 @@
   function analyze(sharpData, blurData, opts) {
     opts = opts || {};
     const visibility = clamp(opts.visibility === undefined ? 0.85 : opts.visibility, 0, 1);
-    const sharp = pixels(sharpData), blur = pixels(blurData);
+    const sharp = pixels(sharpData),
+      blur = pixels(blurData);
 
     const meanL = sharp.reduce((t, p) => t + lumOf(p), 0) / sharp.length;
     const dark = opts.glass === 'dark' ? true : opts.glass === 'light' ? false : meanL < 0.42;
@@ -228,8 +300,9 @@
     const acc = accents(clusters);
     const tintSat = clamp(acc.dominantSat, 0, 0.55);
 
-    const scrim = dark ? hslToRgb(acc.dominant, clamp(tintSat * 1.1, 0.25, 0.6), 0.085)
-                       : hslToRgb(acc.dominant, tintSat * 0.55, 0.955);
+    const scrim = dark
+      ? hslToRgb(acc.dominant, clamp(tintSat * 1.1, 0.25, 0.6), 0.085)
+      : hslToRgb(acc.dominant, tintSat * 0.55, 0.955);
     const text = dark ? hslToRgb(acc.dominant, 0.3, 0.955) : hslToRgb(acc.dominant, 0.35, 0.1);
     const textL = lumOf(text);
 
@@ -268,23 +341,53 @@
     /* the worst surfaces, used to solve every coloured ink */
     const worstL = (cands, a) => {
       let w = null;
-      cands.forEach((p) => { const l = lumOf(over(scrim, a, p)); if (w === null || (dark ? l > w : l < w)) w = l; });
+      cands.forEach((p) => {
+        const l = lumOf(over(scrim, a, p));
+        if (w === null || (dark ? l > w : l < w)) w = l;
+      });
       return w;
     };
     const panelBgL = worstL(sharpX, aPanel);
     const editorBgL = worstL(blurX, aEditor);
 
     const surface = meanOver(scrim, aPanel, sharp);
-    const shade = (c, dl) => { const t = rgbToHsl(c); return hslToRgb(t[0], t[1], clamp(t[2] + dl, 0, 1)); };
+    const shade = (c, dl) => {
+      const t = rgbToHsl(c);
+      return hslToRgb(t[0], t[1], clamp(t[2] + dl, 0, 1));
+    };
     const raised = shade(surface, dark ? 0.06 : -0.03);
 
     /* text tiers, solved on the panel's worst pixels */
-    const text2 = inkAt(acc.dominant, 0.22, dark, panelBgL, 5.6, dark ? 0.35 : 0.05, dark ? 0.97 : 0.7).c;
-    const text3 = inkAt(acc.dominant, 0.18, dark, panelBgL, 4.6, dark ? 0.3 : 0.05, dark ? 0.97 : 0.75).c;
+    const text2 = inkAt(
+      acc.dominant,
+      0.22,
+      dark,
+      panelBgL,
+      5.6,
+      dark ? 0.35 : 0.05,
+      dark ? 0.97 : 0.7
+    ).c;
+    const text3 = inkAt(
+      acc.dominant,
+      0.18,
+      dark,
+      panelBgL,
+      4.6,
+      dark ? 0.3 : 0.05,
+      dark ? 0.97 : 0.75
+    ).c;
 
     const inkS = dark ? 0.9 : 0.95;
     const accent = inkAt(acc.a, inkS, dark, panelBgL, 4.8, dark ? 0.55 : 0.08, dark ? 0.95 : 0.6).c;
-    const accent2 = inkAt(acc.b, inkS, dark, panelBgL, 4.8, dark ? 0.55 : 0.08, dark ? 0.95 : 0.6).c;
+    const accent2 = inkAt(
+      acc.b,
+      inkS,
+      dark,
+      panelBgL,
+      4.8,
+      dark ? 0.55 : 0.08,
+      dark ? 0.95 : 0.6
+    ).c;
     const green = inkAt(148, 0.7, dark, panelBgL, 4.8, dark ? 0.5 : 0.05, dark ? 0.95 : 0.6).c;
     const yellow = inkAt(42, 0.9, dark, panelBgL, 4.8, dark ? 0.5 : 0.05, dark ? 0.95 : 0.6).c;
     const red = inkAt(352, 0.85, dark, panelBgL, 4.8, dark ? 0.5 : 0.05, dark ? 0.95 : 0.6).c;
@@ -298,7 +401,8 @@
     /* syntax inks, solved on the editor's worst pixels */
     const hues = syntaxHues(acc.a, acc.b, dark);
     const T = dark ? 6.5 : 4.8;
-    const lo = dark ? 0.45 : 0.04, hi = dark ? 0.95 : 0.62;
+    const lo = dark ? 0.45 : 0.04,
+      hi = dark ? 0.95 : 0.62;
     const inkRole = (h, s, t) => inkAt(h, s, dark, editorBgL, t, lo, hi);
     const ink = {
       keyword: inkRole(hues.keyword, inkS, T),
@@ -309,7 +413,15 @@
       number: inkRole(hues.number, inkS, T),
       param: inkRole(acc.b, 0.45, dark ? 9 : 7),
       operator: inkRole(acc.a, 0.3, dark ? 8 : 6.5),
-      comment: inkAt(acc.dominant, 0.16, dark, editorBgL, 4.6, dark ? 0.3 : 0.05, dark ? 0.97 : 0.8),
+      comment: inkAt(
+        acc.dominant,
+        0.16,
+        dark,
+        editorBgL,
+        4.6,
+        dark ? 0.3 : 0.05,
+        dark ? 0.97 : 0.8
+      ),
       variable: { c: text, r: ratio(textL, editorBgL) },
       invalid: inkRole(352, 0.85, T)
     };
@@ -317,7 +429,10 @@
 
     const inkOut = { a: 1 };
     const inkReport = {};
-    Object.keys(ink).forEach((k) => { inkOut[k] = hex(ink[k].c); inkReport[k] = +ink[k].r.toFixed(2); });
+    Object.keys(ink).forEach((k) => {
+      inkOut[k] = hex(ink[k].c);
+      inkReport[k] = +ink[k].r.toFixed(2);
+    });
 
     const roles = {
       '--lc-desk': hex(scrim),
@@ -367,7 +482,12 @@
       v: 1,
       mode: dark ? 'dark' : 'light',
       scrim: hex(scrim),
-      alpha: { panel: +aPanel.toFixed(3), editor: +aEditor.toFixed(3), desk: aDesk, nav: +aNav.toFixed(3) },
+      alpha: {
+        panel: +aPanel.toFixed(3),
+        editor: +aEditor.toFixed(3),
+        desk: aDesk,
+        nav: +aNav.toFixed(3)
+      },
       roles,
       ink: inkOut,
       report: {
@@ -377,7 +497,11 @@
         editorText: +ratio(textL, editorBgL).toFixed(2),
         submit: +ratio(lumOf(submitText), accentL).toFixed(2),
         ink: inkReport,
-        floors: { panel: +panelFloor.toFixed(3), editor: +editorFloor.toFixed(3), nav: +navFloor.toFixed(3) }
+        floors: {
+          panel: +panelFloor.toFixed(3),
+          editor: +editorFloor.toFixed(3),
+          nav: +navFloor.toFixed(3)
+        }
       }
     };
   }

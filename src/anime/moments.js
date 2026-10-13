@@ -34,7 +34,8 @@
   const activeSettings = () => settings[theme()] || DEFAULTS;
   /* a tab not clicked yet plays through the offscreen page: open it early */
   function primeSound() {
-    if (SFX && MOMENT_THEMES.has(theme()) && activeSettings().sound && activeSettings().titleCard) SFX.prime(theme());
+    if (SFX && MOMENT_THEMES.has(theme()) && activeSettings().sound && activeSettings().titleCard)
+      SFX.prime(theme());
   }
 
   /* the overlay and its sound always start together */
@@ -45,7 +46,10 @@
     UI.result(kind, info);
     sound(kind === 'wa' && info && info.action === 'submit' ? 'wa-submit' : kind);
   }
-  function playTitle(info) { UI.titleCard(info); sound('title'); }
+  function playTitle(info) {
+    UI.titleCard(info);
+    sound('title');
+  }
 
   const on = () => MOMENT_THEMES.has(theme()) && !root.hasAttribute('data-lc-focus');
 
@@ -57,8 +61,15 @@
   if (globalThis.LCTSVerdict) {
     globalThis.LCTSVerdict.subscribe((v) => {
       if (!on() || !activeSettings().moments || !UI) return;
-      const info = { label: v.label, beats: v.beats, action: v.action, lang: v.lang,
-                     runtime: v.runtime, passed: v.passed, total: v.total };
+      const info = {
+        label: v.label,
+        beats: v.beats,
+        action: v.action,
+        lang: v.lang,
+        runtime: v.runtime,
+        passed: v.passed,
+        total: v.total
+      };
       playResult(v.kind, info);
     });
   }
@@ -67,7 +78,10 @@
      every time an UNSOLVED problem is opened (a load, a refresh, or moving to
      another problem in the app). Tab switches inside one problem keep the same
      slug, so they never replay it. */
-  const slugOf = () => { const m = /^\/problems\/([^/]+)/.exec(location.pathname); return m ? m[1] : null; };
+  const slugOf = () => {
+    const m = /^\/problems\/([^/]+)/.exec(location.pathname);
+    return m ? m[1] : null;
+  };
 
   function titleEl(slug) {
     const t = document.querySelector('.flexlayout__tab .text-title-large');
@@ -98,30 +112,42 @@
     let box = t;
     for (let i = 0; i < 4 && box.parentElement; i++) box = box.parentElement;
     const walk = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
-    let n, budget = 400;
+    let n,
+      budget = 400;
     while ((n = walk.nextNode()) && budget-- > 0) {
       if (n.nodeValue.length < 12 && SOLVED.test(n.nodeValue.trim())) return true;
     }
     return false;
   }
 
-  const whenVisible = () => new Promise((res) => {
-    if (document.visibilityState === 'visible') return res();
-    const f = () => { if (document.visibilityState === 'visible') { document.removeEventListener('visibilitychange', f); res(); } };
-    document.addEventListener('visibilitychange', f);
-  });
+  const whenVisible = () =>
+    new Promise((res) => {
+      if (document.visibilityState === 'visible') return res();
+      const f = () => {
+        if (document.visibilityState === 'visible') {
+          document.removeEventListener('visibilitychange', f);
+          res();
+        }
+      };
+      document.addEventListener('visibilitychange', f);
+    });
 
-  let lastSlug = null, cardTicket = 0;
+  let lastSlug = null,
+    cardTicket = 0;
   function maybeTitleCard() {
     const slug = slugOf();
     if (!slug || slug === lastSlug) return;
     lastSlug = slug;
     const ticket = ++cardTicket;
-    let tries = 0, titleSince = 0;
+    let tries = 0,
+      titleSince = 0;
     const P = globalThis.LCTSProblem;
     const poll = setInterval(async () => {
-      if (ticket !== cardTicket || ++tries > 90) { clearInterval(poll); return; }
-      if (!root.hasAttribute('data-lc-theme')) return;     // the theme is still being applied
+      if (ticket !== cardTicket || ++tries > 90) {
+        clearInterval(poll);
+        return;
+      }
+      if (!root.hasAttribute('data-lc-theme')) return; // the theme is still being applied
       let info;
       /* a full page load: the server-rendered data already knows whether you
          solved it, so the card can come as soon as the page shows anything */
@@ -129,7 +155,11 @@
       if (s) {
         clearInterval(poll);
         if (s.status === 'ac') return;
-        info = { number: s.number, title: s.title, difficulty: s.difficulty ? s.difficulty[0].toUpperCase() + s.difficulty.slice(1) : '' };
+        info = {
+          number: s.number,
+          title: s.title,
+          difficulty: s.difficulty ? s.difficulty[0].toUpperCase() + s.difficulty.slice(1) : ''
+        };
       } else {
         /* an in-app navigation: read the page. The solved label can arrive a
            moment after the title (it comes with your account's data), so give
@@ -137,7 +167,10 @@
            stretch this to seconds */
         info = readTitle(slug);
         if (!info) return;
-        if (isSolved(slug)) { clearInterval(poll); return; }
+        if (isSolved(slug)) {
+          clearInterval(poll);
+          return;
+        }
         if (!titleSince) titleSince = performance.now();
         if (performance.now() - titleSince < 700) return;
         clearInterval(poll);
@@ -153,7 +186,10 @@
   setInterval(() => {
     maybeTitleCard();
     /* a theme's recorded sounds load once, the first time the theme is on */
-    if (SFX && MOMENT_THEMES.has(theme())) { SFX.warm(theme()); primeSound(); }
+    if (SFX && MOMENT_THEMES.has(theme())) {
+      SFX.warm(theme());
+      primeSound();
+    }
   }, 1000);
 
   /* Anime Studio's "preview on this tab" and the test harness play a moment

@@ -50,12 +50,12 @@
   const OVERLAY_Z = 2147482500;
 
   const VERDICTS = {
-    ac:  { word: 'QUEST COMPLETE', sub: 'ACCEPTED',              tone: 'gold' },
-    run: { word: 'CHECKPOINT',     sub: 'TESTS PASSED',          tone: 'cyan' },
-    wa:  { word: 'ATTEMPT FAILED', sub: 'WRONG ANSWER',          tone: 'red'  },
-    tle: { word: 'TIME RAN OUT',   sub: 'TIME LIMIT EXCEEDED',   tone: 'amber'},
-    mle: { word: 'MEMORY DRAINED', sub: 'MEMORY LIMIT EXCEEDED', tone: 'amber'},
-    err: { word: 'SPELL MISFIRED', sub: 'ERROR',                 tone: 'red'  }
+    ac: { word: 'QUEST COMPLETE', sub: 'ACCEPTED', tone: 'gold' },
+    run: { word: 'CHECKPOINT', sub: 'TESTS PASSED', tone: 'cyan' },
+    wa: { word: 'ATTEMPT FAILED', sub: 'WRONG ANSWER', tone: 'red' },
+    tle: { word: 'TIME RAN OUT', sub: 'TIME LIMIT EXCEEDED', tone: 'amber' },
+    mle: { word: 'MEMORY DRAINED', sub: 'MEMORY LIMIT EXCEEDED', tone: 'amber' },
+    err: { word: 'SPELL MISFIRED', sub: 'ERROR', tone: 'red' }
   };
 
   /* ---- the look -------------------------------------------------------------
@@ -613,7 +613,8 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
     /* the only inline styles in this file, and only on our own container:
        everything else is in the stylesheet above */
     overlay.style.cssText =
-      'position:fixed;inset:0;pointer-events:none;z-index:' + OVERLAY_Z +
+      'position:fixed;inset:0;pointer-events:none;z-index:' +
+      OVERLAY_Z +
       ';overflow:hidden;background:transparent;';
     document.body.appendChild(overlay);
     return overlay;
@@ -649,8 +650,14 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
     for (const k in attrs) n.setAttribute(k, attrs[k]);
     return n;
   }
-  const later = (fn, ms) => { timeouts.push(setTimeout(fn, ms)); };
-  const every = (fn, ms) => { const id = setInterval(fn, ms); intervals.push(id); return id; };
+  const later = (fn, ms) => {
+    timeouts.push(setTimeout(fn, ms));
+  };
+  const every = (fn, ms) => {
+    const id = setInterval(fn, ms);
+    intervals.push(id);
+    return id;
+  };
   const rand = (min, max) => min + Math.random() * (max - min);
 
   /* ---- per-verdict addition layers ---------------------------------------- */
@@ -660,13 +667,21 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
     ac(node) {
       node.append(el('div', 'lctg-v-edge'));
 
-      const STARS = [[28,22],[35,18],[42,24],[50,19],[57,25],[52,32],[44,30]];
+      const STARS = [
+        [28, 22],
+        [35, 18],
+        [42, 24],
+        [50, 19],
+        [57, 25],
+        [52, 32],
+        [44, 30]
+      ];
       const field = el('div', 'lctg-v-const');
       STARS.forEach(([x, y], i) => {
         const dot = el('span', 'lctg-v-star');
         dot.style.left = x + '%';
         dot.style.top = y + '%';
-        dot.style.animationDelay = (1200 + i * 60) + 'ms';
+        dot.style.animationDelay = 1200 + i * 60 + 'ms';
         field.appendChild(dot);
       });
       /* the connecting-line SVG is sized to a tight box around the star
@@ -678,19 +693,32 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
       const bx1 = Math.max(...STARS.map((s) => s[0])) + PAD;
       const by0 = Math.min(...STARS.map((s) => s[1])) - PAD;
       const by1 = Math.max(...STARS.map((s) => s[1])) + PAD;
-      const bw = bx1 - bx0, bh = by1 - by0;
+      const bw = bx1 - bx0,
+        bh = by1 - by0;
       const lines = svgEl('svg', {
-        class: 'lctg-v-lines', viewBox: '0 0 100 100', preserveAspectRatio: 'none'
+        class: 'lctg-v-lines',
+        viewBox: '0 0 100 100',
+        preserveAspectRatio: 'none'
       });
-      lines.style.left = bx0 + '%'; lines.style.top = by0 + '%';
-      lines.style.width = bw + '%'; lines.style.height = bh + '%';
+      lines.style.left = bx0 + '%';
+      lines.style.top = by0 + '%';
+      lines.style.width = bw + '%';
+      lines.style.height = bh + '%';
       for (let i = 0; i < STARS.length - 1; i++) {
-        const a = STARS[i], b = STARS[i + 1];
-        lines.appendChild(svgEl('line', {
-          x1: ((a[0] - bx0) / bw * 100).toFixed(1), y1: ((a[1] - by0) / bh * 100).toFixed(1),
-          x2: ((b[0] - bx0) / bw * 100).toFixed(1), y2: ((b[1] - by0) / bh * 100).toFixed(1),
-          stroke: '#00d4aa', 'stroke-width': '1.4', 'vector-effect': 'non-scaling-stroke', opacity: '0.55'
-        }));
+        const a = STARS[i],
+          b = STARS[i + 1];
+        lines.appendChild(
+          svgEl('line', {
+            x1: (((a[0] - bx0) / bw) * 100).toFixed(1),
+            y1: (((a[1] - by0) / bh) * 100).toFixed(1),
+            x2: (((b[0] - bx0) / bw) * 100).toFixed(1),
+            y2: (((b[1] - by0) / bh) * 100).toFixed(1),
+            stroke: '#00d4aa',
+            'stroke-width': '1.4',
+            'vector-effect': 'non-scaling-stroke',
+            opacity: '0.55'
+          })
+        );
       }
       lines.style.animationDelay = '1700ms';
       field.appendChild(lines);
@@ -706,7 +734,10 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
         chrome.storage.local.set({ solveStreak: next });
         let n = 0;
         const id = every(() => {
-          if (!pill.isConnected || n >= next) { clearInterval(id); return; }
+          if (!pill.isConnected || n >= next) {
+            clearInterval(id);
+            return;
+          }
           n++;
           pill.textContent = '◈ streak · ' + n;
         }, 80);
@@ -716,10 +747,17 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
     /* ADD-2A sonar afterglow, 2B decode, 2C sorrow orb */
     wa(node) {
       const sonar = svgEl('svg', { class: 'lctg-v-sonar' });
-      sonar.appendChild(svgEl('circle', {
-        cx: '50%', cy: '50%', r: '220',
-        fill: 'none', stroke: '#4fc3f7', 'stroke-width': '0.5', opacity: '0.07'
-      }));
+      sonar.appendChild(
+        svgEl('circle', {
+          cx: '50%',
+          cy: '50%',
+          r: '220',
+          fill: 'none',
+          stroke: '#4fc3f7',
+          'stroke-width': '0.5',
+          opacity: '0.07'
+        })
+      );
       node.append(sonar);
       node.append(el('div', 'lctg-v-orb'));
       decode(node.querySelector('.lctg-v-word'));
@@ -735,12 +773,12 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
          clockwise. */
       const ring = el('div', 'lctg-v-ring');
       for (let i = 0; i < 8; i++) {
-        const a = (i * 45 - 90) * Math.PI / 180;
+        const a = ((i * 45 - 90) * Math.PI) / 180;
         const shard = el('span', 'lctg-v-shard');
-        shard.style.left = (Math.cos(a) * 190) + 'px';
-        shard.style.top = (Math.sin(a) * 190) + 'px';
+        shard.style.left = Math.cos(a) * 190 + 'px';
+        shard.style.top = Math.sin(a) * 190 + 'px';
         shard.style.transform = 'rotate(45deg)';
-        shard.style.animationDelay = (1100 + i * 90) + 'ms';
+        shard.style.animationDelay = 1100 + i * 90 + 'ms';
         ring.appendChild(shard);
       }
       node.append(ring);
@@ -749,19 +787,27 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
     /* ADD-4A cracks, 4B depth readout, 4C bubble outlines */
     mle(node) {
       const LEFT = [
-        '8,95 6,82 9,70 5,58', '10,95 13,80 8,65 11,52',
-        '7,90 4,75 10,62',     '11,88 14,72 9,60'
+        '8,95 6,82 9,70 5,58',
+        '10,95 13,80 8,65 11,52',
+        '7,90 4,75 10,62',
+        '11,88 14,72 9,60'
       ];
       const cracks = svgEl('svg', {
-        class: 'lctg-v-cracks', viewBox: '0 0 100 100', preserveAspectRatio: 'none'
+        class: 'lctg-v-cracks',
+        viewBox: '0 0 100 100',
+        preserveAspectRatio: 'none'
       });
       LEFT.forEach((pts, i) => {
-        const mirrored = pts.split(' ')
-          .map((p) => { const [x, y] = p.split(','); return (100 - Number(x)) + ',' + y; })
+        const mirrored = pts
+          .split(' ')
+          .map((p) => {
+            const [x, y] = p.split(',');
+            return 100 - Number(x) + ',' + y;
+          })
           .join(' ');
         [pts, mirrored].forEach((points) => {
           const line = svgEl('polyline', { points });
-          line.style.animationDelay = (400 + i * 150) + 'ms';
+          line.style.animationDelay = 400 + i * 150 + 'ms';
           cracks.appendChild(line);
         });
       });
@@ -774,7 +820,10 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
       later(() => {
         let i = 0;
         const id = every(() => {
-          if (!depth.isConnected) { clearInterval(id); return; }
+          if (!depth.isConnected) {
+            clearInterval(id);
+            return;
+          }
           depth.textContent = STEPS[++i];
           if (i >= STEPS.length - 1) {
             clearInterval(id);
@@ -861,9 +910,16 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
       s.classList.add('is-scrambled');
       s.textContent = SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0];
       const start = 300 + i * 35;
-      later(() => { s.textContent = SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0]; }, start);
-      later(() => { s.textContent = SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0]; }, start + 45);
-      later(() => { s.textContent = ch; s.classList.remove('is-scrambled'); }, start + 90);
+      later(() => {
+        s.textContent = SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0];
+      }, start);
+      later(() => {
+        s.textContent = SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0];
+      }, start + 45);
+      later(() => {
+        s.textContent = ch;
+        s.classList.remove('is-scrambled');
+      }, start + 90);
     });
   }
 
@@ -881,7 +937,7 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
     if (!box) return null;
     info = info || {};
 
-    clearAnimation();                       // one moment at a time
+    clearAnimation(); // one moment at a time
 
     const node = el('div', 'lctg-verdict');
     node.dataset.kind = kind;
@@ -891,7 +947,11 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
     if (kind === 'ac') node.append(el('div', 'lctg-v-bloom'));
 
     const emblem = el('div', 'lctg-v-emblem');
-    emblem.append(el('span', 'lctg-v-line l'), el('span', 'lctg-v-diamond'), el('span', 'lctg-v-line r'));
+    emblem.append(
+      el('span', 'lctg-v-line l'),
+      el('span', 'lctg-v-diamond'),
+      el('span', 'lctg-v-line r')
+    );
 
     let sub = info.label || v.sub;
     if (kind === 'ac' && info.beats) sub += ' · BEATS ' + info.beats + '%';
@@ -906,7 +966,11 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
     /* the addition layers for this verdict, built on top of the base DOM
        above rather than replacing any of it */
     const layer = LAYERS[kind];
-    if (layer) { try { layer(node); } catch (e) {} }
+    if (layer) {
+      try {
+        layer(node);
+      } catch (e) {}
+    }
 
     /* the cue for this verdict. It schedules itself on its own beat (see
        CUES in src/game/sounds.js) and hands back the timeout id, which goes
@@ -947,8 +1011,12 @@ html[data-lc-theme="game"] #result-overlay .lctg-v-jit {
   }
 
   /* theme switched off mid-moment: take our own children down, nothing else */
-  new MutationObserver(() => { if (!on()) { disarm(); clearAnimation(); } })
-    .observe(root, { attributes: true, attributeFilter: ['data-lc-theme'] });
+  new MutationObserver(() => {
+    if (!on()) {
+      disarm();
+      clearAnimation();
+    }
+  }).observe(root, { attributes: true, attributeFilter: ['data-lc-theme'] });
 
   globalThis.LCTSGameResult = { play, clear: clearAnimation, VERDICTS };
 })();

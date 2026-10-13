@@ -16,12 +16,14 @@
 (function (root) {
   'use strict';
 
-  const SAMPLE_W = 160, SAMPLE_H = 90;
-  const MAX_WALL_BYTES = 2.4 * 1024 * 1024;   // well inside storage.local's 10 MB
+  const SAMPLE_W = 160,
+    SAMPLE_H = 90;
+  const MAX_WALL_BYTES = 2.4 * 1024 * 1024; // well inside storage.local's 10 MB
 
   function canvas(w, h) {
     const c = document.createElement('canvas');
-    c.width = w; c.height = h;
+    c.width = w;
+    c.height = h;
     return c;
   }
 
@@ -38,9 +40,11 @@
 
   /* draw `img` to cover a w x h box, centred, as background-size:cover does */
   function drawCover(ctx, img, w, h, bleed) {
-    const iw = img.width, ih = img.height;
+    const iw = img.width,
+      ih = img.height;
     const s = Math.max(w / iw, h / ih);
-    const dw = iw * s + bleed * 2, dh = ih * s + bleed * 2;
+    const dw = iw * s + bleed * 2,
+      dh = ih * s + bleed * 2;
     ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
   }
 
@@ -53,7 +57,7 @@
     let wallBlob = null;
     /* bundled scenes pass a tighter budget (scripts/build-scenes.mjs) */
     const MAX = opts.maxBytes || MAX_WALL_BYTES;
-    for (const q of (opts.qualities || [0.88, 0.8, 0.72])) {
+    for (const q of opts.qualities || [0.88, 0.8, 0.72]) {
       for (let attempt = 0; attempt < 3; attempt++) {
         const c = canvas(Math.round(img.width * scale), Math.round(img.height * scale));
         const ctx = c.getContext('2d');
@@ -68,16 +72,20 @@
 
     /* the blur: small, same aspect, drawn with a bleed so the edges do not
        fade toward transparent */
-    const bw = 480, bh = Math.max(1, Math.round(480 * img.height / img.width));
-    const bc = canvas(bw, bh), bctx = bc.getContext('2d');
+    const bw = 480,
+      bh = Math.max(1, Math.round((480 * img.height) / img.width));
+    const bc = canvas(bw, bh),
+      bctx = bc.getContext('2d');
     bctx.filter = 'blur(9px) saturate(1.15)';
     bctx.drawImage(img, -24, -24, bw + 48, bh + 48);
     const blurBlob = await toBlob(bc, 'image/webp', 0.82);
 
     /* samples, cropped to the viewport's aspect */
-    const vw = opts.viewW || 16, vh = opts.viewH || 9;
-    const sh = Math.round(SAMPLE_W * vh / vw);
-    const sc = canvas(SAMPLE_W, sh), sctx = sc.getContext('2d', { willReadFrequently: true });
+    const vw = opts.viewW || 16,
+      vh = opts.viewH || 9;
+    const sh = Math.round((SAMPLE_W * vh) / vw);
+    const sc = canvas(SAMPLE_W, sh),
+      sctx = sc.getContext('2d', { willReadFrequently: true });
     sctx.imageSmoothingQuality = 'high';
     drawCover(sctx, img, SAMPLE_W, sh, 0);
     const sharp = sctx.getImageData(0, 0, SAMPLE_W, sh).data;
@@ -86,16 +94,26 @@
     drawCover(sctx, blurImg, SAMPLE_W, sh, 0);
     const blurSamples = sctx.getImageData(0, 0, SAMPLE_W, sh).data;
 
-    return { wallBlob, blurBlob, sharp, blurSamples, cols: SAMPLE_W, width: img.width, height: img.height };
+    return {
+      wallBlob,
+      blurBlob,
+      sharp,
+      blurSamples,
+      cols: SAMPLE_W,
+      width: img.width,
+      height: img.height
+    };
   }
 
   /* samples only, for a scene whose wall and blur already exist (a preset,
      or a picture prepared earlier and kept in storage) */
   async function samplesFrom(wallBlob, blurBlob, opts) {
     opts = opts || {};
-    const vw = opts.viewW || 16, vh = opts.viewH || 9;
-    const sh = Math.round(SAMPLE_W * vh / vw);
-    const sc = canvas(SAMPLE_W, sh), sctx = sc.getContext('2d', { willReadFrequently: true });
+    const vw = opts.viewW || 16,
+      vh = opts.viewH || 9;
+    const sh = Math.round((SAMPLE_W * vh) / vw);
+    const sc = canvas(SAMPLE_W, sh),
+      sctx = sc.getContext('2d', { willReadFrequently: true });
     sctx.imageSmoothingQuality = 'high';
     const wall = await createImageBitmap(wallBlob);
     drawCover(sctx, wall, SAMPLE_W, sh, 0);
@@ -103,7 +121,15 @@
     sctx.clearRect(0, 0, SAMPLE_W, sh);
     drawCover(sctx, await createImageBitmap(blurBlob), SAMPLE_W, sh, 0);
     const blurSamples = sctx.getImageData(0, 0, SAMPLE_W, sh).data;
-    return { wallBlob, blurBlob, sharp, blurSamples, cols: SAMPLE_W, width: wall.width, height: wall.height };
+    return {
+      wallBlob,
+      blurBlob,
+      sharp,
+      blurSamples,
+      cols: SAMPLE_W,
+      width: wall.width,
+      height: wall.height
+    };
   }
 
   async function dataURLToBlob(url) {
@@ -117,7 +143,9 @@
 
   async function solve(prepared, settings) {
     return root.LCTSAnimeSolver.analyze(prepared.sharp, prepared.blurSamples, {
-      glass: settings.glass, visibility: settings.visibility, cols: prepared.cols
+      glass: settings.glass,
+      visibility: settings.visibility,
+      cols: prepared.cols
     });
   }
 
