@@ -14,6 +14,10 @@
     'lcBlindMode',
     'lcDayNight',
     'lcTimerEnabled',
+    'lcZenMode',
+    'lcNotesEnabled',
+    'lcAnime',
+    'lcAnimeArt',
     'lcFocus'
   ];
 

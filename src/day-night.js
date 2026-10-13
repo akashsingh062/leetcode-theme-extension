@@ -30,9 +30,9 @@
       targetTheme = isDay ? config.dayTheme : config.nightTheme;
     }
 
-    chrome.storage.local.get('lcThemeStudio', (res) => {
-      if (res && res.lcThemeStudio !== targetTheme) {
-        chrome.storage.local.set({ lcThemeStudio: targetTheme });
+    chrome.storage.local.get(['lcThemeStudio', 'lcTheme'], (res) => {
+      if (res && (res.lcThemeStudio !== targetTheme || res.lcTheme !== targetTheme)) {
+        chrome.storage.local.set({ lcThemeStudio: targetTheme, lcTheme: targetTheme });
       }
     });
   }

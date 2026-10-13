@@ -36,10 +36,15 @@
     { title: 'Theme: Midnight Orchid', action: () => chrome.storage.local.set({ lcTheme: 'orchid', lcThemeStudio: 'orchid' }), icon: '🔮' },
     { title: 'Theme: Dracula Dark', action: () => chrome.storage.local.set({ lcTheme: 'dracula', lcThemeStudio: 'dracula' }), icon: '🧛' },
     { title: 'Theme: Nordic Frost', action: () => chrome.storage.local.set({ lcTheme: 'nord', lcThemeStudio: 'nord' }), icon: '❄️' },
+    { title: 'Theme: Web Crawler', action: () => chrome.storage.local.set({ lcTheme: 'crawler', lcThemeStudio: 'crawler' }), icon: '🕷️' },
+    { title: 'Theme: Adventure RPG', action: () => chrome.storage.local.set({ lcTheme: 'game', lcThemeStudio: 'game' }), icon: '⚔️' },
+    { title: 'Theme: Pixel Art (8-Bit)', action: () => chrome.storage.local.set({ lcTheme: 'pixel', lcThemeStudio: 'pixel' }), icon: '👾' },
+    { title: 'Theme: Default LeetCode (Off)', action: () => chrome.storage.local.set({ lcTheme: 'off', lcThemeStudio: 'off' }), icon: '⚪' },
     { title: 'Monaco Theme: Tokyo Night', action: () => chrome.storage.local.set({ lcMonacoTheme: 'tokyonight' }), icon: '🎨' },
     { title: 'Monaco Theme: Catppuccin', action: () => chrome.storage.local.set({ lcMonacoTheme: 'catppuccin' }), icon: '🎨' },
     { title: 'Monaco Theme: Dracula', action: () => chrome.storage.local.set({ lcMonacoTheme: 'dracula' }), icon: '🎨' },
     { title: 'Toggle Zen Mode', action: () => chrome.storage.local.get('lcZenMode', (r) => chrome.storage.local.set({ lcZenMode: !(r && r.lcZenMode) })), icon: '🧘' },
+    { title: 'Toggle Problem Notes', action: () => window.dispatchEvent(new CustomEvent('lcts-toggle-notes')), icon: '📝' },
     { title: 'Toggle Interview Blind Mode', action: () => chrome.storage.local.get('lcBlindMode', (r) => { const b = r.lcBlindMode || {}; chrome.storage.local.set({ lcBlindMode: Object.assign({}, b, { active: !b.active }) }); }), icon: '🎯' },
     { title: 'Toggle Interview Timer', action: () => chrome.storage.local.get('lcTimerEnabled', (r) => chrome.storage.local.set({ lcTimerEnabled: !(r && r.lcTimerEnabled) })), icon: '⏱️' }
   ];

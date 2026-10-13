@@ -44,28 +44,32 @@
     style.textContent = `
       #${CONTAINER_ID} {
         position: fixed;
-        bottom: 24px;
+        top: 65px;
         right: 24px;
         z-index: 2147483640;
         display: flex;
         align-items: center;
         gap: 8px;
         padding: 6px 14px;
-        background: rgba(18, 20, 26, 0.88);
+        background: rgba(18, 20, 26, 0.92);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 9999px;
         color: #f1f5f9;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         font-size: 13px;
-        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
         user-select: none;
-        transition: transform 0.2s ease, opacity 0.2s ease;
+        cursor: grab;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      #${CONTAINER_ID}:active {
+        cursor: grabbing;
       }
       #${CONTAINER_ID}:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 14px 35px -5px rgba(0, 0, 0, 0.5);
+        transform: translateY(-1.5px);
+        box-shadow: 0 14px 35px -5px rgba(0, 0, 0, 0.6);
       }
       #${CONTAINER_ID} .lcts-timer-digits {
         font-weight: 700;
@@ -78,6 +82,10 @@
       #${CONTAINER_ID} .lcts-timer-digits.warning {
         color: #f87171;
         animation: lcts-pulse 1s infinite alternate;
+      }
+      #${CONTAINER_ID} .lcts-timer-digits.time-up {
+        color: #ef4444;
+        animation: lcts-pulse 0.5s infinite alternate;
       }
       #${CONTAINER_ID} .lcts-timer-btn {
         background: rgba(255, 255, 255, 0.08);
@@ -94,7 +102,7 @@
         transition: all 0.15s ease;
       }
       #${CONTAINER_ID} .lcts-timer-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.22);
         color: #fff;
         transform: scale(1.08);
       }
@@ -118,13 +126,13 @@
         color: #f1f5f9;
       }
       @keyframes lcts-pulse {
-        from { opacity: 0.6; }
+        from { opacity: 0.5; }
         to { opacity: 1; }
       }
     `;
 
     container.innerHTML = `
-      <span class="lcts-timer-icon">⏱️</span>
+      <span class="lcts-timer-icon" style="cursor:grab;">⏱️</span>
       <select class="lcts-timer-select" title="Timer Mode">
         <option value="25m">25m</option>
         <option value="15m">15m</option>
@@ -137,7 +145,66 @@
     `;
 
     container.appendChild(style);
-    (document.body || document.documentElement).appendChild(container);
+
+    // Restore saved position if available
+    try {
+      const pos = JSON.parse(sessionStorage.getItem('lcts_timer_pos'));
+      if (pos && pos.left && pos.top) {
+        container.style.top = pos.top;
+        container.style.left = pos.left;
+        container.style.right = 'auto';
+        container.style.bottom = 'auto';
+      }
+    } catch (e) {}
+
+    // Make timer draggable anywhere
+    let isDragging = false;
+    let startX = 0, startY = 0, initL = 0, initT = 0;
+
+    container.addEventListener('mousedown', (e) => {
+      if (e.target.closest('button') || e.target.closest('select')) return;
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      const rect = container.getBoundingClientRect();
+      initL = rect.left;
+      initT = rect.top;
+      container.style.right = 'auto';
+      container.style.bottom = 'auto';
+      container.style.left = initL + 'px';
+      container.style.top = initT + 'px';
+      e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const newX = Math.max(10, Math.min(window.innerWidth - container.offsetWidth - 10, initL + dx));
+      const newY = Math.max(10, Math.min(window.innerHeight - container.offsetHeight - 10, initT + dy));
+      container.style.left = newX + 'px';
+      container.style.top = newY + 'px';
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        try {
+          sessionStorage.setItem('lcts_timer_pos', JSON.stringify({ left: container.style.left, top: container.style.top }));
+        } catch (e) {}
+      }
+    });
+
+    if (document.body) {
+      document.body.appendChild(container);
+    } else {
+      const mountOnBody = setInterval(() => {
+        if (document.body) {
+          clearInterval(mountOnBody);
+          if (!document.body.contains(container)) document.body.appendChild(container);
+        }
+      }, 50);
+    }
 
     const select = container.querySelector('.lcts-timer-select');
     const digits = container.querySelector('.lcts-timer-digits');
@@ -243,10 +310,19 @@
     enabled = !!show;
     const existing = document.getElementById(CONTAINER_ID);
     if (enabled) {
-      if (!existing && (document.body || document.documentElement)) {
-        createWidget();
-      } else if (existing) {
+      if (!existing) {
+        if (document.body) {
+          createWidget();
+        } else {
+          document.addEventListener('DOMContentLoaded', () => {
+            if (enabled && !document.getElementById(CONTAINER_ID)) createWidget();
+          });
+        }
+      } else {
         existing.style.display = 'flex';
+        if (document.body && !document.body.contains(existing)) {
+          document.body.appendChild(existing);
+        }
       }
     } else if (existing) {
       existing.style.display = 'none';
@@ -269,9 +345,13 @@
   });
 
   // Check periodically in case body mounts after document_start
+  let initTries = 0;
   const initInterval = setInterval(() => {
+    initTries++;
     if (enabled && !document.getElementById(CONTAINER_ID) && document.body) {
       createWidget();
+      clearInterval(initInterval);
+    } else if (initTries > 30 || (document.getElementById(CONTAINER_ID) && !enabled)) {
       clearInterval(initInterval);
     }
   }, 300);

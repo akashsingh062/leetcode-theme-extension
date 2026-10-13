@@ -9,9 +9,8 @@
 <body>
   <header class="head">
     <div class="head-top">
-      <div class="mark" aria-hidden="true">
-        <span class="mark-dot d1"></span><span class="mark-dot d2"></span>
-        <span class="mark-dot d3"></span><span class="mark-dot d4"></span>
+      <div class="logo-mark" aria-hidden="true">
+        <img src="../icons/icon48.png" alt="LeetCode Themes Logo" width="32" height="32" />
       </div>
       <div class="head-text">
         <h1>LeetCode Themes</h1>
@@ -57,6 +56,9 @@
           <option value="orchid">Midnight Orchid</option>
           <option value="nord">Nordic Frost</option>
           <option value="paper">Vintage Sepia</option>
+          <option value="crawler">Web Crawler</option>
+          <option value="game">Adventure RPG</option>
+          <option value="pixel">Pixel Art</option>
         </select>
       </div>
     </div>
@@ -65,7 +67,10 @@
     <div id="sub-wallpapers" class="sub-pane">
       <div class="wall-top-bar">
         <span class="wall-title">Scenic &amp; Anime Wallpapers</span>
-        <button type="button" id="clearWallBtn" class="clear-wall-btn">✕ Disable Wallpaper</button>
+        <div style="display:flex;gap:6px;">
+          <button type="button" id="openStudioBtn" class="open-studio-btn">🎨 Studio</button>
+          <button type="button" id="clearWallBtn" class="clear-wall-btn">✕ Disable</button>
+        </div>
       </div>
 
       <div id="wallGrid" class="wall-grid" role="radiogroup" aria-label="Wallpaper themes"></div>
@@ -115,11 +120,14 @@
           <small>Monaco programming typeface</small>
         </label>
         <select id="fontSelect" class="select-box">
-          <option value="jetbrains">JetBrains Mono</option>
+          <option value="default" selected>Default (LeetCode Monospace)</option>
+          <option value="jetbrains">JetBrains Mono (Bundled)</option>
+          <option value="courier">Courier Prime (Bundled)</option>
+          <option value="system">System Monospace</option>
+          <option value="consolas">Consolas</option>
           <option value="fira">Fira Code</option>
           <option value="cascadia">Cascadia Code</option>
           <option value="source">Source Code Pro</option>
-          <option value="system">System Monospace</option>
         </select>
       </div>
 
@@ -137,9 +145,9 @@
       <div class="control-row">
         <label class="control-label">
           <span>Font Size</span>
-          <small id="fontSizeVal">14px</small>
+          <small id="fontSizeVal">Default</small>
         </label>
-        <input type="range" id="fontSizeRange" min="12" max="20" step="1" value="14" class="slider-range" />
+        <input type="range" id="fontSizeRange" min="11" max="22" step="1" value="14" class="slider-range" />
       </div>
 
       <div class="control-row">
@@ -148,10 +156,16 @@
           <small>Editor caret motion</small>
         </label>
         <select id="cursorSelect" class="select-box">
+          <option value="blink" selected>Standard Blink (Instant)</option>
           <option value="smooth">Smooth Slide</option>
-          <option value="blink">Standard Blink</option>
           <option value="solid">Solid (No Blink)</option>
         </select>
+      </div>
+
+      <div class="control-row" style="margin-top: 4px; justify-content: flex-end;">
+        <button type="button" id="resetEditorBtn" class="btn-secondary">
+          ↺ Reset Editor to Defaults
+        </button>
       </div>
     </div>
   </section>
@@ -170,7 +184,7 @@
           <small>Practice under mock interview conditions</small>
         </label>
         <label class="toggle-switch">
-          <input type="checkbox" id="blindMasterToggle" />
+          <input type="checkbox" id="blindMasterToggle" checked />
           <span class="slider"></span>
         </label>
       </div>
@@ -207,6 +221,35 @@
           <span class="slider"></span>
         </label>
       </div>
+
+      <div class="control-row">
+        <label class="control-label">
+          <span>Interview Stopwatch &amp; Timer</span>
+          <small>Floating countdown &amp; stopwatch widget</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="interviewTimerToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-row">
+        <label class="control-label">
+          <span>Problem Solution Notes</span>
+          <small>Slide-out markdown scratchpad per problem</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="interviewNotesToggle" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="feature-tip" style="margin-top: 6px;">
+        <div class="tip-title">⚡ Interview Shortcuts</div>
+        <div class="tip-desc"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> &nbsp; Toggle Blind Mode</div>
+        <div class="tip-desc"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd> &nbsp; Toggle Problem Notes Drawer</div>
+        <div class="tip-desc"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> &nbsp; Toggle Fullscreen Zen Mode</div>
+      </div>
     </div>
   </section>
 
@@ -220,6 +263,17 @@
         </label>
         <label class="toggle-switch">
           <input type="checkbox" id="timerToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-row">
+        <label class="control-label">
+          <span>Problem Solution Notes</span>
+          <small>Slide-out markdown scratchpad per problem</small>
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toolsNotesToggle" checked />
           <span class="slider"></span>
         </label>
       </div>
@@ -250,12 +304,59 @@
       <div class="control-row">
         <label class="control-label">
           <span>Auto Day / Night Schedule</span>
-          <small>Switch theme automatically based on clock</small>
+          <small>Switch theme automatically based on clock or OS</small>
         </label>
         <label class="toggle-switch">
           <input type="checkbox" id="dayNightToggle" />
           <span class="slider"></span>
         </label>
+      </div>
+
+      <div id="dayNightOptions" style="display: none; flex-direction: column; gap: 8px; margin-top: 6px; padding: 8px 10px; background: var(--pop-panel-2); border-radius: 8px; border: 1px solid var(--pop-border-2);">
+        <div class="control-row">
+          <label for="dayNightModeSelect" class="control-label">
+            <span>Schedule Mode</span>
+            <small>Trigger schedule by time or OS appearance</small>
+          </label>
+          <select id="dayNightModeSelect" class="select-box">
+            <option value="time">Clock (7:00 AM - 7:00 PM)</option>
+            <option value="system">OS System Appearance</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <label for="dayThemeSelect" class="control-label">
+            <span>Daytime Theme</span>
+            <small>Light / Day theme</small>
+          </label>
+          <select id="dayThemeSelect" class="select-box">
+            <option value="paper">Vintage Paper</option>
+            <option value="tokyonight">Tokyo Night</option>
+            <option value="catppuccin">Catppuccin Mocha</option>
+            <option value="sakura">Sakura Night</option>
+            <option value="nord">Nordic Frost</option>
+            <option value="off">Standard LeetCode</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <label for="nightThemeSelect" class="control-label">
+            <span>Nighttime Theme</span>
+            <small>Dark / Night theme</small>
+          </label>
+          <select id="nightThemeSelect" class="select-box">
+            <option value="tokyonight">Tokyo Night</option>
+            <option value="anime">Anime / Scenic Wallpaper</option>
+            <option value="catppuccin">Catppuccin Mocha</option>
+            <option value="dracula">Dracula Dark</option>
+            <option value="matrix">Cyber Matrix</option>
+            <option value="grid">Synthwave Grid</option>
+            <option value="orchid">Midnight Orchid</option>
+            <option value="crawler">Web Crawler</option>
+            <option value="game">Adventure RPG</option>
+            <option value="pixel">Pixel Art</option>
+          </select>
+        </div>
       </div>
 
       <div class="sync-actions">
@@ -277,7 +378,9 @@
     <span id="ver" class="ver"></span>
   </footer>
 
-  <script src="scenes.js"></script>
+  <script src="anime/scenes.js"></script>
+  <script src="anime/solver.js"></script>
+  <script src="anime/process.js"></script>
   <script src="theme-sync.js"></script>
   <script src="popup.js"></script>
 </body>

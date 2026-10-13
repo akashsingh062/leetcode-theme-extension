@@ -40,13 +40,25 @@ const THEMES = {
     name: 'Nordic Frost', desc: 'Arctic polar night & frost teal', accent: '#88c0d0',
     pv: { bg:'#2e3440', text:'#eceff4', line:'#4c566a', kw:'#81a1c1', fn:'#88c0d0', num:'#b48ead', var:'#eceff4', com:'#616e88', pn:'#81a1c1' }
   },
+  crawler: {
+    name: 'Web Crawler', desc: 'Charcoal web & crimson electric current', accent: '#e0223f',
+    pv: { bg:'#17171c', text:'#eceaf2', line:'#38384a', kw:'#4db2ff', fn:'#4ce0b3', num:'#c792ea', var:'#eceaf2', com:'#6e6e7a', pn:'#ff8aa8' }
+  },
+  game: {
+    name: 'Adventure RPG', desc: 'Moonlit realm, HUD sidebar & quests', accent: '#7dd3fc',
+    pv: { bg:'#101a2c', text:'#e6edf3', line:'#6b86a6', kw:'#b9a7ff', fn:'#67d9e8', num:'#e7c873', var:'#e6edf3', com:'#71869a', pn:'#b8c7d9' }
+  },
+  pixel: {
+    name: 'Pixel Art (8-Bit)', desc: 'Sweetie-16 palette & retro celebration', accent: '#ffcd75',
+    pv: { bg:'#262b44', text:'#f4f4f4', line:'#566c86', kw:'#ffcd75', fn:'#73eff7', num:'#c9a0ff', var:'#c5d3e0', com:'#8b9bb4', pn:'#ffa36b' }
+  },
   off: {
     name: 'Default LeetCode', desc: 'Standard un-themed view', accent: '#94a3b8',
     pv: { bg:'#1a1a1a', text:'#eff1f6', line:'#404040', kw:'#c678dd', fn:'#61afef', num:'#d19a66', var:'#eff1f6', com:'#7f848e', pn:'#abb2bf' }
   }
 };
 
-const ORDER = ['tokyonight', 'catppuccin', 'sakura', 'paper', 'matrix', 'grid', 'orchid', 'dracula', 'nord', 'off'];
+const ORDER = ['tokyonight', 'catppuccin', 'sakura', 'paper', 'matrix', 'grid', 'orchid', 'dracula', 'nord', 'crawler', 'game', 'pixel', 'off'];
 
 function pvVars(pv) {
   return `--pv-bg:${pv.bg};--pv-text:${pv.text};--pv-line:${pv.line};`
@@ -171,15 +183,22 @@ function chooseWallpaperTheme(sceneId) {
   const accent = s.theme ? s.theme.roles['--lc-accent'] : '#ff7eb6';
   setAccent(accent);
 
-  chrome.storage.local.set({
-    lcTheme: 'anime',
-    lcThemeStudio: 'anime',
-    lcAnimeScene: sceneId
+  chrome.storage.local.get('lcAnime', (res) => {
+    const prev = res && res.lcAnime ? res.lcAnime : {};
+    const updated = Object.assign({}, prev, {
+      scene: sceneId,
+      arcs: false
+    });
+    chrome.storage.local.set({
+      lcTheme: 'anime',
+      lcThemeStudio: 'anime',
+      lcAnime: updated
+    });
   });
 
   const status = document.getElementById('status');
   if (status) {
-    status.textContent = `"${s.name}" wallpaper theme applied across your problem tabs!`;
+    status.textContent = `"${s.name}" wallpaper applied across your problem tabs!`;
   }
 }
 
@@ -199,19 +218,19 @@ function disableWallpaper() {
 }
 
 /* ---- Boot & Initial Load ---- */
-chrome.storage.local.get(['lcTheme', 'lcThemeStudio', 'lcAnimeScene', 'lcCustomWallpaper'], (res) => {
+chrome.storage.local.get(['lcTheme', 'lcThemeStudio', 'lcAnime'], (res) => {
   const scenes = globalThis.LCTS_SCENES || {};
-  let currentTheme = (res && res.lcTheme) || (res && res.lcThemeStudio) || 'anime';
-  let currentScene = (res && res.lcAnimeScene) || 'blossom-night';
+  let currentTheme = (res && res.lcThemeStudio) || (res && res.lcTheme) || 'anime';
+  const cfg = (res && res.lcAnime) || {};
+  let currentScene = cfg.scene || 'moonlit-shrine';
 
-  const isWallpaperMode = currentTheme === 'anime' || !!scenes[currentTheme] || currentTheme === 'custom';
+  const isWallpaperMode = currentTheme === 'anime';
 
   if (isWallpaperMode) {
-    const activePreset = scenes[currentTheme] ? currentTheme : currentScene;
-    renderWallpaperGrid(activePreset);
+    renderWallpaperGrid(currentScene);
     renderSolidGrid(null);
 
-    const s = scenes[activePreset];
+    const s = scenes[currentScene];
     if (s && s.theme) setAccent(s.theme.roles['--lc-accent']);
 
     // Default to displaying the active Wallpaper Themes tab
@@ -241,6 +260,13 @@ document.querySelectorAll('.sub-nav-btn').forEach((btn) => {
 const clearWallBtn = document.getElementById('clearWallBtn');
 if (clearWallBtn) {
   clearWallBtn.addEventListener('click', disableWallpaper);
+}
+
+const openStudioBtn = document.getElementById('openStudioBtn');
+if (openStudioBtn) {
+  openStudioBtn.addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('src/studio.html') });
+  });
 }
 
 /* ---- Main Tab Navigation ---- */
@@ -311,37 +337,56 @@ function updateCustomWallSettings() {
 
 if (wallFileInput && wallUploadBtn) {
   wallUploadBtn.addEventListener('click', () => wallFileInput.click());
-  wallFileInput.addEventListener('change', (e) => {
+  wallFileInput.addEventListener('change', async (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      customWallData.dataUrl = evt.target.result;
+    wallUploadBtn.textContent = 'Processing...';
+
+    try {
+      if (globalThis.LCTSAnimeProcess && globalThis.LCTSAnimeSolver) {
+        const p = await globalThis.LCTSAnimeProcess.prepare(file);
+        const [wall, blur] = await Promise.all([
+          globalThis.LCTSAnimeProcess.blobToDataURL(p.wallBlob),
+          globalThis.LCTSAnimeProcess.blobToDataURL(p.blurBlob)
+        ]);
+        const customTheme = globalThis.LCTSAnimeSolver.analyze(p.sharp, p.blurSamples, {
+          glass: 'auto',
+          visibility: customWallData.opacity,
+          cols: p.cols
+        });
+        await chrome.storage.local.set({
+          lcAnimeArt: { wall, blur, name: file.name }
+        });
+        chrome.storage.local.get('lcAnime', (res) => {
+          const prev = res && res.lcAnime ? res.lcAnime : {};
+          const themes = Object.assign({}, prev.themes || {}, { custom: customTheme });
+          const updated = Object.assign({}, prev, {
+            scene: 'custom',
+            arcs: false,
+            themes,
+            theme: customTheme,
+            themeFor: 'custom'
+          });
+          chrome.storage.local.set({
+            lcTheme: 'anime',
+            lcThemeStudio: 'anime',
+            lcAnime: updated
+          });
+        });
+      }
       wallUploadBtn.textContent = '✓ ' + file.name.slice(0, 14);
-
-      const art = {
-        dataUrl: customWallData.dataUrl,
-        opacity: customWallData.opacity,
-        blur: customWallData.blur
-      };
-
-      chrome.storage.local.set({
-        lcTheme: 'anime',
-        lcThemeStudio: 'anime',
-        lcAnimeScene: 'custom',
-        lcCustomWallpaper: art
-      });
-
       document.querySelectorAll('.wall-card').forEach((c) => {
         c.setAttribute('aria-checked', 'false');
         const badge = c.querySelector('.wall-badge');
         if (badge) badge.textContent = 'Theme';
       });
-
       const status = document.getElementById('status');
-      if (status) status.textContent = 'Custom wallpaper uploaded and applied!';
-    };
-    reader.readAsDataURL(file);
+      if (status) status.textContent = 'Custom wallpaper processed and applied!';
+    } catch (err) {
+      wallUploadBtn.textContent = 'Upload Image';
+      console.error(err);
+      alert('Could not process image: ' + err.message);
+    }
   });
 }
 
@@ -369,12 +414,14 @@ const fontSizeVal = document.getElementById('fontSizeVal');
 const cursorSelect = document.getElementById('cursorSelect');
 
 function saveEditorSettings() {
+  const isCustomSize = fontSizeRange && fontSizeRange.dataset.touched === 'true';
   const settings = {
-    font: fontSelect ? fontSelect.value : 'jetbrains',
+    v: 2,
+    font: fontSelect ? fontSelect.value : 'default',
     ligatures: ligaturesToggle ? ligaturesToggle.checked : true,
-    fontSize: fontSizeRange ? parseInt(fontSizeRange.value, 10) : 14,
-    lineHeight: 1.5,
-    cursorStyle: cursorSelect ? cursorSelect.value : 'smooth'
+    fontSize: isCustomSize ? parseInt(fontSizeRange.value, 10) : 'default',
+    lineHeight: 'default',
+    cursorStyle: cursorSelect ? cursorSelect.value : 'blink'
   };
   chrome.storage.local.set({ lcEditorSettings: settings });
 }
@@ -382,22 +429,56 @@ function saveEditorSettings() {
 if (fontSelect && ligaturesToggle && fontSizeRange && cursorSelect) {
   chrome.storage.local.get('lcEditorSettings', (res) => {
     const s = res && res.lcEditorSettings ? res.lcEditorSettings : {};
-    if (s.font) fontSelect.value = s.font;
+    if (s.v === 2 && s.font) {
+      fontSelect.value = s.font;
+    } else {
+      fontSelect.value = 'default';
+    }
     if (s.ligatures !== undefined) ligaturesToggle.checked = !!s.ligatures;
-    if (s.fontSize) {
+    if (s.v === 2 && s.fontSize && s.fontSize !== 'default') {
+      fontSizeRange.dataset.touched = 'true';
       fontSizeRange.value = s.fontSize;
       if (fontSizeVal) fontSizeVal.textContent = s.fontSize + 'px';
+    } else {
+      fontSizeRange.dataset.touched = 'false';
+      if (fontSizeVal) fontSizeVal.textContent = 'Default';
     }
-    if (s.cursorStyle) cursorSelect.value = s.cursorStyle;
+    if (s.v === 2 && s.cursorStyle) {
+      cursorSelect.value = s.cursorStyle;
+    } else {
+      cursorSelect.value = 'blink';
+    }
   });
 
   fontSelect.addEventListener('change', saveEditorSettings);
   ligaturesToggle.addEventListener('change', saveEditorSettings);
   fontSizeRange.addEventListener('input', () => {
+    fontSizeRange.dataset.touched = 'true';
     if (fontSizeVal) fontSizeVal.textContent = fontSizeRange.value + 'px';
     saveEditorSettings();
   });
   cursorSelect.addEventListener('change', saveEditorSettings);
+}
+
+const resetEditorBtn = document.getElementById('resetEditorBtn');
+if (resetEditorBtn) {
+  resetEditorBtn.addEventListener('click', () => {
+    if (fontSelect) fontSelect.value = 'default';
+    if (ligaturesToggle) ligaturesToggle.checked = true;
+    if (fontSizeRange) {
+      fontSizeRange.value = 14;
+      fontSizeRange.dataset.touched = 'false';
+    }
+    if (fontSizeVal) fontSizeVal.textContent = 'Default';
+    if (cursorSelect) cursorSelect.value = 'blink';
+    saveEditorSettings();
+    if (monacoSelect) {
+      monacoSelect.value = 'default';
+      chrome.storage.local.set({ lcMonacoTheme: 'default' });
+    }
+    const status = document.getElementById('status');
+    if (status) status.textContent = 'Editor settings reset to defaults!';
+  });
 }
 
 /* ---- Interview Blind Mode ---- */
@@ -416,30 +497,101 @@ function saveBlindMode() {
   chrome.storage.local.set({ lcBlindMode: mode });
 }
 
+function syncBlindVisuals() {
+  const isActive = blindMaster && blindMaster.checked;
+  [blindDiff, blindTags, blindStats].forEach((el) => {
+    if (el) {
+      const row = el.closest('.control-row');
+      if (row && row !== blindMaster.closest('.control-row')) {
+        row.style.opacity = isActive ? '1' : '0.55';
+        row.style.transition = 'opacity 0.2s ease';
+      }
+    }
+  });
+}
+
 if (blindMaster && blindDiff && blindTags && blindStats) {
   chrome.storage.local.get('lcBlindMode', (res) => {
-    const b = res && res.lcBlindMode ? res.lcBlindMode : {};
-    blindMaster.checked = !!b.active;
-    if (b.hideDifficulty !== undefined) blindDiff.checked = !!b.hideDifficulty;
-    if (b.blurTags !== undefined) blindTags.checked = !!b.blurTags;
-    if (b.hideStats !== undefined) blindStats.checked = !!b.hideStats;
+    const b = res && res.lcBlindMode ? res.lcBlindMode : null;
+    if (b) {
+      blindMaster.checked = b.active !== false;
+      if (b.hideDifficulty !== undefined) blindDiff.checked = !!b.hideDifficulty;
+      if (b.blurTags !== undefined) blindTags.checked = !!b.blurTags;
+      if (b.hideStats !== undefined) blindStats.checked = !!b.hideStats;
+    } else {
+      blindMaster.checked = true;
+      blindDiff.checked = true;
+      blindTags.checked = true;
+      blindStats.checked = true;
+      saveBlindMode();
+    }
+    syncBlindVisuals();
   });
 
-  [blindMaster, blindDiff, blindTags, blindStats].forEach((el) => {
-    el.addEventListener('change', saveBlindMode);
+  blindMaster.addEventListener('change', () => {
+    syncBlindVisuals();
+    saveBlindMode();
+  });
+
+  [blindDiff, blindTags, blindStats].forEach((el) => {
+    el.addEventListener('change', () => {
+      const anyChecked = (blindDiff && blindDiff.checked) ||
+                         (blindTags && blindTags.checked) ||
+                         (blindStats && blindStats.checked);
+      if (anyChecked && blindMaster && !blindMaster.checked) {
+        blindMaster.checked = true;
+      }
+      syncBlindVisuals();
+      saveBlindMode();
+    });
   });
 }
 
-/* ---- Tools (Timer & Zen Mode) ---- */
+/* ---- Interview & Tools Sync (Timer & Notes & Zen) ---- */
 const timerToggle = document.getElementById('timerToggle');
-if (timerToggle) {
-  chrome.storage.local.get('lcTimerEnabled', (res) => {
-    timerToggle.checked = !!(res && res.lcTimerEnabled);
-  });
-  timerToggle.addEventListener('change', () => {
-    chrome.storage.local.set({ lcTimerEnabled: timerToggle.checked });
-  });
+const interviewTimerToggle = document.getElementById('interviewTimerToggle');
+
+function setTimerToggles(val) {
+  if (timerToggle) timerToggle.checked = !!val;
+  if (interviewTimerToggle) interviewTimerToggle.checked = !!val;
 }
+
+chrome.storage.local.get('lcTimerEnabled', (res) => {
+  setTimerToggles(res && res.lcTimerEnabled);
+});
+
+[timerToggle, interviewTimerToggle].forEach((toggle) => {
+  if (toggle) {
+    toggle.addEventListener('change', () => {
+      const isChecked = toggle.checked;
+      setTimerToggles(isChecked);
+      chrome.storage.local.set({ lcTimerEnabled: isChecked });
+    });
+  }
+});
+
+const interviewNotesToggle = document.getElementById('interviewNotesToggle');
+const toolsNotesToggle = document.getElementById('toolsNotesToggle');
+
+function setNotesToggles(val) {
+  if (interviewNotesToggle) interviewNotesToggle.checked = !!val;
+  if (toolsNotesToggle) toolsNotesToggle.checked = !!val;
+}
+
+chrome.storage.local.get('lcNotesEnabled', (res) => {
+  const enabled = res && res.lcNotesEnabled !== undefined ? !!res.lcNotesEnabled : true;
+  setNotesToggles(enabled);
+});
+
+[interviewNotesToggle, toolsNotesToggle].forEach((toggle) => {
+  if (toggle) {
+    toggle.addEventListener('change', () => {
+      const isChecked = toggle.checked;
+      setNotesToggles(isChecked);
+      chrome.storage.local.set({ lcNotesEnabled: isChecked });
+    });
+  }
+});
 
 const zenToggle = document.getElementById('zenToggle');
 if (zenToggle) {
@@ -453,18 +605,39 @@ if (zenToggle) {
 
 /* ---- Day / Night Auto Scheduler ---- */
 const dayNightToggle = document.getElementById('dayNightToggle');
+const dayNightOptions = document.getElementById('dayNightOptions');
+const dayNightModeSelect = document.getElementById('dayNightModeSelect');
+const dayThemeSelect = document.getElementById('dayThemeSelect');
+const nightThemeSelect = document.getElementById('nightThemeSelect');
+
+function saveDayNightConfig() {
+  const cfg = {
+    enabled: dayNightToggle ? dayNightToggle.checked : false,
+    mode: dayNightModeSelect ? dayNightModeSelect.value : 'time',
+    dayTheme: dayThemeSelect ? dayThemeSelect.value : 'paper',
+    nightTheme: nightThemeSelect ? nightThemeSelect.value : 'tokyonight'
+  };
+  chrome.storage.local.set({ lcDayNight: cfg });
+}
+
 if (dayNightToggle) {
   chrome.storage.local.get('lcDayNight', (res) => {
-    const dn = res && res.lcDayNight ? res.lcDayNight : {};
+    const dn = res && res.lcDayNight ? res.lcDayNight : { enabled: false, mode: 'time', dayTheme: 'paper', nightTheme: 'tokyonight' };
     dayNightToggle.checked = !!dn.enabled;
+    if (dayNightOptions) dayNightOptions.style.display = dn.enabled ? 'flex' : 'none';
+    if (dayNightModeSelect && dn.mode) dayNightModeSelect.value = dn.mode;
+    if (dayThemeSelect && dn.dayTheme) dayThemeSelect.value = dn.dayTheme;
+    if (nightThemeSelect && dn.nightTheme) nightThemeSelect.value = dn.nightTheme;
   });
+
   dayNightToggle.addEventListener('change', () => {
-    chrome.storage.local.get('lcDayNight', (res) => {
-      const prev = res && res.lcDayNight ? res.lcDayNight : { mode: 'time', dayTheme: 'paper', nightTheme: 'tokyonight' };
-      prev.enabled = dayNightToggle.checked;
-      chrome.storage.local.set({ lcDayNight: prev });
-    });
+    if (dayNightOptions) dayNightOptions.style.display = dayNightToggle.checked ? 'flex' : 'none';
+    saveDayNightConfig();
   });
+
+  if (dayNightModeSelect) dayNightModeSelect.addEventListener('change', saveDayNightConfig);
+  if (dayThemeSelect) dayThemeSelect.addEventListener('change', saveDayNightConfig);
+  if (nightThemeSelect) nightThemeSelect.addEventListener('change', saveDayNightConfig);
 }
 
 /* ---- Export & Import Settings ---- */

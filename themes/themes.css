@@ -7,144 +7,100 @@
    1. TOKYO NIGHT (Default Dark)
 ----------------------------------------------------------------------------- */
 html[data-lc-theme="tokyonight"] {
-  --lc-bg: #1a1b26;
-  --lc-panel: rgba(26, 27, 38, 0.88);
-  --lc-panel-elevated: #24283b;
-  --lc-border: rgba(122, 162, 247, 0.15);
-  --lc-border-strong: rgba(122, 162, 247, 0.35);
-  --lc-text: #c0caf5;
-  --lc-text-muted: #7982a9;
-  --lc-accent: #7aa2f7;
-  --lc-accent-glow: rgba(122, 162, 247, 0.25);
-  --lc-editor-bg: #1a1b26;
+  color-scheme: dark;
+  --lc-desk: #16161e;
+  --lc-bg0: #1a1b26; --lc-bg1: rgba(26, 27, 38, 0.88); --lc-bg2: #1f2335; --lc-bg3: #24283b;
+  --lc-inset: #13141c; --lc-raised: #24283b; --lc-editor-bg: #1a1b26;
+  --lc-border: rgba(122, 162, 247, 0.18); --lc-border-strong: rgba(122, 162, 247, 0.38);
+  --lc-hairline: rgba(122, 162, 247, 0.12); --lc-groove: #16161e; --lc-rule: #7aa2f7;
+  --lc-fill-1: rgba(122, 162, 247, 0.16); --lc-fill-2: rgba(122, 162, 247, 0.11);
+  --lc-fill-3: rgba(122, 162, 247, 0.075); --lc-fill-4: rgba(122, 162, 247, 0.045);
+  --lc-text: #c0caf5; --lc-text2: #a9b1d6; --lc-text3: #787c99;
+  --lc-accent: #7aa2f7; --lc-accent-2: #bb9af7; --lc-accent-contrast: #16161e;
+  --lc-green: #9ece6a; --lc-yellow: #e0af68; --lc-red: #f7768e;
+  --lc-selection: rgba(122, 162, 247, 0.28); --lc-scroll: rgba(122, 162, 247, 0.25);
+  --lc-submit-bg: #7aa2f7; --lc-submit-bg-hover: #8cb2fd; --lc-submit-text: #16161e;
+  --lc-glow: rgba(122, 162, 247, 0.4);
 }
 
 /* -----------------------------------------------------------------------------
    2. CATPPUCCIN MOCHA
 ----------------------------------------------------------------------------- */
 html[data-lc-theme="catppuccin"] {
-  --lc-bg: #1e1e2e;
-  --lc-panel: rgba(30, 30, 46, 0.88);
-  --lc-panel-elevated: #252538;
-  --lc-border: rgba(203, 166, 247, 0.15);
-  --lc-border-strong: rgba(203, 166, 247, 0.35);
-  --lc-text: #cdd6f4;
-  --lc-text-muted: #9399b2;
-  --lc-accent: #cba6f7;
-  --lc-accent-glow: rgba(203, 166, 247, 0.25);
-  --lc-editor-bg: #1e1e2e;
+  color-scheme: dark;
+  --lc-desk: #181825;
+  --lc-bg0: #1e1e2e; --lc-bg1: rgba(30, 30, 46, 0.88); --lc-bg2: #242438; --lc-bg3: #313244;
+  --lc-inset: #11111b; --lc-raised: #313244; --lc-editor-bg: #1e1e2e;
+  --lc-border: rgba(203, 166, 247, 0.18); --lc-border-strong: rgba(203, 166, 247, 0.38);
+  --lc-hairline: rgba(203, 166, 247, 0.12); --lc-groove: #181825; --lc-rule: #cba6f7;
+  --lc-fill-1: rgba(203, 166, 247, 0.16); --lc-fill-2: rgba(203, 166, 247, 0.11);
+  --lc-fill-3: rgba(203, 166, 247, 0.075); --lc-fill-4: rgba(203, 166, 247, 0.045);
+  --lc-text: #cdd6f4; --lc-text2: #bac2de; --lc-text3: #9399b2;
+  --lc-accent: #cba6f7; --lc-accent-2: #89b4fa; --lc-accent-contrast: #181825;
+  --lc-green: #a6e3a1; --lc-yellow: #f9e2af; --lc-red: #f38ba8;
+  --lc-selection: rgba(203, 166, 247, 0.28); --lc-scroll: rgba(203, 166, 247, 0.25);
+  --lc-submit-bg: #cba6f7; --lc-submit-bg-hover: #d9bbf8; --lc-submit-text: #181825;
+  --lc-glow: rgba(203, 166, 247, 0.4);
 }
 
 /* -----------------------------------------------------------------------------
-   3. SAKURA BLOSSOM (Soft Pink on Plum Dark)
------------------------------------------------------------------------------ */
-html[data-lc-theme="sakura"] {
-  --lc-bg: #1f1a2e;
-  --lc-panel: rgba(31, 26, 46, 0.88);
-  --lc-panel-elevated: #2d2442;
-  --lc-border: rgba(255, 126, 182, 0.18);
-  --lc-border-strong: rgba(255, 126, 182, 0.38);
-  --lc-text: #f5e9f2;
-  --lc-text-muted: #a894a4;
-  --lc-accent: #ff7eb6;
-  --lc-accent-glow: rgba(255, 126, 182, 0.25);
-  --lc-editor-bg: #1f1a2e;
-}
-
-/* -----------------------------------------------------------------------------
-   4. VINTAGE PAPER (Warm Cream Parchment / Sepia)
------------------------------------------------------------------------------ */
-html[data-lc-theme="paper"] {
-  --lc-bg: #f5f0e6;
-  --lc-panel: rgba(245, 240, 230, 0.94);
-  --lc-panel-elevated: #ebdcc4;
-  --lc-border: rgba(100, 70, 40, 0.15);
-  --lc-border-strong: rgba(100, 70, 40, 0.3);
-  --lc-text: #2c251e;
-  --lc-text-muted: #6b5e52;
-  --lc-accent: #8b3a2b;
-  --lc-accent-glow: rgba(139, 58, 43, 0.2);
-  --lc-editor-bg: #eee5d3;
-}
-
-/* -----------------------------------------------------------------------------
-   5. CYBER MATRIX (Terminal Matrix Green)
+   3. CYBER MATRIX
 ----------------------------------------------------------------------------- */
 html[data-lc-theme="matrix"] {
-  --lc-bg: #0b0f12;
-  --lc-panel: rgba(11, 15, 18, 0.9);
-  --lc-panel-elevated: #151d24;
-  --lc-border: rgba(34, 197, 94, 0.16);
-  --lc-border-strong: rgba(34, 197, 94, 0.4);
-  --lc-text: #e2fced;
-  --lc-text-muted: #629074;
-  --lc-accent: #22c55e;
-  --lc-accent-glow: rgba(34, 197, 94, 0.25);
-  --lc-editor-bg: #0b0f12;
+  color-scheme: dark;
+  --lc-desk: #06080a;
+  --lc-bg0: #0b0f12; --lc-bg1: rgba(11, 15, 18, 0.9); --lc-bg2: #10171d; --lc-bg3: #162028;
+  --lc-inset: #040608; --lc-raised: #162028; --lc-editor-bg: #0b0f12;
+  --lc-border: rgba(34, 197, 94, 0.18); --lc-border-strong: rgba(34, 197, 94, 0.38);
+  --lc-hairline: rgba(34, 197, 94, 0.12); --lc-groove: #06080a; --lc-rule: #22c55e;
+  --lc-fill-1: rgba(34, 197, 94, 0.16); --lc-fill-2: rgba(34, 197, 94, 0.11);
+  --lc-fill-3: rgba(34, 197, 94, 0.075); --lc-fill-4: rgba(34, 197, 94, 0.045);
+  --lc-text: #e2fced; --lc-text2: #bbf7d0; --lc-text3: #629074;
+  --lc-accent: #22c55e; --lc-accent-2: #38bdf8; --lc-accent-contrast: #06080a;
+  --lc-green: #22c55e; --lc-yellow: #facc15; --lc-red: #ef4444;
+  --lc-selection: rgba(34, 197, 94, 0.28); --lc-scroll: rgba(34, 197, 94, 0.25);
+  --lc-submit-bg: #22c55e; --lc-submit-bg-hover: #3dd674; --lc-submit-text: #06080a;
+  --lc-glow: rgba(34, 197, 94, 0.4);
 }
 
 /* -----------------------------------------------------------------------------
-   6. SYNTHWAVE GRID (Cyan & Neon Violet)
------------------------------------------------------------------------------ */
-html[data-lc-theme="grid"] {
-  --lc-bg: #0f172a;
-  --lc-panel: rgba(15, 23, 42, 0.9);
-  --lc-panel-elevated: #1e293b;
-  --lc-border: rgba(6, 182, 212, 0.18);
-  --lc-border-strong: rgba(6, 182, 212, 0.38);
-  --lc-text: #e2e8f0;
-  --lc-text-muted: #94a3b8;
-  --lc-accent: #06b6d4;
-  --lc-accent-glow: rgba(6, 182, 212, 0.25);
-  --lc-editor-bg: #0f172a;
-}
-
-/* -----------------------------------------------------------------------------
-   7. MIDNIGHT ORCHID (Royal Purple & Gold)
------------------------------------------------------------------------------ */
-html[data-lc-theme="orchid"] {
-  --lc-bg: #181124;
-  --lc-panel: rgba(24, 17, 36, 0.9);
-  --lc-panel-elevated: #281c3c;
-  --lc-border: rgba(217, 70, 239, 0.18);
-  --lc-border-strong: rgba(217, 70, 239, 0.38);
-  --lc-text: #f3e8ff;
-  --lc-text-muted: #a894b8;
-  --lc-accent: #d946ef;
-  --lc-accent-glow: rgba(217, 70, 239, 0.25);
-  --lc-editor-bg: #181124;
-}
-
-/* -----------------------------------------------------------------------------
-   8. DRACULA DARK (Classic Gothic Slate)
+   4. DRACULA DARK
 ----------------------------------------------------------------------------- */
 html[data-lc-theme="dracula"] {
-  --lc-bg: #282a36;
-  --lc-panel: rgba(40, 42, 54, 0.9);
-  --lc-panel-elevated: #343746;
-  --lc-border: rgba(255, 121, 198, 0.18);
-  --lc-border-strong: rgba(255, 121, 198, 0.38);
-  --lc-text: #f8f8f2;
-  --lc-text-muted: #9fa6bc;
-  --lc-accent: #ff79c6;
-  --lc-accent-glow: rgba(255, 121, 198, 0.25);
-  --lc-editor-bg: #282a36;
+  color-scheme: dark;
+  --lc-desk: #1e1f29;
+  --lc-bg0: #282a36; --lc-bg1: rgba(40, 42, 54, 0.9); --lc-bg2: #2e303e; --lc-bg3: #383a4c;
+  --lc-inset: #191a21; --lc-raised: #383a4c; --lc-editor-bg: #282a36;
+  --lc-border: rgba(255, 121, 198, 0.18); --lc-border-strong: rgba(255, 121, 198, 0.38);
+  --lc-hairline: rgba(255, 121, 198, 0.12); --lc-groove: #1e1f29; --lc-rule: #ff79c6;
+  --lc-fill-1: rgba(255, 121, 198, 0.16); --lc-fill-2: rgba(255, 121, 198, 0.11);
+  --lc-fill-3: rgba(255, 121, 198, 0.075); --lc-fill-4: rgba(255, 121, 198, 0.045);
+  --lc-text: #f8f8f2; --lc-text2: #e2e2dc; --lc-text3: #9fa6bc;
+  --lc-accent: #ff79c6; --lc-accent-2: #bd93f9; --lc-accent-contrast: #1e1f29;
+  --lc-green: #50fa7b; --lc-yellow: #f1fa8c; --lc-red: #ff5555;
+  --lc-selection: rgba(255, 121, 198, 0.28); --lc-scroll: rgba(255, 121, 198, 0.25);
+  --lc-submit-bg: #ff79c6; --lc-submit-bg-hover: #ff92d3; --lc-submit-text: #1e1f29;
+  --lc-glow: rgba(255, 121, 198, 0.4);
 }
 
 /* -----------------------------------------------------------------------------
-   9. NORDIC FROST (Arctic Slate & Polar Teal)
+   5. NORDIC FROST
 ----------------------------------------------------------------------------- */
 html[data-lc-theme="nord"] {
-  --lc-bg: #2e3440;
-  --lc-panel: rgba(46, 52, 64, 0.9);
-  --lc-panel-elevated: #3b4252;
-  --lc-border: rgba(136, 192, 208, 0.18);
-  --lc-border-strong: rgba(136, 192, 208, 0.38);
-  --lc-text: #eceff4;
-  --lc-text-muted: #9ba6b8;
-  --lc-accent: #88c0d0;
-  --lc-accent-glow: rgba(136, 192, 208, 0.25);
-  --lc-editor-bg: #2e3440;
+  color-scheme: dark;
+  --lc-desk: #242933;
+  --lc-bg0: #2e3440; --lc-bg1: rgba(46, 52, 64, 0.9); --lc-bg2: #353c4a; --lc-bg3: #3b4252;
+  --lc-inset: #1d212a; --lc-raised: #3b4252; --lc-editor-bg: #2e3440;
+  --lc-border: rgba(136, 192, 208, 0.18); --lc-border-strong: rgba(136, 192, 208, 0.38);
+  --lc-hairline: rgba(136, 192, 208, 0.12); --lc-groove: #242933; --lc-rule: #88c0d0;
+  --lc-fill-1: rgba(136, 192, 208, 0.16); --lc-fill-2: rgba(136, 192, 208, 0.11);
+  --lc-fill-3: rgba(136, 192, 208, 0.075); --lc-fill-4: rgba(136, 192, 208, 0.045);
+  --lc-text: #eceff4; --lc-text2: #e5e9f0; --lc-text3: #9ba6b8;
+  --lc-accent: #88c0d0; --lc-accent-2: #81a1c1; --lc-accent-contrast: #242933;
+  --lc-green: #a3be8c; --lc-yellow: #ebcb8b; --lc-red: #bf616a;
+  --lc-selection: rgba(136, 192, 208, 0.28); --lc-scroll: rgba(136, 192, 208, 0.25);
+  --lc-submit-bg: #88c0d0; --lc-submit-bg-hover: #9bd2e0; --lc-submit-text: #242933;
+  --lc-glow: rgba(136, 192, 208, 0.4);
 }
 
 /* -----------------------------------------------------------------------------
@@ -379,7 +335,7 @@ html[data-lc-theme]:not([data-lc-theme="off"]) .monaco-editor .overflow-guard {
 
 html[data-lc-theme]:not([data-lc-theme="off"]) .monaco-editor .margin {
   background-color: var(--lc-editor-bg) !important;
-  border-right: 1px solid var(--lc-border) !important;
+  box-shadow: inset -1px 0 0 var(--lc-border) !important;
 }
 
 html[data-lc-theme]:not([data-lc-theme="off"]) .monaco-editor .line-numbers {
@@ -417,7 +373,7 @@ html[data-lc-theme]:not([data-lc-theme="off"]) button[data-e2e-locator="console-
 
 /* Console & Testcase Fields */
 html[data-lc-theme]:not([data-lc-theme="off"]) [data-e2e-locator="console-testcase-input"],
-html[data-lc-theme]:not([data-lc-theme="off"]) .cursor-text {
+html[data-lc-theme]:not([data-lc-theme="off"]) .flexlayout__tab [class~="cursor-text"][class~="rounded-lg"] {
   background-color: var(--lc-panel-elevated) !important;
   border: 1px solid var(--lc-border) !important;
   color: var(--lc-text) !important;

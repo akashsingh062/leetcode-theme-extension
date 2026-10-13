@@ -1,187 +1,158 @@
 /* =============================================================================
    content.js (isolated world, LeetCode)
-   Theme & Wallpaper Engine.
-   Applies wallpaper themes, solid color themes, and custom glass styling.
+   - Applies the saved theme to <html> as early as possible via data-lc-theme
+     (that attribute drives themes/*.css AND is read by inject.js in the MAIN world).
+   - Forces LeetCode's own light/dark mode to match, the way the site expects it:
+     the `dark` class on <html> and <body>, plus data-theme. This is what makes
+     dark: utilities resolve, so hardcoded light surfaces go dark too.
+   - Switches live: a change in the popup lands here through storage.onChanged,
+     and 'off' hands LeetCode back the mode it had, with no reload.
+   - Re-asserts on SPA navigation / when LeetCode toggles its own theme.
 ============================================================================= */
 (() => {
-  'use strict';
+  const KEY = 'lcThemeStudio';
+  const ALT_KEY = 'lcTheme';
+  const DEFAULT = 'anime';
+  const DARK_THEMES = new Set(['sakura', 'grid', 'bloom', 'orchid', 'pixel', 'crawler', 'tokyonight', 'catppuccin', 'dracula', 'nord', 'matrix']); // paper is light
+  const VALID = new Set(['paper', 'sakura', 'grid', 'bloom', 'orchid', 'anime', 'crawler', 'game', 'pixel', 'tokyonight', 'catppuccin', 'dracula', 'nord', 'matrix', 'off']);
 
-  const THEME_KEY = 'lcTheme';
-  const SCENE_KEY = 'lcAnimeScene';
-  const DEFAULT_THEME = 'anime';
-  const DEFAULT_SCENE = 'blossom-night';
-  const STYLE_ID = 'lcts-wallpaper-theme-style';
-
+  const isDark = (theme) => theme === 'anime'
+    ? globalThis.__lctsAnimeMode !== 'light'
+    : theme === 'game'
+    ? globalThis.__lctsGameMode !== 'light'
+    : DARK_THEMES.has(theme);
   const root = document.documentElement;
-  let currentTheme = null;
-  let currentScene = null;
 
-  function rgba(hex, a) {
-    if (!hex || !hex.startsWith('#')) return `rgba(15, 23, 42, ${+a.toFixed(3)})`;
-    const n = parseInt(hex.slice(1), 16);
-    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${+a.toFixed(3)})`;
+  const site = {
+    dark: root.classList.contains('dark'),
+    light: root.classList.contains('light'),
+    dataTheme: root.getAttribute('data-theme'),
+    scheme: root.style.colorScheme,
+    bodySeen: false, bodyDark: false, bodyLight: false,
+  };
+  function captureBody() {
+    if (site.bodySeen || !document.body) return;
+    site.bodySeen = true;
+    site.bodyDark = document.body.classList.contains('dark');
+    site.bodyLight = document.body.classList.contains('light');
   }
 
-  function over(total, under) {
-    return Math.max(0, 1 - (1 - total) / (1 - under));
-  }
+  let current = null;
 
-  function getStyleEl() {
-    let el = document.getElementById(STYLE_ID);
-    if (!el) {
-      el = document.createElement('style');
-      el.id = STYLE_ID;
-      (document.head || root).appendChild(el);
-    }
-    return el;
-  }
-
-  function buildPresetCSS(sceneId, scene) {
-    const wallUrl = chrome.runtime.getURL(scene.wall);
-    const blurUrl = chrome.runtime.getURL(scene.blur);
-    const t = scene.theme;
-    const r = t.roles, a = t.alpha, scrim = t.scrim;
-
-    const veil = (x) => `linear-gradient(${rgba(scrim, x)},${rgba(scrim, x)})`;
-    const wall = `url("${wallUrl}")`;
-    const blur = `url("${blurUrl}")`;
-
-    const out = Object.keys(r).map((k) => `${k}:${r[k]} !important;`);
-    out.push(
-      `color-scheme:${t.mode} !important;`,
-      `--lc-anime-scrim:${scrim} !important;`,
-      `--lc-anime-desk:${veil(a.desk)},${wall} !important;`,
-      `--lc-anime-glass:${rgba(scrim, over(a.panel, a.desk))} !important;`,
-      `--lc-anime-editor:${veil(a.editor)},${blur} !important;`,
-      `--lc-nav-bg:${rgba(scrim, a.nav)} !important;`
-    );
-    return `html[data-lc-theme="anime"] { ${out.join('')} }`;
-  }
-
-  function buildCustomCSS(art) {
-    const wall = `url("${art.dataUrl}")`;
-    const scrim = '#0f172a';
-    const op = art.opacity !== undefined ? art.opacity : 0.82;
-    const blurPx = art.blur || 0;
-    const veil = (x) => `linear-gradient(${rgba(scrim, x)},${rgba(scrim, x)})`;
-
-    return `
-      html[data-lc-theme="anime"] {
-        color-scheme: dark !important;
-        --lc-custom-blur: ${blurPx}px !important;
-        --lc-anime-scrim: ${scrim} !important;
-        --lc-anime-desk: ${veil(0.18)}, ${wall} !important;
-        --lc-anime-glass: rgba(15, 23, 42, ${op}) !important;
-        --lc-anime-editor: ${veil(op)}, ${wall} !important;
-        --lc-nav-bg: rgba(15, 23, 42, 0.88) !important;
-        --lc-bg: transparent !important;
-        --lc-panel: rgba(15, 23, 42, ${op}) !important;
-        --lc-panel-elevated: rgba(30, 41, 59, ${Math.min(1, op + 0.05)}) !important;
-        --lc-border: rgba(255, 255, 255, 0.14) !important;
-        --lc-text: #f8fafc !important;
-        --lc-text2: #cbd5e1 !important;
-        --lc-text3: #94a3b8 !important;
-        --lc-accent: #38bdf8 !important;
-        --lc-submit-bg: #38bdf8 !important;
-        --lc-submit-text: #0f172a !important;
-        --lc-glow: rgba(56, 189, 248, 0.4) !important;
-      }
-    `;
-  }
-
-  function setMode(isDark) {
-    root.classList.toggle('dark', isDark);
-    root.classList.toggle('light', !isDark);
-    root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  function setBaseMode(theme) {
+    const dark = isDark(theme);
+    root.classList.toggle('dark', dark);
+    root.classList.toggle('light', !dark);
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
     if (document.body) {
-      document.body.classList.toggle('dark', isDark);
-      document.body.classList.toggle('light', !isDark);
+      captureBody();
+      document.body.classList.toggle('dark', dark);
+      document.body.classList.toggle('light', !dark);
     }
-    root.style.colorScheme = isDark ? 'dark' : 'light';
+    root.style.colorScheme = dark ? 'dark' : 'light';
   }
 
-  function apply(theme, sceneId, customArt) {
-    if (!theme) theme = DEFAULT_THEME;
-    currentTheme = theme;
-    currentScene = sceneId || DEFAULT_SCENE;
+  function restoreBaseMode() {
+    root.classList.toggle('dark', site.dark);
+    root.classList.toggle('light', site.light);
+    if (site.dataTheme === null) root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', site.dataTheme);
+    root.style.colorScheme = site.scheme;
+    if (document.body && site.bodySeen) {
+      document.body.classList.toggle('dark', site.bodyDark);
+      document.body.classList.toggle('light', site.bodyLight);
+    }
+  }
 
+  function apply(theme) {
+    if (!VALID.has(theme)) theme = DEFAULT;
+    if (theme === current) return;
+    const was = current;
+    current = theme;
     if (theme === 'off') {
       root.removeAttribute('data-lc-theme');
-      root.removeAttribute('data-lc-scene');
-      const style = document.getElementById(STYLE_ID);
-      if (style) style.textContent = '';
+      if (was !== null) restoreBaseMode();
       return;
     }
-
-    const scenes = globalThis.LCTS_SCENES || {};
-
-    // Is it an anime/wallpaper scene?
-    if (theme === 'anime' || scenes[theme] || theme === 'custom') {
-      let activePreset = scenes[theme] ? theme : currentScene;
-
-      if (theme === 'custom' || activePreset === 'custom') {
-        root.setAttribute('data-lc-theme', 'anime');
-        root.setAttribute('data-lc-scene', 'custom');
-        setMode(true);
-        if (customArt && customArt.dataUrl) {
-          getStyleEl().textContent = buildCustomCSS(customArt);
-        }
-      } else {
-        if (!scenes[activePreset]) activePreset = DEFAULT_SCENE;
-        const s = scenes[activePreset];
-        root.setAttribute('data-lc-theme', 'anime');
-        root.setAttribute('data-lc-scene', activePreset);
-        getStyleEl().textContent = buildPresetCSS(activePreset, s);
-        setMode(s.theme.mode !== 'light');
-        globalThis.__lctsSceneInk = s.theme.ink;
-      }
-    } else {
-      // Solid color theme
-      root.removeAttribute('data-lc-scene');
-      root.setAttribute('data-lc-theme', theme);
-      const style = document.getElementById(STYLE_ID);
-      if (style) style.textContent = '';
-      const isDark = theme !== 'paper';
-      setMode(isDark);
-      globalThis.__lctsSceneInk = null;
-    }
-
-    window.dispatchEvent(new CustomEvent('lcts-theme-changed'));
+    root.setAttribute('data-lc-theme', theme);
+    setBaseMode(theme);
   }
 
-  // Load and apply theme on boot
-  chrome.storage.local.get([THEME_KEY, 'lcThemeStudio', SCENE_KEY, 'lcCustomWallpaper', 'lcFocus'], (res) => {
-    const theme = (res && res[THEME_KEY]) || (res && res.lcThemeStudio) || DEFAULT_THEME;
-    const scene = (res && res[SCENE_KEY]) || DEFAULT_SCENE;
-    const customArt = (res && res.lcCustomWallpaper) || null;
-    root.toggleAttribute('data-lc-focus', !!(res && res.lcFocus));
-    apply(theme, scene, customArt);
+  globalThis.__lctsReassertMode = () => { if (current && current !== 'off') setBaseMode(current); };
+
+  apply(DEFAULT);
+  function syncMonacoTheme(val) {
+    if (val && val !== 'default') {
+      root.setAttribute('data-lc-monaco-theme', val);
+    } else {
+      root.removeAttribute('data-lc-monaco-theme');
+    }
+  }
+
+  chrome.storage.local.get(['lcMonacoTheme', KEY, ALT_KEY], (res) => {
+    syncMonacoTheme(res && res.lcMonacoTheme);
+    apply((res && res[KEY]) || (res && res[ALT_KEY]) || DEFAULT);
   });
 
-  // Listen for live storage updates
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-
-    if (changes.lcFocus) {
-      root.toggleAttribute('data-lc-focus', !!changes.lcFocus.newValue);
-    }
-
-    if (changes[THEME_KEY] || changes.lcThemeStudio || changes[SCENE_KEY] || changes.lcCustomWallpaper) {
-      chrome.storage.local.get([THEME_KEY, 'lcThemeStudio', SCENE_KEY, 'lcCustomWallpaper'], (res) => {
-        const theme = (res && res[THEME_KEY]) || (res && res.lcThemeStudio) || DEFAULT_THEME;
-        const scene = (res && res[SCENE_KEY]) || DEFAULT_SCENE;
-        const customArt = (res && res.lcCustomWallpaper) || null;
-        apply(theme, scene, customArt);
-      });
-    }
+    if (changes.lcMonacoTheme) syncMonacoTheme(changes.lcMonacoTheme.newValue);
+    if (changes[KEY]) apply(changes[KEY].newValue || DEFAULT);
+    else if (changes[ALT_KEY]) apply(changes[ALT_KEY].newValue || DEFAULT);
   });
 
-  // Ensure body receives theme mode when attached
+  // body may not exist at document_start; sync the base classes onto it once ready.
   if (!document.body) {
     new MutationObserver((_, obs) => {
       if (!document.body) return;
       obs.disconnect();
-      if (currentTheme) apply(currentTheme, currentScene);
+      if (current !== 'off') setBaseMode(current);
     }).observe(root, { childList: true });
   }
+
+  // Re-assert if LeetCode's SPA / its own theme switch overrides us.
+  const guard = new MutationObserver(() => {
+    if (current === 'off') return;
+    if (root.getAttribute('data-lc-theme') !== current) root.setAttribute('data-lc-theme', current);
+    const dark = isDark(current);
+    if (root.classList.contains('dark') !== dark) {
+      site.dark = root.classList.contains('dark');
+      site.light = root.classList.contains('light');
+      setBaseMode(current);
+    }
+  });
+  guard.observe(root, { attributes: true, attributeFilter: ['class', 'data-lc-theme', 'data-theme'] });
+
+  /* Custom Wallpaper support for developer and solid themes */
+  function syncWallpaper(customWall, animeArt) {
+    if (current === 'anime' || current === 'off') {
+      root.removeAttribute('data-lc-has-wallpaper');
+      return;
+    }
+    const wallUrl = (customWall && (customWall.dataUrl || customWall.url)) || (animeArt && animeArt.wall) || null;
+    if (wallUrl && (!customWall || customWall.enabled !== false)) {
+      root.setAttribute('data-lc-has-wallpaper', 'true');
+      root.style.setProperty('--lc-wallpaper-url', `url("${wallUrl}")`);
+      const opacity = (customWall && typeof customWall.opacity === 'number') ? customWall.opacity : 0.22;
+      root.style.setProperty('--lc-wallpaper-opacity', String(opacity));
+      const blur = (customWall && typeof customWall.blur === 'number') ? customWall.blur : 0;
+      root.style.setProperty('--lc-wallpaper-blur', `${blur}px`);
+    } else {
+      root.removeAttribute('data-lc-has-wallpaper');
+      root.style.removeProperty('--lc-wallpaper-url');
+    }
+  }
+
+  chrome.storage.local.get(['lcCustomWallpaper', 'lcAnimeArt'], (res) => {
+    syncWallpaper(res && res.lcCustomWallpaper, res && res.lcAnimeArt);
+  });
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') return;
+    if (changes.lcCustomWallpaper || changes.lcAnimeArt || changes[KEY] || changes[ALT_KEY]) {
+      chrome.storage.local.get(['lcCustomWallpaper', 'lcAnimeArt'], (res) => {
+        syncWallpaper(res && res.lcCustomWallpaper, res && res.lcAnimeArt);
+      });
+    }
+  });
 })();

@@ -20,16 +20,16 @@
       style.id = STYLE_ID;
       style.textContent = `
         /* Zen Mode Layout Maximizer */
-        html[data-lc-zen="true"] nav,
-        html[data-lc-zen="true"] header,
-        html[data-lc-zen="true"] #ide-top-btns,
-        html[data-lc-zen="true"] .flexlayout__tabset_tabbar_outer,
-        html[data-lc-zen="true"] footer {
+        :is(html[data-lc-zen], html[data-lc-zen="true"]) nav,
+        :is(html[data-lc-zen], html[data-lc-zen="true"]) header,
+        :is(html[data-lc-zen], html[data-lc-zen="true"]) #ide-top-btns,
+        :is(html[data-lc-zen], html[data-lc-zen="true"]) .flexlayout__tabset_tabbar_outer,
+        :is(html[data-lc-zen], html[data-lc-zen="true"]) footer {
           display: none !important;
         }
 
-        html[data-lc-zen="true"] .flexlayout__layout,
-        html[data-lc-zen="true"] #__next {
+        :is(html[data-lc-zen], html[data-lc-zen="true"]) .flexlayout__layout,
+        :is(html[data-lc-zen], html[data-lc-zen="true"]) #__next {
           height: 100vh !important;
           max-height: 100vh !important;
           padding: 0 !important;
@@ -62,7 +62,7 @@
           opacity: 1;
           transform: translateX(-50%) scale(1.04);
         }
-        html[data-lc-zen="true"] #${CHIP_ID} {
+        :is(html[data-lc-zen], html[data-lc-zen="true"]) #${CHIP_ID} {
           display: block;
         }
       `;
@@ -70,20 +70,34 @@
     }
 
     let chip = document.getElementById(CHIP_ID);
-    if (!chip && document.body) {
+    if (!chip) {
       chip = document.createElement('div');
       chip.id = CHIP_ID;
       chip.textContent = 'Zen Mode Active • Press Esc or Click to Exit';
       chip.addEventListener('click', () => setZen(false));
-      document.body.appendChild(chip);
+      if (document.body) {
+        document.body.appendChild(chip);
+      } else {
+        document.addEventListener('DOMContentLoaded', () => {
+          if (document.body && !document.getElementById(CHIP_ID)) {
+            document.body.appendChild(chip);
+          }
+        });
+      }
     }
   }
 
-  function setZen(on) {
+  function setZen(on, persist) {
     isZen = !!on;
     ensureStyles();
-    root.toggleAttribute('data-lc-zen', isZen);
-    chrome.storage.local.set({ lcZenMode: isZen });
+    if (isZen) {
+      root.setAttribute('data-lc-zen', 'true');
+    } else {
+      root.removeAttribute('data-lc-zen');
+    }
+    if (persist !== false) {
+      chrome.storage.local.set({ lcZenMode: isZen });
+    }
   }
 
   window.addEventListener('keydown', (e) => {
@@ -97,12 +111,12 @@
   });
 
   chrome.storage.local.get('lcZenMode', (res) => {
-    if (res && res.lcZenMode) setZen(true);
+    if (res && res.lcZenMode) setZen(true, false);
   });
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes.lcZenMode !== undefined) {
-      setZen(changes.lcZenMode.newValue);
+      setZen(changes.lcZenMode.newValue, false);
     }
   });
 

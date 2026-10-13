@@ -16,6 +16,7 @@
 
   let isOpen = false;
   let currentSlug = null;
+  let enabled = true;
 
   function createDrawer() {
     if (document.getElementById(DRAWER_ID)) return;
@@ -213,8 +214,17 @@
     `;
 
     drawer.appendChild(style);
-    (document.body || document.documentElement).appendChild(toggleBtn);
-    (document.body || document.documentElement).appendChild(drawer);
+    if (document.body) {
+      document.body.appendChild(toggleBtn);
+      document.body.appendChild(drawer);
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (document.body) {
+          if (!document.body.contains(toggleBtn)) document.body.appendChild(toggleBtn);
+          if (!document.body.contains(drawer)) document.body.appendChild(drawer);
+        }
+      });
+    }
 
     const timeInput = drawer.querySelector('#lcts-time-comp');
     const spaceInput = drawer.querySelector('#lcts-space-comp');
@@ -317,13 +327,86 @@
     }
   }
 
-  // Check periodically for DOM mounting
-  setInterval(() => {
+  function ensureMounted() {
+    if (!enabled) return;
     const slug = slugOf();
-    if (slug && document.body && !document.getElementById(DRAWER_ID)) {
+    if (!slug) return;
+    if (!document.body) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ensureMounted);
+      } else {
+        setTimeout(ensureMounted, 50);
+      }
+      return;
+    }
+    if (!document.getElementById(DRAWER_ID)) {
       createDrawer();
+    }
+    if (slug !== currentSlug) {
       currentSlug = slug;
       loadNotes(slug);
     }
-  }, 500);
+    const btn = document.getElementById(TOGGLE_BTN_ID);
+    if (btn) btn.style.display = 'flex';
+  }
+
+  function setVisibility(show) {
+    enabled = show !== false;
+    const btn = document.getElementById(TOGGLE_BTN_ID);
+    const drawer = document.getElementById(DRAWER_ID);
+    if (enabled) {
+      ensureMounted();
+      if (btn) btn.style.display = 'flex';
+    } else {
+      if (btn) btn.style.display = 'none';
+      if (drawer) drawer.classList.remove('open');
+      isOpen = false;
+    }
+  }
+
+  chrome.storage.local.get('lcNotesEnabled', (res) => {
+    enabled = res && res.lcNotesEnabled !== undefined ? !!res.lcNotesEnabled : true;
+    setVisibility(enabled);
+  });
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.lcNotesEnabled !== undefined) {
+      setVisibility(changes.lcNotesEnabled.newValue);
+    }
+  });
+
+  window.addEventListener('popstate', () => {
+    if (enabled) ensureMounted();
+  });
+
+  window.addEventListener('lcts-toggle-notes', () => {
+    if (!document.getElementById(DRAWER_ID)) ensureMounted();
+    toggleDrawer();
+  });
+
+  // Shortcut: Ctrl+Shift+N or Cmd+Shift+N to toggle Notes Drawer
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'N' || e.key === 'n')) {
+      e.preventDefault();
+      if (!document.getElementById(DRAWER_ID)) ensureMounted();
+      toggleDrawer();
+    }
+  });
+
+  // Check periodically for DOM mounting or problem slug change
+  setInterval(() => {
+    if (!enabled) return;
+    const slug = slugOf();
+    if (!slug) {
+      const btn = document.getElementById(TOGGLE_BTN_ID);
+      if (btn) btn.style.display = 'none';
+      return;
+    }
+    if (document.body && !document.getElementById(DRAWER_ID)) {
+      ensureMounted();
+    } else if (slug !== currentSlug) {
+      currentSlug = slug;
+      loadNotes(slug);
+    }
+  }, 1000);
 })();

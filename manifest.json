@@ -31,9 +31,41 @@
         "https://leetcode.cn/problems/*"
       ],
       "js": [
-        "src/scenes.js",
+        "src/net-verdict.js",
+        "src/inject.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "https://leetcode.com/problems/*",
+        "https://leetcode.cn/problems/*"
+      ],
+      "js": [
         "src/content.js",
-        "src/monaco-theme.js",
+        "src/problem.js",
+        "src/anime/scenes.js",
+        "src/anime/css.js",
+        "src/anime/anime.js",
+        "src/monaco-ink.js",
+        "src/sheet-scroll.js",
+        "src/verdict.js",
+        "src/share.js",
+        "src/anime/moments-ui.js",
+        "src/anime/sounds.js",
+        "src/anime/moments.js",
+        "src/game/petals.js",
+        "src/game/sounds.js",
+        "src/game/title-card.js",
+        "src/game/game.js",
+        "src/game/icons.js",
+        "src/game/ambient.js",
+        "src/game/result.js",
+        "src/game/sidebar.js",
+        "src/pixel/sprites.js",
+        "src/pixel/pixel.js",
         "src/editor-settings.js",
         "src/blind-mode.js",
         "src/timer.js",
@@ -44,6 +76,15 @@
         "src/theme-sync.js"
       ],
       "css": [
+        "themes/core.css",
+        "themes/paper.css",
+        "themes/sakura.css",
+        "themes/grid.css",
+        "themes/orchid.css",
+        "themes/anime.css",
+        "themes/crawler.css",
+        "themes/game.css",
+        "themes/pixel.css",
         "themes/themes.css"
       ],
       "run_at": "document_start",
@@ -76,11 +117,14 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "fonts/*",
         "textures/*",
         "textures/anime/*",
         "textures/game/*",
         "textures/game/icon/*",
-        "icons/*"
+        "icons/*",
+        "src/studio.html",
+        "src/anime/*"
       ],
       "matches": [
         "https://leetcode.com/*",
